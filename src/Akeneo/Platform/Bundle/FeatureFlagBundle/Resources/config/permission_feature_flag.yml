@@ -1,0 +1,9 @@
+parameters:
+    env(FLAG_PERMISSION_ENABLED): 1
+
+services:
+    permission.feature:
+        class: Akeneo\Platform\Bundle\FeatureFlagBundle\Configuration\EnvVarFeatureFlag
+        arguments:
+            - '%env(bool:FLAG_PERMISSION_ENABLED)%'
+        public: true

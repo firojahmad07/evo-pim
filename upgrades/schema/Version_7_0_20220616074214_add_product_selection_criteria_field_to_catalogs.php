@@ -19,6 +19,10 @@ final class Version_7_0_20220616074214_add_product_selection_criteria_field_to_c
             $this->disableMigrationWarning();
         }
 
+        if (!$schema->getTable('akeneo_catalog')->hasColumn('is_enabled')) {
+            $this->addSql('ALTER TABLE akeneo_catalog ADD is_enabled TINYINT(1) NOT NULL DEFAULT 1 AFTER updated;');
+        }
+
         $this->addSql(<<<SQL
         ALTER TABLE akeneo_catalog
         ADD product_selection_criteria JSON NOT NULL DEFAULT (JSON_ARRAY()) AFTER is_enabled;

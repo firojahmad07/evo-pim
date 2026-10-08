@@ -6,8 +6,8 @@ namespace Akeneo\Platform\CommunicationChannel\Test\Integration\Delivery\Interna
 
 use Akeneo\Platform\CommunicationChannel\Domain\Announcement\Model\Read\AnnouncementItem;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use PHPUnit\Framework\Assert;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Process\Process;
@@ -24,7 +24,7 @@ class ApiFindNewAnnouncementIdsIntegration extends KernelTestCase
         static::bootKernel(['debug' => false]);
 
         $configDir = __DIR__;
-        $this->process = Process::fromShellCommandline("./vendor/bin/phiremock --config-path '$configDir'");
+        $this->process = Process::fromShellCommandline("exec ./vendor/bin/phiremock --config-path '$configDir'");
         $this->process->start();
         $this->waitServerUp();
     }
@@ -61,7 +61,7 @@ class ApiFindNewAnnouncementIdsIntegration extends KernelTestCase
                 $httpClient->get('/');
             } catch (ConnectException $e) {
                 usleep(100000);
-            } catch (ClientException $e) {
+            } catch (RequestException $e) {
                 return; // started
             }
 

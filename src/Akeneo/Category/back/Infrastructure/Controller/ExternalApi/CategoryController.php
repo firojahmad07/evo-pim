@@ -6,26 +6,21 @@ use Akeneo\Category\Infrastructure\Component\Model\CategoryInterface;
 use Akeneo\Tool\Bundle\ApiBundle\Documentation;
 use Akeneo\Tool\Bundle\ApiBundle\Stream\StreamResourceResponse;
 use Akeneo\Tool\Component\Api\Exception\DocumentedHttpException;
-use Akeneo\Tool\Component\Api\Exception\PaginationParametersException;
 use Akeneo\Tool\Component\Api\Exception\ViolationHttpException;
-use Akeneo\Tool\Component\Api\Pagination\PaginatorInterface;
-use Akeneo\Tool\Component\Api\Pagination\ParameterValidatorInterface;
 use Akeneo\Tool\Component\Api\Repository\ApiResourceRepositoryInterface;
 use Akeneo\Tool\Component\StorageUtils\Exception\PropertyException;
 use Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactoryInterface;
 use Akeneo\Tool\Component\StorageUtils\Saver\SaverInterface;
 use Akeneo\Tool\Component\StorageUtils\Updater\ObjectUpdaterInterface;
-use Oro\Bundle\SecurityBundle\Annotation\AclAncestor;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Oro\Bundle\SecurityBundle\SecurityFacade;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -35,11 +30,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class CategoryController
 {
+    protected SecurityFacade $securityFacade;
+
     /** @var ApiResourceRepositoryInterface */
     protected $repository;
-
-    /** @var NormalizerInterface */
-    protected $normalizer;
 
     /** @var ValidatorInterface */
     protected $validator;
@@ -56,127 +50,27 @@ class CategoryController
     /** @var RouterInterface */
     protected $router;
 
-    /** @var PaginatorInterface */
-    protected $paginator;
-
-    /** @var ParameterValidatorInterface */
-    protected $parameterValidator;
-
     /** @var StreamResourceResponse */
     protected $partialUpdateStreamResource;
 
-    /** @var array */
-    protected $apiConfiguration;
-
     public function __construct(
+        SecurityFacade $securityFacade,
         ApiResourceRepositoryInterface $repository,
-        NormalizerInterface $normalizer,
         SimpleFactoryInterface $factory,
         ObjectUpdaterInterface $updater,
         ValidatorInterface $validator,
         SaverInterface $saver,
         RouterInterface $router,
-        PaginatorInterface $paginator,
-        ParameterValidatorInterface $parameterValidator,
         StreamResourceResponse $partialUpdateStreamResource,
-        array $apiConfiguration,
     ) {
         $this->repository = $repository;
-        $this->normalizer = $normalizer;
         $this->factory = $factory;
         $this->updater = $updater;
         $this->validator = $validator;
         $this->saver = $saver;
         $this->router = $router;
-        $this->parameterValidator = $parameterValidator;
-        $this->paginator = $paginator;
         $this->partialUpdateStreamResource = $partialUpdateStreamResource;
-        $this->apiConfiguration = $apiConfiguration;
-    }
-
-    /**
-     * @param string $code
-     *
-     * @return JsonResponse
-     *
-     * @throws NotFoundHttpException
-     *
-     * @AclAncestor("pim_api_category_list")
-     */
-    public function getAction(Request $request, $code)
-    {
-        $category = $this->repository->findOneByIdentifier($code);
-
-        if (null === $category) {
-            throw new NotFoundHttpException(sprintf('Category "%s" does not exist.', $code));
-        }
-
-        $categoryApi = $this->normalizer->normalize(
-            $category,
-            'external_api',
-            ['with_position' => $request->query->getBoolean('with_position')],
-        );
-
-        return new JsonResponse($categoryApi);
-    }
-
-    /**
-     * @return JsonResponse
-     *
-     * @AclAncestor("pim_api_category_list")
-     */
-    public function listAction(Request $request)
-    {
-        try {
-            $this->parameterValidator->validate($request->query->all());
-        } catch (PaginationParametersException $e) {
-            throw new UnprocessableEntityHttpException($e->getMessage(), $e);
-        }
-
-        $defaultParameters = [
-            'page' => 1,
-            'limit' => $this->apiConfiguration['pagination']['limit_by_default'],
-            'with_count' => 'false',
-        ];
-
-        $queryParameters = array_merge($defaultParameters, $request->query->all());
-        $searchFilters = json_decode($queryParameters['search'] ?? '[]', true);
-        if (null === $searchFilters) {
-            throw new BadRequestHttpException('The search query parameter must be a valid JSON.');
-        }
-
-        $offset = $queryParameters['limit'] * ($queryParameters['page'] - 1);
-        $order = ['root' => 'ASC', 'left' => 'ASC'];
-        try {
-            $categories = $this->repository->searchAfterOffset(
-                $searchFilters,
-                $order,
-                $queryParameters['limit'],
-                $offset,
-            );
-        } catch (\InvalidArgumentException $exception) {
-            throw new BadRequestHttpException($exception->getMessage(), $exception);
-        }
-
-        $parameters = [
-            'query_parameters' => $queryParameters,
-            'list_route_name' => 'pim_api_category_list',
-            'item_route_name' => 'pim_api_category_get',
-        ];
-
-        $count = true === $request->query->getBoolean('with_count') ? $this->repository->count($searchFilters) : null;
-
-        $paginatedCategories = $this->paginator->paginate(
-            $this->normalizer->normalize(
-                $categories,
-                'external_api',
-                ['with_position' => $request->query->getBoolean('with_position')],
-            ),
-            $parameters,
-            $count,
-        );
-
-        return new JsonResponse($paginatedCategories);
+        $this->securityFacade = $securityFacade;
     }
 
     /**
@@ -184,11 +78,10 @@ class CategoryController
      *
      * @throws BadRequestHttpException
      * @throws UnprocessableEntityHttpException
-     *
-     * @AclAncestor("pim_api_category_edit")
      */
     public function createAction(Request $request)
     {
+        $this->checkAclRights();
         $data = $this->getDecodedContent($request->getContent());
 
         $category = $this->factory->create();
@@ -206,11 +99,10 @@ class CategoryController
      * @return Response
      *
      * @throws HttpException
-     *
-     * @AclAncestor("pim_api_category_edit")
      */
     public function partialUpdateListAction(Request $request)
     {
+        $this->checkAclRights();
         $resource = $request->getContent(true);
         $response = $this->partialUpdateStreamResource->streamResponse($resource);
 
@@ -224,11 +116,10 @@ class CategoryController
      *
      * @throws BadRequestHttpException
      * @throws UnprocessableEntityHttpException
-     *
-     * @AclAncestor("pim_api_category_edit")
      */
     public function partialUpdateAction(Request $request, $code)
     {
+        $this->checkAclRights();
         $data = $this->getDecodedContent($request->getContent());
 
         $isCreation = false;
@@ -287,6 +178,7 @@ class CategoryController
      */
     protected function updateCategory(CategoryInterface $category, array $data, $anchor)
     {
+        $this->checkAclRights();
         try {
             $this->updater->update($category, $data);
         } catch (PropertyException $exception) {
@@ -344,6 +236,13 @@ class CategoryController
     {
         if (isset($data['code']) && $code !== $data['code']) {
             throw new UnprocessableEntityHttpException(sprintf('The code "%s" provided in the request body must match the code "%s" provided in the url.', $data['code'], $code));
+        }
+    }
+
+    private function checkAclRights()
+    {
+        if ($this->securityFacade->isGranted('pim_api_category_edit') === false) {
+            throw new AccessDeniedException();
         }
     }
 }

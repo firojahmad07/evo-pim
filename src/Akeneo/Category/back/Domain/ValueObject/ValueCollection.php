@@ -24,7 +24,7 @@ final class ValueCollection implements \IteratorAggregate, \Countable
      */
     private function __construct(private array $values)
     {
-        Assert::allIsInstanceOf($values, Value::class);
+        assert::allIsInstanceOf($values, Value::class);
         $this->assertUniqueValue($values);
     }
 
@@ -47,6 +47,7 @@ final class ValueCollection implements \IteratorAggregate, \Countable
      */
     public static function fromDatabase(array $values): self
     {
+        // We keep this filter to manage uncleaned data from previous code version
         $values = array_filter($values, function ($valueKey) {
             return $valueKey !== 'attribute_codes';
         }, ARRAY_FILTER_USE_KEY);
@@ -106,6 +107,17 @@ final class ValueCollection implements \IteratorAggregate, \Countable
         return new self($this->values);
     }
 
+    public function removeValue(Value $value): void
+    {
+        $this->values = array_filter($this->values, static function ($existingValue) use ($value) {
+            return !(
+                (string) $existingValue->getUuid() === (string) $value->getUuid() &&
+                (string) $existingValue->getChannel() === (string) $value->getChannel() &&
+                (string) $existingValue->getLocale() === (string) $value->getLocale()
+            );
+        });
+    }
+
     /**
      * @return array<string, NormalizedValue>
      */
@@ -113,7 +125,7 @@ final class ValueCollection implements \IteratorAggregate, \Countable
     {
         $normalizedValues = [];
         foreach ($this->values as $value) {
-            $normalizedValues = array_merge($normalizedValues, $value->normalize());
+            $normalizedValues = [...$normalizedValues, ...$value->normalize()];
         }
 
         return $normalizedValues;

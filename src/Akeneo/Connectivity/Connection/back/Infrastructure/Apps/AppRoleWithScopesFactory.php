@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Akeneo\Connectivity\Connection\Infrastructure\Apps;
 
 use Akeneo\Connectivity\Connection\Application\Apps\AppRoleWithScopesFactoryInterface;
-use Akeneo\Connectivity\Connection\Infrastructure\Apps\Persistence\Query\IncreaseLabelLengthQuery;
 use Akeneo\Connectivity\Connection\Infrastructure\Apps\Security\ScopeMapperRegistry;
 use Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactoryInterface;
 use Akeneo\UserManagement\Component\Connector\RoleWithPermissions;
@@ -20,36 +19,15 @@ final class AppRoleWithScopesFactory implements AppRoleWithScopesFactoryInterfac
 {
     private const APP_ROLE_TYPE = 'app';
 
-    private ScopeMapperRegistry $scopeMapperRegistry;
-    private SimpleFactoryInterface $roleFactory;
-    private RoleWithPermissionsSaver $roleWithPermissionsSaver;
-    // Pull-up master: do not keep this property
-    private IncreaseLabelLengthQuery $increaseLabelLengthQuery;
-
     public function __construct(
-        ScopeMapperRegistry $scopeMapperRegistry,
-        SimpleFactoryInterface $roleFactory,
-        RoleWithPermissionsSaver $roleWithPermissionsSaver,
-        // Pull-up master: do not keep this property
-        ?IncreaseLabelLengthQuery $increaseLabelLengthQuery = null
+        private ScopeMapperRegistry $scopeMapperRegistry,
+        private SimpleFactoryInterface $roleFactory,
+        private RoleWithPermissionsSaver $roleWithPermissionsSaver
     ) {
-        $this->scopeMapperRegistry = $scopeMapperRegistry;
-        $this->roleFactory = $roleFactory;
-        $this->roleWithPermissionsSaver = $roleWithPermissionsSaver;
-        // Pull-up master: do not keep this property
-        $this->increaseLabelLengthQuery = $increaseLabelLengthQuery;
     }
 
     public function createRole(string $label, array $scopes): RoleInterface
     {
-        /**
-         * Pull-up master: remove the call to `increaseScopeLength()`. It's a workaround to not
-         * create a migration on a released version.
-         */
-        if (null !== $this->increaseLabelLengthQuery) {
-            $this->increaseLabelLengthQuery->execute();
-        }
-
         /** @var RoleInterface $role */
         $role = $this->roleFactory->create();
         $role->setRole($this->createRandomRoleCode());

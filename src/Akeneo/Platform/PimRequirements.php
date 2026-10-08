@@ -20,12 +20,12 @@ use Symfony\Requirements\Requirement;
  */
 class PimRequirements
 {
-    const REQUIRED_PHP_VERSION = '8.3.0';
+    const REQUIRED_PHP_VERSION = '8.1.0';
     const REQUIRED_GD_VERSION = '2.0';
     const REQUIRED_GHOSTSCRIPT_VERSION = '9.53';
     const REQUIRED_CURL_VERSION = '7.74';
     const REQUIRED_ICU_VERSION = '67.1';
-    const LOWEST_REQUIRED_MYSQL_VERSION = '8.4.0';
+    const LOWEST_REQUIRED_MYSQL_VERSION = '8.0.30';
     const GREATEST_REQUIRED_MYSQL_VERSION = '9.0.0';
 
     const REQUIRED_EXTENSIONS = [

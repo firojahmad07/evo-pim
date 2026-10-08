@@ -104,7 +104,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $firstDatetime->getTimestamp()],
                 ]
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(10);
 
         $clientMigration->reindex(
@@ -115,7 +114,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $datetimeAfterFirstIndexation->modify('- 1second')->getTimestamp()],
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration
@@ -138,8 +136,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $datetimeAfterSwitch->modify('- 1second')->getTimestamp()],
                 ],
-            ],
-            null,
+            ]
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration->removeIndex(self::INDEX_NAME_TO_MIGRATE)->shouldBeCalledOnce();
@@ -153,7 +150,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $referenceDatetime->getTimestamp()]
                 ],
-            ],
+            ]
         );
     }
 
@@ -209,7 +206,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $firstDatetime->getTimestamp()],
                 ]
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(10);
 
         $clientMigration->reindex(
@@ -220,7 +216,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $datetimeAfterFirstIndexation->modify('- 1second')->getTimestamp()],
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration
@@ -243,8 +238,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $datetimeAfterSwitch->modify('- 1second')->getTimestamp()],
                 ],
-            ],
-            null,
+            ]
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration->removeIndex(self::INDEX_ALIAS_TO_MIGRATE)->shouldBeCalledOnce();
@@ -259,7 +253,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $referenceDatetime->getTimestamp()]
                 ],
-            ],
+            ]
         );
     }
 
@@ -314,8 +308,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $firstDatetime->getTimestamp()],
                 ],
-            ],
-            null,
+            ]
         )->shouldBeCalledOnce()->willReturn(10);
 
         $clientMigration->reindex(
@@ -326,7 +319,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $datetimeAfterFirstIndexation->modify('- 1second')->getTimestamp()],
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(2);
 
         $clientMigration->reindex(
@@ -336,8 +328,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $datetimeAfterSecondIndexation->modify('- 1second')->getTimestamp()]
                 ],
-            ],
-            null,
+            ]
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration
@@ -360,8 +351,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $datetimeAfterSwitch->modify('- 1second')->getTimestamp()]
                 ],
-            ],
-            null,
+            ]
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration->removeIndex(self::INDEX_NAME_TO_MIGRATE)->shouldBeCalledOnce();
@@ -375,7 +365,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $referenceDatetime->getTimestamp()]
                 ],
-            ],
+            ]
         );
     }
 
@@ -429,7 +419,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $firstDatetime->getTimestamp()]
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(10);
 
         $clientMigration->reindex(
@@ -440,7 +429,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $datetimeAfterFirstIndexation->modify('- 1second')->getTimestamp()]
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration
@@ -464,7 +452,6 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                     'updated_at' => ['gt' => $datetimeAfterSwitch->modify('- 1second')->getTimestamp()]
                 ],
             ],
-            null,
         )->shouldBeCalledOnce()->willReturn(1);
 
         $clientMigration->removeIndex(self::INDEX_NAME_TO_MIGRATE)->shouldBeCalledOnce();
@@ -478,7 +465,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $referenceDatetime->getTimestamp()]
                 ],
-            ],
+            ]
         );
     }
 
@@ -531,8 +518,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $firstDatetime->getTimestamp()],
                 ],
-            ],
-            null
+            ]
         )->shouldBeCalledOnce()->willReturn(10);
 
         $clientMigration->reindex(
@@ -542,8 +528,7 @@ class UpdateIndexMappingWithoutDowntimeSpec extends ObjectBehavior
                 'range' => [
                     'updated_at' => ['gt' => $datetimeAfterFirstIndexation->modify('- 1second')->getTimestamp()],
                 ],
-            ],
-            null
+            ]
         )->shouldBeCalledOnce()->willReturn(0);
 
         $clientMigration

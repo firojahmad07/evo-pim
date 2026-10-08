@@ -73,7 +73,10 @@ class ComputeFamilyVariantStructureChangesSubscriberSpec extends ObjectBehavior
         $familyVariant->getCode()->willReturn('family_variant_one');
         $familyVariant->releaseEvents()->willReturn([FamilyVariantInterface::ATTRIBUTES_WERE_UPDATED_ON_LEVEL]);
 
-        $connection->executeQuery(Argument::cetera())->willReturn($result);
+        $familyVariant->releaseEvents()->willReturn([FamilyVariantInterface::ATTRIBUTES_WERE_UPDATED_ON_LEVEL]);
+        
+        $dbalResult = new \Doctrine\DBAL\Result($result->getWrappedObject(), $connection->getWrappedObject());
+        $connection->executeQuery(Argument::cetera())->willReturn($dbalResult);
         $result->fetchOne()->willReturn(false);
 
         $jobLauncher->launch($jobInstance, $user, [
@@ -168,7 +171,10 @@ class ComputeFamilyVariantStructureChangesSubscriberSpec extends ObjectBehavior
 
         $familyVariant->getCode()->willReturn('family_variant_one');
 
-        $connection->executeQuery(Argument::cetera())->willReturn($result);
+        $familyVariant->getCode()->willReturn('family_variant_one');
+
+        $dbalResult = new \Doctrine\DBAL\Result($result->getWrappedObject(), $connection->getWrappedObject());
+        $connection->executeQuery(Argument::cetera())->willReturn($dbalResult);
         $result->fetchOne()->willReturn(4000);
 
         $jobLauncher->launch(Argument::any())->shouldNotBeCalled();
@@ -213,14 +219,21 @@ class ComputeFamilyVariantStructureChangesSubscriberSpec extends ObjectBehavior
         $newFamilyVariant->getCode()->willReturn('new_family_variant');
         $newFamilyVariant->releaseEvents()->willReturn([FamilyVariantInterface::ATTRIBUTES_WERE_UPDATED_ON_LEVEL]);
 
+        $newFamilyVariant->releaseEvents()->willReturn([FamilyVariantInterface::ATTRIBUTES_WERE_UPDATED_ON_LEVEL]);
+
+        $dbalResult = new \Doctrine\DBAL\Result($result->getWrappedObject(), $connection->getWrappedObject());
         $connection->executeQuery(Argument::any(), ['instanceId' => 124, 'familyVariantCode' => 'family_variant_one'])
-            ->willReturn($result);
+            ->willReturn($dbalResult);
         $result->fetchOne()->willReturn(4000);
+        
+        $dbalResult2 = new \Doctrine\DBAL\Result($result2->getWrappedObject(), $connection->getWrappedObject());
         $connection->executeQuery(Argument::any(), ['instanceId' => 124, 'familyVariantCode' => 'family_variant_two'])
-            ->willReturn($result2);
+            ->willReturn($dbalResult2);
         $result2->fetchOne()->willReturn(false);
+        
+        $dbalResult3 = new \Doctrine\DBAL\Result($result3->getWrappedObject(), $connection->getWrappedObject());
         $connection->executeQuery(Argument::any(), ['instanceId' => 124, 'familyVariantCode' => 'new_family_variant'])
-            ->willReturn($result3);
+            ->willReturn($dbalResult3);
         $result3->fetchOne()->willReturn(false);
 
         $jobLauncher->launch($jobInstance, $user, [

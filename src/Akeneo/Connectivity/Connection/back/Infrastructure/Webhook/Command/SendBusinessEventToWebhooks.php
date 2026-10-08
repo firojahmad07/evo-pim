@@ -6,12 +6,15 @@ namespace Akeneo\Connectivity\Connection\Infrastructure\Webhook\Command;
 
 use Akeneo\Connectivity\Connection\Application\Webhook\Command\SendBusinessEventToWebhooksCommand;
 use Akeneo\Connectivity\Connection\Application\Webhook\Command\SendBusinessEventToWebhooksHandler;
+use Akeneo\Connectivity\Connection\Application\Webhook\Service\LimitOfEventsApiRequestsReachedLoggerInterface;
+use Akeneo\Connectivity\Connection\Application\Webhook\Service\Logger\ReachRequestLimitLogger;
 use Akeneo\Connectivity\Connection\Domain\Webhook\Event\MessageProcessedEvent;
+use Akeneo\Connectivity\Connection\Domain\Webhook\Persistence\Repository\EventsApiDebugRepositoryInterface;
+use Akeneo\Connectivity\Connection\Infrastructure\Webhook\Service\GetDelayUntilNextRequest;
 use Akeneo\Platform\Component\EventQueue\BulkEvent;
 use Akeneo\Platform\Component\EventQueue\BulkEventNormalizer;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\Exception\IndexationException;
 use Doctrine\DBAL\Exception\ConnectionException;
-use Doctrine\DBAL\Exception\ConnectionLost;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,15 +25,19 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class SendBusinessEventToWebhooks extends Command
 {
     private const MYSQL_IS_UNAVAILABLE_ERROR_CODE = 2002;
-
     protected static $defaultName = 'akeneo:connectivity:send-business-event';
     protected static $defaultDescription = 'Send business event to webhooks';
 
     public function __construct(
-        private BulkEventNormalizer $bulkEventNormalizer,
-        private SendBusinessEventToWebhooksHandler $commandHandler,
-        private EventDispatcherInterface $eventDispatcher,
-        private LoggerInterface $logger,
+        private readonly BulkEventNormalizer $bulkEventNormalizer,
+        private readonly SendBusinessEventToWebhooksHandler $commandHandler,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly GetDelayUntilNextRequest $getDelayUntilNextRequest,
+        private readonly int $webhookRequestsLimit,
+        private readonly ReachRequestLimitLogger $reachRequestLimitLogger,
+        private readonly LimitOfEventsApiRequestsReachedLoggerInterface $limitOfEventsApiRequestsReachedLogger,
+        private readonly EventsApiDebugRepositoryInterface $eventsApiDebugRepository
     ) {
         parent::__construct();
     }
@@ -51,9 +58,16 @@ class SendBusinessEventToWebhooks extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $message = \json_decode($input->getArgument('message'), true);
+        $message = \json_decode($input->getArgument('message'), true, 512, JSON_THROW_ON_ERROR);
         $event = $this->bulkEventNormalizer->denormalize($message, BulkEvent::class);
 
+        if ($this->isWebhookLimitReached()) {
+            return Command::SUCCESS;
+        }
+
+        // Errors are thrown when the database or ElasticSearch are off following a deployment
+        // but the cron is still active and executing this command.
+        // We decided to make these errors silent to avoid noise in our alert monitoring
         try {
             $this->commandHandler->handle(new SendBusinessEventToWebhooksCommand($event));
             $this->eventDispatcher->dispatch(new MessageProcessedEvent());
@@ -62,7 +76,7 @@ class SendBusinessEventToWebhooks extends Command
                 $this->logger->warning('Mysql is unavailable', ['exception' => $exception]);
 
                 return Command::FAILURE;
-            } elseif ('SQLSTATE[HY000]: General error: 2006 MySQL server has gone away' === $exception->getMessage()) {
+            } elseif ($exception->getPrevious()?->getMessage() === 'SQLSTATE[HY000]: General error: 2006 MySQL server has gone away') {
                 $this->logger->warning('MySQL server has gone away', ['exception' => $exception]);
 
                 return Command::FAILURE;
@@ -70,7 +84,7 @@ class SendBusinessEventToWebhooks extends Command
 
             throw $exception;
         } catch (IndexationException $exception) {
-            if ('No alive nodes found in your cluster' === $exception->getMessage()) {
+            if ($exception->getMessage() === 'No alive nodes found in your cluster') {
                 $this->logger->warning('Elastic Search is unavailable', ['exception' => $exception]);
 
                 return Command::FAILURE;
@@ -80,5 +94,26 @@ class SendBusinessEventToWebhooks extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function isWebhookLimitReached(): bool
+    {
+        $delayUntilNextRequest = $this->getDelayUntilNextRequest->execute(
+            new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
+            $this->webhookRequestsLimit
+        );
+
+        if ($delayUntilNextRequest > 0) {
+            $this->reachRequestLimitLogger->log(
+                $this->webhookRequestsLimit,
+                new \DateTimeImmutable('now', new \DateTimeZone('UTC')),
+                $delayUntilNextRequest
+            );
+
+            $this->limitOfEventsApiRequestsReachedLogger->logLimitOfEventsApiRequestsReached();
+            $this->eventsApiDebugRepository->flush();
+        }
+
+        return $delayUntilNextRequest > 0;
     }
 }

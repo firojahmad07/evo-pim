@@ -13,6 +13,7 @@ use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductPrice;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ReadValueCollection;
 use Akeneo\Pim\Enrichment\Component\Product\ProductModel\Query\GetConnectorProductModels;
+use Akeneo\Pim\Enrichment\Component\Product\Value\NumberValue;
 use Akeneo\Pim\Enrichment\Component\Product\Value\OptionValue;
 use Akeneo\Pim\Enrichment\Component\Product\Value\PriceCollectionValue;
 use Akeneo\Pim\Enrichment\Component\Product\Value\ScalarValue;
@@ -23,8 +24,6 @@ use PHPUnit\Framework\Assert;
 class SqlGetConnectorProductModelsIntegration extends TestCase
 {
     use QuantifiedAssociationsTestCaseTrait;
-
-    private array $uuids = [];
 
     /**
      * @test
@@ -37,7 +36,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                     ->create(['limit' => 10]);
         $actualProductModelList = $this->getQuery()->fromProductQueryBuilder(
             $pqb,
-            $this->getUserIdFromUsername('admin'),
+            $this->getUserId('admin'),
             null,
             null,
             null
@@ -121,7 +120,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 2]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
@@ -129,7 +128,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 new ReadValueCollection(
                     [
                         PriceCollectionValue::value('a_price', new PriceCollection([new ProductPrice(number_format(50.00, 2), 'EUR')])),
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'mon tshirt rose',
@@ -179,11 +178,11 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 ],
                 [
                     'PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1]],
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 9]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
@@ -192,7 +191,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                     [
                         OptionValue::value('a_simple_select', 'optionA'),
                         PriceCollectionValue::value('a_price', new PriceCollection([new ProductPrice(number_format(50.00, 2), 'EUR')])),
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'mon tshirt rose',
@@ -226,7 +225,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                     ->create(['limit' => 10]);
         $actualProductModelList = $this->getQuery()->fromProductQueryBuilder(
             $pqb,
-            $this->getUserIdFromUsername('admin'),
+            $this->getUserId('admin'),
             ['a_localized_and_scopable_text_area', 'a_number_float', 'a_simple_select'],
             'ecommerce',
             ['en_US']
@@ -310,14 +309,14 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 2]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
                 ['categoryA2'],
                 new ReadValueCollection(
                     [
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'my pink tshirt',
@@ -361,11 +360,11 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 ],
                 [
                     'PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1]],
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 9]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
@@ -373,7 +372,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 new ReadValueCollection(
                     [
                         OptionValue::value('a_simple_select', 'optionA'),
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'my pink tshirt',
@@ -431,11 +430,11 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
             ],
             [
                 'PRODUCT_SET' => [
-                    'products' => [['identifier' => 'a_simple_product', 'quantity' => 1, 'uuid' => $this->uuids['a_simple_product']]],
+                    'products' => [['identifier' => 'a_simple_product', 'quantity' => 1]],
                     'product_models' => [['identifier' => 'simple_pm', 'quantity' => 9]],
                 ],
                 'ANOTHER_PRODUCT_SET' => [
-                    'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                    'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                     'product_models' => [],
                 ],
             ],
@@ -445,7 +444,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                     OptionValue::value('a_simple_select', 'optionA'),
                     PriceCollectionValue::value('a_price', new PriceCollection([new ProductPrice(50, 'EUR')])),
                     ScalarValue::value('a_text', 'Lorem ipsum dolor sit amet'),
-                    ScalarValue::value('a_number_float', '12.5000'),
+                    NumberValue::value('a_number_float', '12.5000'),
                     ScalarValue::scopableLocalizableValue(
                         'a_localized_and_scopable_text_area',
                         'mon tshirt rose',
@@ -463,7 +462,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
             null
         );
 
-        $actualProductModel = $this->getQuery()->fromProductModelCode('sub_pm_A', $this->getUserIdFromUsername('admin'));
+        $actualProductModel = $this->getQuery()->fromProductModelCode('sub_pm_A', $this->getUserId('admin'));
 
         Assert::assertEquals($expectedProductModel, $actualProductModel);
     }
@@ -477,7 +476,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
     {
         $actualProductModelList = $this->getQuery()->fromProductModelCodes(
             ['simple_pm', 'root_pm', 'sub_pm_A'],
-            $this->getUserIdFromUsername('admin'),
+            $this->getUserId('admin'),
             null,
             null,
             null
@@ -561,7 +560,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 2]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
@@ -569,7 +568,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 new ReadValueCollection(
                     [
                         PriceCollectionValue::value('a_price', new PriceCollection([new ProductPrice(number_format(50.00, 2), 'EUR')])),
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'mon tshirt rose',
@@ -619,11 +618,11 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                 ],
                 [
                     'PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 1]],
                         'product_models' => [['identifier' => 'simple_pm', 'quantity' => 9]],
                     ],
                     'ANOTHER_PRODUCT_SET' => [
-                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4, 'uuid' => $this->uuids['a_simple_product']]],
+                        'products' => [['identifier' => 'a_simple_product', 'quantity' => 4]],
                         'product_models' => [],
                     ],
                 ],
@@ -632,7 +631,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
                     [
                         OptionValue::value('a_simple_select', 'optionA'),
                         PriceCollectionValue::value('a_price', new PriceCollection([new ProductPrice(number_format(50.00, 2), 'EUR')])),
-                        ScalarValue::value('a_number_float', '12.5000'),
+                        NumberValue::value('a_number_float', '12.5000'),
                         ScalarValue::scopableLocalizableValue(
                             'a_localized_and_scopable_text_area',
                             'mon tshirt rose',
@@ -663,7 +662,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
         $this->get('database_connection')->executeQuery('DELETE FROM pim_catalog_association_type_translation');
         $this->get('database_connection')->executeQuery('DELETE FROM pim_catalog_association_type');
 
-        $subProductModel = $this->getQuery()->fromProductModelCode('sub_pm_A', $this->getUserIdFromUsername('admin'));
+        $subProductModel = $this->getQuery()->fromProductModelCode('sub_pm_A', $this->getUserId('admin'));
 
         Assert::assertSame([], $subProductModel->associations());
     }
@@ -675,7 +674,7 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
     {
         $this->expectException(ObjectNotFoundException::class);
         $this->expectExceptionMessage('Product model "unknown_product_model" was not found');
-        $this->getQuery()->fromProductModelCode('unknown_product_model', $this->getUserIdFromUsername('admin'));
+        $this->getQuery()->fromProductModelCode('unknown_product_model', $this->getUserId('admin'));
     }
 
     protected function setUp(): void
@@ -684,8 +683,8 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
 
         $this->createQuantifiedAssociationType('PRODUCT_SET');
         $this->createQuantifiedAssociationType('ANOTHER_PRODUCT_SET');
-        $this->uuids['a_simple_product'] = $this->createProduct('a_simple_product', [])->getUuid()->toString();
-        $this->uuids['another_product'] = $this->createProduct('another_product', [])->getUuid()->toString();
+        $this->createProduct('a_simple_product', []);
+        $this->createProduct('another_product', []);
         $this->createProductModel(
             [
                 'code' => 'simple_pm',
@@ -787,19 +786,9 @@ class SqlGetConnectorProductModelsIntegration extends TestCase
         return $this->get('akeneo.pim.enrichment.product.connector.get_product_models_from_codes');
     }
 
-    private function getUserIdFromUsername(string $username): int
-    {
-        return (int)$this->get('database_connection')->fetchColumn(
-            'SELECT id from oro_user WHERE username = :username',
-            [
-                'username' => $username,
-            ]
-        );
-    }
-
     private function getIdAndDatesFromProductModelCode(string $productModelCode): array
     {
-        return $this->get('database_connection')->fetchAssoc(
+        return $this->get('database_connection')->fetchAssociative(
             'SELECT id, created, updated FROM pim_catalog_product_model where code = :code',
             [
                 'code' => $productModelCode,

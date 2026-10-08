@@ -83,7 +83,7 @@ class GetAllConnectedAppsActionEndToEnd extends WebTestCase
                 'categories' => ['category A1', 'category A2'],
                 'certified' => false,
                 'partner' => 'partner A',
-                'is_test_app' => false,
+                'is_custom_app' => false,
                 'is_pending' => false,
                 'has_outdated_scopes' => false,
             ],
@@ -99,7 +99,7 @@ class GetAllConnectedAppsActionEndToEnd extends WebTestCase
                 'categories' => ['category B1'],
                 'certified' => true,
                 'partner' => null,
-                'is_test_app' => false,
+                'is_custom_app' => false,
                 'is_pending' => false,
                 'has_outdated_scopes' => false,
             ],
@@ -115,7 +115,7 @@ class GetAllConnectedAppsActionEndToEnd extends WebTestCase
             ]
         );
         $response = $this->client->getResponse();
-        $result = \json_decode($response->getContent(), true);
+        $result = \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         Assert::assertEquals($expectedResult, $result);

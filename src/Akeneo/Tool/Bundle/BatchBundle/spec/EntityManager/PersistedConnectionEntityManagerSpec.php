@@ -15,7 +15,7 @@ class PersistedConnectionEntityManagerSpec extends ObjectBehavior
 
     function it_refreshes_connection_when_getting_connection($entityManager, Connection $connection) {
         $entityManager->getConnection()->willReturn($connection);
-        $connection->ping()->willReturn(false);
+        $connection->executeQuery('SELECT 1')->willThrow(\Exception::class);
         $connection->close()->shouldBeCalled();
         $connection->connect()->shouldBeCalled();
 
@@ -24,7 +24,7 @@ class PersistedConnectionEntityManagerSpec extends ObjectBehavior
 
     function it_refreshes_connection_when_flushing_data($entityManager, Connection $connection) {
         $entityManager->getConnection()->willReturn($connection);
-        $connection->ping()->willReturn(false);
+        $connection->executeQuery('SELECT 1')->willThrow(\Exception::class);
         $connection->close()->shouldBeCalled();
         $connection->connect()->shouldBeCalled();
         $entityManager->flush(null)->shouldBeCalled();

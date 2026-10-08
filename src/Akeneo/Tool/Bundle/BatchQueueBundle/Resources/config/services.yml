@@ -43,6 +43,13 @@ services:
             - '@akeneo_batch.logger.batch_log_handler'
             - '@Akeneo\Tool\Bundle\BatchBundle\JobExecution\CreateJobExecutionHandlerInterface'
 
+    akeneo_batch_queue.queue.publish_paused_jobs_to_queue:
+        class: Akeneo\Tool\Component\BatchQueue\Queue\PublishPausedJobsToQueue
+        arguments:
+            - '@akeneo_batch_queue.queue.job_execution_queue'
+            - '@akeneo_batch.query.get_paused_job_execution_ids'
+            - '@logger'
+
     # override of the original Akeneo Batch simple job launcher
     akeneo_batch.launcher.simple_job_launcher:
         class: '%akeneo_batch_queue.launcher.queue_job_launcher.class%'
@@ -66,6 +73,14 @@ services:
             - '%akeneo_batch.entity.job_instance.class%'
         tags:
             - { name: console.command }
+            - { name: 'akeneo.command.authenticated_as_admin_user' }
+
+    Akeneo\Tool\Bundle\BatchQueueBundle\Command\PublishPausedJobsToQueueCommand:
+        arguments:
+            - '@akeneo_batch_queue.queue.publish_paused_jobs_to_queue'
+        tags:
+            - { name: console.command }
+            - { name: 'akeneo.command.authenticated_as_admin_user' }
 
     Akeneo\Tool\Bundle\BatchQueueBundle\Command\JobExecutionWatchdogCommand:
         arguments:
@@ -73,9 +88,9 @@ services:
             - '@logger'
             - '%kernel.project_dir%'
             - '@Akeneo\Tool\Bundle\BatchBundle\JobExecution\CreateJobExecutionHandlerInterface'
-            - '@pim_framework.lock.factory'
         tags:
             - { name: console.command }
+            - { name: 'akeneo.command.authenticated_as_admin_user' }
 
     akeneo_batch_queue.factory.job_execution_message:
         class: Akeneo\Tool\Component\BatchQueue\Factory\JobExecutionMessageFactory
@@ -98,10 +113,15 @@ services:
         tags:
             - { name: akeneo_batch_queue.messenger.normalizer, priority: 0 }
 
+    Akeneo\Tool\Component\BatchQueue\Normalizer\ScheduledJobMessageNormalizer:
+        tags:
+            - { name: akeneo_batch_queue.messenger.normalizer, priority: 0 }
+
     Akeneo\Tool\Bundle\BatchQueueBundle\MessageHandler\JobMessageHandler:
         arguments:
             - '@logger'
             - '%kernel.project_dir%'
+            - '@feature_flags'
         tags:
             - { name: messenger.message_handler }
             - { name: monolog.logger, channel: job_queue }
@@ -115,6 +135,12 @@ services:
             - { name: 'akeneo_messenger.ordering_key_candidate' }
 
     Akeneo\Tool\Bundle\BatchQueueBundle\EventListener\AckMessageEventListener:
+        arguments:
+            - '@messenger.receiver_locator'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    Akeneo\Tool\Bundle\BatchQueueBundle\EventListener\AddReceiverStampEventListener:
         arguments:
             - '@messenger.receiver_locator'
         tags:

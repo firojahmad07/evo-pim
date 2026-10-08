@@ -17,9 +17,9 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class JobExecutionAuthenticatorSpec extends ObjectBehavior
 {
-    function let(UserProviderInterface $userProvider, TokenStorageInterface $tokenStorage)
+    function let(UserProviderInterface $jobUserProvider, UserProviderInterface $uiUserProvider, TokenStorageInterface $tokenStorage)
     {
-        $this->beConstructedWith($userProvider, $tokenStorage);
+        $this->beConstructedWith($jobUserProvider, $uiUserProvider, $tokenStorage);
     }
 
     function it_is_initializable()
@@ -38,7 +38,8 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
     }
 
     function it_authenticates_user_with_token(
-        UserProviderInterface $userProvider,
+        UserProviderInterface $jobUserProvider,
+        UserProviderInterface $uiUserProvider,
         TokenStorageInterface $tokenStorage,
         JobExecutionEvent $event,
         JobExecution $jobExecution,
@@ -52,11 +53,13 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
         $jobParameters->has('is_user_authenticated')->willReturn(true);
         $jobParameters->get('is_user_authenticated')->willReturn(true);
 
-        $userProvider->loadUserByIdentifier('julia')->willReturn($user);
+        $jobUserProvider->loadUserByIdentifier('julia')
+            ->willThrow(new UserNotFoundException(sprintf('User with username "%s" does not exist or is not a Job user.', 'julia')));
+        $uiUserProvider->loadUserByIdentifier('julia')->shouldBeCalled()->willReturn($user);
 
         $user->getRoles()->willReturn(['role']);
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldBeCalled();
 
         $this->authenticate($event);
@@ -73,7 +76,7 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
         $jobExecution->getJobParameters()->willReturn($jobParameters);
         $jobExecution->getUser()->willReturn(null);
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldNotBeCalled();
 
         $this->authenticate($event);
@@ -89,7 +92,7 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
         $jobExecution->getJobParameters()->willReturn(null);
         $jobExecution->getUser()->willReturn('julia');
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldNotBeCalled();
 
         $this->authenticate($event);
@@ -108,7 +111,7 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
 
         $jobParameters->has('is_user_authenticated')->willReturn(false);
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldNotBeCalled();
 
         $this->authenticate($event);
@@ -128,14 +131,15 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
         $jobParameters->has('is_user_authenticated')->willReturn(false);
         $jobParameters->get('is_user_authenticated')->willReturn(false);
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldNotBeCalled();
 
         $this->authenticate($event);
     }
 
     function it_throws_exception_if_username_is_not_found(
-        UserProviderInterface $userProvider,
+        UserProviderInterface $jobUserProvider,
+        UserProviderInterface $uiUserProvider,
         TokenStorageInterface $tokenStorage,
         JobExecutionEvent $event,
         JobExecution $jobExecution,
@@ -149,9 +153,10 @@ class JobExecutionAuthenticatorSpec extends ObjectBehavior
         $jobParameters->has('is_user_authenticated')->willReturn(true);
         $jobParameters->get('is_user_authenticated')->willReturn(true);
 
-        $userProvider->loadUserByIdentifier('julia')->willThrow(UserNotFoundException::class);
+        $uiUserProvider->loadUserByIdentifier('julia')->willThrow(UserNotFoundException::class);
+        $jobUserProvider->loadUserByIdentifier('julia')->willThrow(UserNotFoundException::class);
 
-        $token  = new UsernamePasswordToken($user->getWrappedObject(), null, 'main', ['role']);
+        $token  = new UsernamePasswordToken($user->getWrappedObject(), 'main', ['role']);
         $tokenStorage->setToken($token)->shouldNotBeCalled();
 
         $this->shouldThrow(UserNotFoundException::class)->during('authenticate', [$event]);

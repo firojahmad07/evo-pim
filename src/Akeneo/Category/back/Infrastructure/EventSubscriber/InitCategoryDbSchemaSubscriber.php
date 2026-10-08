@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Akeneo\Category\Infrastructure\EventSubscriber;
 
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvent;
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvents;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvent;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvents;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -32,7 +32,7 @@ class InitCategoryDbSchemaSubscriber implements EventSubscriberInterface
 
     private function addValueCollectionInCategoryTable()
     {
-        $columns = $this->dbalConnection->getSchemaManager()->listTableColumns('pim_catalog_category');
+        $columns = $this->dbalConnection->createSchemaManager()->listTableColumns('pim_catalog_category');
         if (array_key_exists('value_collection', $columns)) {
             return;
         }
@@ -50,7 +50,8 @@ class InitCategoryDbSchemaSubscriber implements EventSubscriberInterface
         CREATE TABLE IF NOT EXISTS pim_catalog_category_template (
             uuid binary(16) PRIMARY KEY,
             code VARCHAR(100) NOT NULL,
-            labels JSON NOT NULL DEFAULT ('{}')
+            labels JSON NOT NULL DEFAULT ('{}'),
+            is_deactivated BOOLEAN
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         SQL;
 
@@ -86,7 +87,11 @@ class InitCategoryDbSchemaSubscriber implements EventSubscriberInterface
                 `is_scopable` TINYINT(1) NOT NULL,
                 `is_localizable` TINYINT(1) NOT NULL,
                 `additional_properties` JSON NULL,
-                CONSTRAINT `FK_ATTRIBUTE_template_uiid` FOREIGN KEY (`category_template_uuid`) REFERENCES `pim_catalog_category_template` (`uuid`)
+                `is_deactivated` BOOLEAN NOT NULL DEFAULT 0,
+                CONSTRAINT `FK_ATTRIBUTE_template_uuid` 
+                    FOREIGN KEY (`category_template_uuid`) 
+                    REFERENCES `pim_catalog_category_template` (`uuid`)
+                    ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
         SQL;
 

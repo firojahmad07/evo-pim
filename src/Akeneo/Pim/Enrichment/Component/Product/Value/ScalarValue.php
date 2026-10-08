@@ -11,7 +11,6 @@ use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
  *   - pim_catalog_text
  *   - pim_catalog_textarea
  *   - pim_catalog_boolean
- *   - pim_catalog_number
  *
  * @author    Marie Bochu <marie.bochu@akeneo.com>
  * @copyright 2017 Akeneo SAS (http://www.akeneo.com)
@@ -43,6 +42,9 @@ class ScalarValue extends AbstractValue implements ValueInterface
      */
     public function __toString(): string
     {
+        if (is_bool($this->data)) {
+            return true === $this->data ? '1' : '0';
+        }
         return (string) $this->data;
     }
 

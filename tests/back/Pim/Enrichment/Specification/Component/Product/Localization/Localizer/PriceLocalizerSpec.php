@@ -28,8 +28,10 @@ class PriceLocalizerSpec extends ObjectBehavior
         $this->supports('pim_catalog_number')->shouldReturn(false);
     }
 
-    function it_valids_the_format()
+    function it_valids_the_format(ValidatorInterface $validator)
     {
+        $validator->validate(Argument::any(), Argument::any())->willReturn(new ConstraintViolationList());
+
         $prices = [
             ['amount' => '10.05', 'currency' => 'EUR'],
             ['amount' => '-10.05', 'currency' => 'USD'],
@@ -53,7 +55,7 @@ class PriceLocalizerSpec extends ObjectBehavior
         $constraintEUR = new ConstraintViolation('Error on number validator', '', [], '', '', '');
         $constraints = new ConstraintViolationList([$constraintEUR, $constraintUSD]);
         $validator->validate('10,00', Argument::any())->willReturn($constraints);
-        $validator->validate('10,05', Argument::any())->willReturn(null);
+        $validator->validate('10,05', Argument::any())->willReturn(new ConstraintViolationList());
 
         $prices = [['amount' => '10,00', 'currency' => 'EUR'], ['amount' => '10,05', 'currency' => 'USD']];
 

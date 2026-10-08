@@ -25,6 +25,9 @@ class CategoryReader extends AbstractReader implements ItemReaderInterface, Init
         $this->repository = $repository;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getResults()
     {
         return new \ArrayIterator($this->repository->getOrderedAndSortedByTreeCategories());

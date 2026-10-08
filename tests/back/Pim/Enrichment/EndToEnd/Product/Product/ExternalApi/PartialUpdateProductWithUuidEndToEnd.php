@@ -30,6 +30,8 @@ class PartialUpdateProductWithUuidEndToEnd extends AbstractProductTestCase
     {
         parent::setUp();
 
+        date_default_timezone_set('Europe/Paris');
+
         $this->createProduct('product_family', [
             new SetFamily('familyA2')
         ]);

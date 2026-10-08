@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Akeneo\Pim\Automation\IdentifierGenerator\Infrastructure\Repository;
 
+use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Exception\CouldNotFindIdentifierGeneratorException;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGenerator;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGeneratorId;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Repository\IdentifierGeneratorRepository;
@@ -15,7 +16,7 @@ use Ramsey\Uuid\Uuid;
  */
 class InMemoryIdentifierGeneratorRepository implements IdentifierGeneratorRepository
 {
-    /** @var array<string, IdentifierGenerator> */
+    /** @var IdentifierGenerator[] */
     public array $generators = [];
 
     /**
@@ -23,20 +24,25 @@ class InMemoryIdentifierGeneratorRepository implements IdentifierGeneratorReposi
      */
     public function save(IdentifierGenerator $identifierGenerator): void
     {
-        $this->generators[$identifierGenerator->code()->asString()] = $identifierGenerator;
+        $this->generators[] = $identifierGenerator;
     }
 
     public function update(IdentifierGenerator $identifierGenerator): void
     {
-        $this->generators[$identifierGenerator->code()->asString()] = $identifierGenerator;
+        $this->generators[$this->getGeneratorIndex($identifierGenerator->code()->asString())] = $identifierGenerator;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get(string $identifierGeneratorCode): ?IdentifierGenerator
+    public function get(string $identifierGeneratorCode): IdentifierGenerator
     {
-        return $this->generators[$identifierGeneratorCode] ?? null;
+        $index = $this->getGeneratorIndex($identifierGeneratorCode);
+        if (null === $index) {
+            throw new CouldNotFindIdentifierGeneratorException($identifierGeneratorCode);
+        }
+
+        return $this->generators[$index];
     }
 
     /**
@@ -44,7 +50,7 @@ class InMemoryIdentifierGeneratorRepository implements IdentifierGeneratorReposi
      */
     public function getAll(): array
     {
-        return array_values($this->generators);
+        return \array_values($this->generators);
     }
 
     /**
@@ -57,7 +63,7 @@ class InMemoryIdentifierGeneratorRepository implements IdentifierGeneratorReposi
 
     public function count(): int
     {
-        return count($this->generators);
+        return \count($this->generators);
     }
 
     /**
@@ -65,6 +71,34 @@ class InMemoryIdentifierGeneratorRepository implements IdentifierGeneratorReposi
      */
     public function delete(string $identifierGeneratorCode): void
     {
-        unset($this->generators[$identifierGeneratorCode]);
+        unset($this->generators[$this->getGeneratorIndex($identifierGeneratorCode)]);
+    }
+
+    /**
+     * @param string[] $identifierGeneratorCodes
+     */
+    public function reorder(array $identifierGeneratorCodes): void
+    {
+        $generators = $this->generators;
+        $identifierGeneratorCodes = \array_map('mb_strtolower', $identifierGeneratorCodes);
+
+        \usort(
+            $generators,
+            fn (IdentifierGenerator $generatorA, IdentifierGenerator $generatorB): int =>
+            (int)\array_search($generatorA->code()->asString(), $identifierGeneratorCodes) - (int)\array_search($generatorB->code()->asString(), $identifierGeneratorCodes)
+        );
+
+        $this->generators = $generators;
+    }
+
+    private function getGeneratorIndex(string $identifierGeneratorCode): ?int
+    {
+        foreach ($this->generators as $i => $generator) {
+            if (\mb_strtolower($generator->code()->asString()) === \mb_strtolower($identifierGeneratorCode)) {
+                return $i;
+            }
+        }
+
+        return null;
     }
 }

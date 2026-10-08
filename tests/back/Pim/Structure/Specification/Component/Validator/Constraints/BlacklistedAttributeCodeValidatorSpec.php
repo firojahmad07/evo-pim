@@ -47,9 +47,16 @@ class BlacklistedAttributeCodeValidatorSpec extends ObjectBehavior
         ExecutionContextInterface $context,
         IsAttributeCodeBlacklistedInterface $isAttributeCodeBlacklisted,
         BlacklistedAttributeCode $constraint,
-        ConstraintViolationBuilderInterface $violation
+        ConstraintViolationBuilderInterface $violation,
+        RouterInterface $router,
+        GetBlacklistedAttributeJobExecutionIdInterface $getBlacklistedAttributeJobExecutionId,
+        Translator $translator
     ) {
         $isAttributeCodeBlacklisted->execute('my_attribute_code')->willReturn(true);
+        $getBlacklistedAttributeJobExecutionId->forAttributeCode('my_attribute_code')->willReturn(123);
+        $router->generate(Argument::cetera())->willReturn('http://example.com/job/123');
+        $translator->trans(Argument::cetera())->willReturn('translated message');
+
         $context
             ->buildViolation('pim_catalog.constraint.blacklisted_attribute_code')
             ->shouldBeCalled()

@@ -101,7 +101,7 @@ class ComputeCompletenessOfProductsFamilyTaskletSpec extends ObjectBehavior
         $jobParameters->get('family_code')->willReturn('unknown_family');
         $stepExecution->getJobParameters()->willReturn($jobParameters);
         $familyRepository->findOneByIdentifier('unknown_family')->willReturn(null);
-        
+
         $computeAndPersistProductCompletenesses->fromProductUuids(Argument::any())->shouldNotBeCalled();
         $productAndAncestorsIndexer->indexFromProductUuids(Argument::any())->shouldNotBeCalled();
 

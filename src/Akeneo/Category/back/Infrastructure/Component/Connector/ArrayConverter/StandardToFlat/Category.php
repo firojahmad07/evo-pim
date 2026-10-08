@@ -14,6 +14,9 @@ use Akeneo\Tool\Component\Connector\ArrayConverter\StandardToFlat\AbstractSimple
  */
 class Category extends AbstractSimpleArrayConverter implements ArrayConverterInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function convertProperty($property, $data, array $convertedItem, array $options)
     {
         switch ($property) {

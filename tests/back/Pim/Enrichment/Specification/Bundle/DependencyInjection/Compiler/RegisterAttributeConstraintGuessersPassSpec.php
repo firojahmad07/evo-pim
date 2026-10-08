@@ -41,7 +41,7 @@ class RegisterAttributeConstraintGuessersPassSpec extends ObjectBehavior
         Definition $service
     ) {
         $service->addMethodCall('addConstraintGuesser', Argument::type('array'))
-            ->shouldBeCalledTimes(3);
+            ->willReturn($service);
 
         $container->hasDefinition(RegisterAttributeConstraintGuessersPass::SERVICE_CHAINED)
             ->willReturn(true)

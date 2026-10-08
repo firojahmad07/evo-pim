@@ -197,8 +197,6 @@ pim_common:
   less_than: Less than
   loading: Loading...
   media_upload: Drag and drop to upload or click here
-  media_uploading: Uploading…
-  media_upload_error: An error occurred during upload
   more_actions: More actions
   more_than: More than
   next: Next
@@ -275,7 +273,6 @@ pim_enrich.entity.fallback:
     generic_error: An error occurred
     update:
       fail: Update failed
-      fail_session_expired: Your user session has expired. Please log in again.
       success: Successfully updated
     delete:
       fail: Cannot delete this item
@@ -298,8 +295,6 @@ pim_enrich.entity.job_execution:
       upload: Drop your {{ type }} file here, or click to browse disk
     download:
       archive: Download generated archive
-      output: Download generated files
-      input: Download read files
       invalid_xlsx: Download invalid data
       invalid_csv: Download invalid data
 pim_title:
@@ -423,6 +418,15 @@ pim_system:
     enabled: SSO enabled
     disabled: SSO disabled
     title: SAML-based Single Sign-On
+  reset_pim:
+    modal:
+      summary:
+        users:
+          name: Users
+        roles:
+          name: Roles
+      confirm:
+        name: Confirm
 pim_datagrid:
   mass_action:
     default:

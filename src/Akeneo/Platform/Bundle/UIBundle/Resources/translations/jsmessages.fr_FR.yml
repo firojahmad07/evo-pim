@@ -116,6 +116,11 @@ oro_config:
           fields:
             enabler:
               label: Activé
+        environment:
+          title: Paramètres de l'environnement
+          fields:
+            sandbox_banner:
+              label: Afficher la bannière d'alerte d'environnement bac à sable
         loading_message:
           title: Messages de chargement personnalisés
           helper: Divertissez vos utilisateurs avec des messages personnalisés pour le chargement des écrans.
@@ -194,6 +199,8 @@ pim_common:
   label: Libellé
   label_translations: Traduction des libellés
   Label or identifier: libellé ou identifiant
+  Label or main identifier: Libellé ou identifiant principal
+  code_or_label: code ou libellé
   less_than: Moins de
   loading: Chargement en cours...
   media_upload: Glissez et déposez un fichier pour le télécharger ou cliquez ici
@@ -261,6 +268,7 @@ pim_common:
   product_models: Modèles de produits
   more: Plus
   public_view: Vue publique
+  view: Afficher
 error:
   exception: Oups! Une erreur {{ status_code }} s'est produite...
   forbidden: Désolé, vous n'êtes pas autorisé(e) à accéder à cette page
@@ -297,9 +305,10 @@ pim_enrich.entity.job_execution:
     create:
       upload: Déposez votre fichier {{ type }} ici, ou cliquez ici pour le chercher sur votre disque
     download:
+      dropdown_title: "]-Inf, 1]Télécharger le fichier généré|]1, Inf[Télécharger les fichiers générés"
       archive: Télécharger l'archive générée
-      output: Télécharger les fichiers générés
-      input: Télécharger les fichiers lus
+      output: Télécharger le fichier généré
+      input: Télécharger fichier lu
       invalid_xlsx: Télécharger les données invalides
       invalid_csv: Télécharger les données invalides
 pim_title:
@@ -342,6 +351,7 @@ pim_title:
   pim_settings_index: Paramètres
   pim_system_index: Système
 pim_menu:
+  tag.new: Nouveau
   tab:
     activity: Activité
     imports: Imports
@@ -351,6 +361,10 @@ pim_menu:
     help:
       title: Aide
       helper: Centre d'aide Akeneo
+      new: NOUVEAU
+      news: Nouveautés
+      help_center: Centre d'aide
+      akademy_training: Formation Akademy
   item:
     association_type: Types d'association
     attribute_group: Groupes d'attributs
@@ -381,6 +395,7 @@ pim_menu:
       product: Paramètres produit
       catalog: Paramètres du catalogue
       collapsed_label: Navigation paramètres
+      automation: Automatisation
     product: Navigation produit
     product_infos: Infos produit
   user:
@@ -396,6 +411,7 @@ pim_settings:
   settings_menu: Menu des paramètres
   catalog_settings: Paramètres du catalogue
   product_settings: Paramètres produit
+  automation_settings: Automatisation
   count:
     category_trees: '{0}Vous avez 0 arbres |{1}Vous avez 1 arbre |]1, Inf[Vous avez {{ count }} arbres '
     categories: '{0}et 0 catégories|{1}et 1 catégorie|]1, Inf[et {{ count }} catégories'
@@ -410,6 +426,7 @@ pim_settings:
     group_types: '{0}Vous avez 0 type de groupe|{1}Vous avez 1 type de groupe|]1, Inf[Vous avez {{ count }} types de groupe'
     groups: '{0}Vous avez 0 groupe|{1}Vous avez 1 groupe|]1, Inf[Vous avez {{ count }} groupes'
     rules: '{0}Vous avez 0 règle activée|{1}Vous avez 1 règle activée|]1, Inf[Vous avez {{ count }} règles activées'
+    identifier_generators: '{0}Vous avez 0 générateur d''identifiants|{1}Vous avez 1 générateur d''identifiants|]1, Inf[Vous avez {{ count }} générateurs d''identifiants'
 pim_system:
   system_menu: Menu système
   system_navigation: Navigation système
@@ -423,6 +440,37 @@ pim_system:
     enabled: SSO activé
     disabled: SSO désactivé
     title: Authentification unique SAML
+  reset_pim:
+    modal:
+      summary:
+        name: Résumé
+        title: 'Attention : la réinitialisation de votre instance est irréversible'
+        text: 'Cela mènera à la suppression de TOUS les éléments, À L''EXCEPTION de ceux ci-dessous :'
+        users:
+          name: Utilisateurs
+          tooltip: Les utilisateurs sont des comptes que vous autorisez à accéder à votre PIM.
+        user_groups:
+          name: Groupes d’utilisateurs
+          tooltip: Les groupes d'utilisateurs définissent les équipes qui effectueront diverses actions dans votre PIM.
+        roles:
+          name: Rôles
+          tooltip: Les rôles définissent les accès et permettent les actions que les utilisateurs et les groupes d'utilisateurs peuvent entreprendre dans votre PIM.
+      confirm:
+        name: Confirmation
+        title: Confirmez la réinitialisation de votre instance
+        helper:
+          emphasis: Il n'est pas possible de revenir en arrière une fois que vous avez réinitialisé votre PIM.
+          text: En cliquant sur le bouton de réinitialisation, vous serez déconnecté de votre session actuelle et serez amené(e) à la page de connexion.
+      confirmation_phrase: Veuillez retaper le texte suivant "{{ confirmation_word }}"
+      confirmation_word: réinitialiser
+    button:
+      label: Réinitialiser cet environnement
+      confirm: Réinitialiser et se déconnecter
+    error_notification: Une erreur s'est produite lors de la réinitialisation de cette instance, veuillez contacter votre administrateur système.
+    jobs_running: Vous ne pouvez pas réinitialiser votre instance pour le moment, car certains processus sont toujours en attente ou en cours d'exécution.
+  sandbox:
+    helper:
+      text: 'Cet environnement est un bac à sable : les changements que vous y ferez n''affecteront pas votre environnement de production.'
 pim_datagrid:
   mass_action:
     default:

@@ -177,7 +177,7 @@ DESC
         return Command::SUCCESS;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln("Please enter the user's information below.");
 

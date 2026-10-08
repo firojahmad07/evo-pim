@@ -1,9 +1,7 @@
-executor-machine: &executor-machine
-
 jobs:
     install_front_dependencies:
         machine:
-            image: *executor-machine
+            image: 'ubuntu-2004:2022.04.1'
         parameters:
             edition:
                 description: either "ce" or "ee"
@@ -41,9 +39,9 @@ jobs:
                     steps:
                         -   restore_frontend_dependency_cache
                         -   restore_frontend_dsm_cache:
-                                path_to_front_packages: vendor/akeneo/pim-community-dev/front-packages
+                                path_to_front_packages: vendor/librepim/librepim-dev/front-packages
                         -   restore_frontend_shared_cache:
-                                path_to_front_packages: vendor/akeneo/pim-community-dev/front-packages
+                                path_to_front_packages: vendor/librepim/librepim-dev/front-packages
                         -   fix_files_permissions
                         -   load_docker_image_node
                         -   run:
@@ -52,11 +50,11 @@ jobs:
                         -   run:
                                 name: Build front shared libraries
                                 command: |
-                                    [ -d ~/project/vendor/akeneo/pim-community-dev/front-packages/akeneo-design-system/lib ] || docker-compose run -u node --rm node yarn dsm:build
-                                    [ -d ~/project/vendor/akeneo/pim-community-dev/front-packages/shared/lib ] || docker-compose run -u node --rm node yarn workspace @akeneo-pim-community/shared lib:build
+                                    [ -d ~/project/vendor/librepim/librepim-dev/front-packages/akeneo-design-system/lib ] || docker-compose run -u node --rm node yarn dsm:build
+                                    [ -d ~/project/vendor/librepim/librepim-dev/front-packages/shared/lib ] || docker-compose run -u node --rm node yarn workspace @akeneo-pim-community/shared lib:build
                         -   persist_to_workspace:
                                 root: ~/
                                 paths:
                                     - project/node_modules
-                                    - project/vendor/akeneo/pim-community-dev/front-packages/akeneo-design-system/lib
-                                    - project/vendor/akeneo/pim-community-dev/front-packages/shared/lib
+                                    - project/vendor/librepim/librepim-dev/front-packages/akeneo-design-system/lib
+                                    - project/vendor/librepim/librepim-dev/front-packages/shared/lib

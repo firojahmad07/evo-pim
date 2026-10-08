@@ -10,8 +10,8 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LockableTrait;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -29,25 +29,37 @@ class CalculateCompletenessCommand extends Command
 
     protected static $defaultName = 'pim:completeness:calculate';
 
+    /** @var ProductAndAncestorsIndexer */
+    private $productAndAncestorsIndexer;
+
+    /** @var ComputeAndPersistProductCompletenesses */
+    private $computeAndPersistProductCompleteness;
+
+    /** @var Connection */
+    private $connection;
+
     public function __construct(
-        private readonly ProductAndAncestorsIndexer $productAndAncestorsIndexer,
-        private readonly ComputeAndPersistProductCompletenesses $computeAndPersistProductCompleteness,
-        private readonly Connection $connection
+        ProductAndAncestorsIndexer $productANdAncestorsIndexer,
+        ComputeAndPersistProductCompletenesses $computeAndPersistProductCompleteness,
+        Connection $connection
     ) {
         parent::__construct();
+        $this->productAndAncestorsIndexer = $productANdAncestorsIndexer;
+        $this->computeAndPersistProductCompleteness = $computeAndPersistProductCompleteness;
+        $this->connection = $connection;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function configure(): void
+    protected function configure()
     {
         $this
             ->setDescription('Launch the product completeness calculation')
             ->addOption(
                 'batch-size',
                 null,
-                InputArgument::OPTIONAL,
+                InputOption::VALUE_OPTIONAL,
                 'The number of product completeness calculated in one cycle.',
                 self::DEFAULT_BATCH_SIZE
             )
@@ -88,9 +100,6 @@ class CalculateCompletenessCommand extends Command
         return $this->connection->executeQuery('SELECT COUNT(0) FROM pim_catalog_product')->fetchOne();
     }
 
-    /**
-     * @return iterable<UuidInterface>
-     */
     private function getProductUuids(int $batchSize): iterable
     {
         $lastUuidAsBytes = '';

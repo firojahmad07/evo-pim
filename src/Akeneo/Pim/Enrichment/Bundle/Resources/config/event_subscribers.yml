@@ -121,8 +121,8 @@ services:
         tags:
             - { name: doctrine.event_subscriber }
 
-    pim_catalog.event_subscriber.init_completeness_db_schema:
-        class: 'Akeneo\Pim\Enrichment\Bundle\EventSubscriber\Db\InitCompletenessDbSchemaSubscriber'
+    pim_catalog.event_subscriber.init_product_completeness_db_schema:
+        class: 'Akeneo\Pim\Enrichment\Bundle\EventSubscriber\Db\InitProductCompletenessDbSchemaSubscriber'
         arguments:
             - '@database_connection'
         tags:
@@ -134,6 +134,13 @@ services:
             - '@database_connection'
         tags:
             - { name: 'kernel.event_subscriber' }
+
+#   TODO CPM-1102: Re-enable when table can be created again
+#    Akeneo\Pim\Enrichment\Bundle\EventSubscriber\Db\CreateIdentifiersTableSubscriber:
+#        arguments:
+#            - '@database_connection'
+#        tags:
+#            - { name: 'kernel.event_subscriber' }
 
     pim_catalog.event_subscriber.attribute_option_set_sort_order:
         class: 'Akeneo\Pim\Enrichment\Bundle\EventSubscriber\AttributeOption\SetAttributeOptionSortOrderSubscriber'
@@ -167,13 +174,6 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    pim_catalog.event_subscriber.product.on_delete.clear_completeness_subscriber:
-        class: 'Akeneo\Pim\Enrichment\Bundle\EventSubscriber\Product\OnDelete\DeleteCompletenessSubscriber'
-        arguments:
-            - '@pim_catalog.completeness.remover'
-        tags:
-            - { name: kernel.event_subscriber }
-
     pim_catalog.event_subscriber.product.on_save.api_aggregator_event_subscriber:
         class: 'Akeneo\Pim\Enrichment\Bundle\EventSubscriber\Product\OnSave\ApiAggregatorForProductPostSaveEventSubscriber'
         arguments:
@@ -194,6 +194,7 @@ services:
             - '@doctrine'
             - '@pim_catalog.elasticsearch.indexer.product'
             - '@pim_catalog.elasticsearch.indexer.product_model'
+            - '@pim_catalog.association.removed_two_way_association_collector'
         tags:
             - { name: kernel.event_subscriber }
 
@@ -264,3 +265,13 @@ services:
           - '@akeneo_elasticsearch.client.product_and_product_model'
         tags:
             - { name: kernel.event_subscriber }
+
+    Akeneo\Pim\Enrichment\Bundle\EventSubscriber\ProductModel\OnSave\ProductModelWasCreatedOrUpdatedSubscriber:
+      arguments:
+        - '@messenger.bus.default'
+        - '@logger'
+        - '%env(default::string:APP_TENANT_ID)%'
+        - '%env(APP_ENV)%'
+        - '@Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\FeatureFlag\DataQualityInsightsUcsEventFeature'
+      tags:
+        - { name: kernel.event_subscriber }

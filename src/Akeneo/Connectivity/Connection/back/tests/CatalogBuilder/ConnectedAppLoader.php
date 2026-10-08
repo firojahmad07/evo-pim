@@ -21,43 +21,22 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @copyright 2021 Akeneo SAS (http://www.akeneo.com)
- * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
 class ConnectedAppLoader
 {
-    private DbalConnection $dbalConnection;
-    private UserRoleLoader $userRoleLoader;
-    private OAuthStorage $OAuthStorage;
-    private ClientProviderInterface $clientProvider;
-    private CreateUserGroupInterface $createUserGroup;
-    private CreateUserInterface $createUser;
-    private CreateConnectionInterface $createConnection;
-    private CreateConnectedAppInterface $createApp;
-    private UserRepositoryInterface $userRepository;
-    private UnitOfWorkAndRepositoriesClearer $unitOfWorkAndRepositoriesClearer;
-
     public function __construct(
-        DbalConnection $dbalConnection,
-        UserRoleLoader $userRoleLoader,
-        OAuthStorage $OAuthStorage,
-        ClientProviderInterface $clientProvider,
-        CreateUserGroupInterface $createUserGroup,
-        CreateUserInterface $createUser,
-        CreateConnectionInterface $createConnection,
-        CreateConnectedAppInterface $createApp,
-        UserRepositoryInterface $userRepository,
-        UnitOfWorkAndRepositoriesClearer $unitOfWorkAndRepositoriesClearer
+        private DbalConnection $dbalConnection,
+        private UserRoleLoader $userRoleLoader,
+        private OAuthStorage $OAuthStorage,
+        private ClientProviderInterface $clientProvider,
+        private CreateUserGroupInterface $createUserGroup,
+        private CreateUserInterface $createUser,
+        private CreateConnectionInterface $createConnection,
+        private CreateConnectedAppInterface $createApp,
+        private UserRepositoryInterface $userRepository,
+        private UnitOfWorkAndRepositoriesClearer $unitOfWorkAndRepositoriesClearer
     ) {
-        $this->dbalConnection = $dbalConnection;
-        $this->userRoleLoader = $userRoleLoader;
-        $this->OAuthStorage = $OAuthStorage;
-        $this->clientProvider = $clientProvider;
-        $this->createUserGroup = $createUserGroup;
-        $this->createUser = $createUser;
-        $this->createConnection = $createConnection;
-        $this->createApp = $createApp;
-        $this->userRepository = $userRepository;
-        $this->unitOfWorkAndRepositoriesClearer = $unitOfWorkAndRepositoriesClearer;
     }
 
     /**
@@ -81,7 +60,7 @@ INSERT INTO akeneo_connectivity_connected_app(id, name, logo, author, partner, c
 VALUES (:id, :name, :logo, :author, :partner, :categories, :certified, :connection_code, :scopes, :user_group_name)
 SQL;
 
-        return $this->dbalConnection->executeUpdate(
+        return $this->dbalConnection->executeStatement(
             $query,
             [
                 'id' => $id,
@@ -107,10 +86,10 @@ SQL;
         string $id,
         string $code,
         array $scopes = ['read_products'],
-        bool $isTestApp = false,
+        bool $isCustomApp = false,
         bool $isPending = false,
     ): void {
-        $app = $this->createApp($id, $code, $isPending, $isTestApp);
+        $app = $this->createApp($id, $code, $isPending, $isCustomApp);
 
         $client = $this->clientProvider->findOrCreateClient($app);
         $group = $this->createUserGroup->execute(\sprintf('app_%s', $code));
@@ -150,7 +129,7 @@ SQL;
         }
         $this->OAuthStorage->createRefreshToken($code, $client, $user, null);
 
-        if ($isTestApp) {
+        if ($isCustomApp) {
             $this->dbalConnection->insert('akeneo_connectivity_test_app', [
                 'client_id' => $id,
                 'client_secret' => 'secret',
@@ -164,10 +143,10 @@ SQL;
         $this->unitOfWorkAndRepositoriesClearer->clear();
     }
 
-    private function createApp(string $id, string $code, bool $isPending, bool $isTestApp): App
+    private function createApp(string $id, string $code, bool $isPending, bool $isCustomApp): App
     {
-        if ($isTestApp) {
-            return App::fromTestAppValues(
+        if ($isCustomApp) {
+            return App::fromCustomAppValues(
                 [
                     'id' => $id,
                     'name' => $code,
@@ -197,10 +176,10 @@ SQL;
     private function findConnectionUser(string $code): UserInterface
     {
         $query = <<<SQL
-SELECT user_id
-FROM akeneo_connectivity_connection
-WHERE code = :code
-SQL;
+        SELECT user_id
+        FROM akeneo_connectivity_connection
+        WHERE code = :code
+        SQL;
 
         $id = $this->dbalConnection->fetchOne($query, [
             'code' => $code,

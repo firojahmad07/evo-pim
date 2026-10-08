@@ -6,6 +6,7 @@ use Akeneo\Tool\Component\Localization\Factory\NumberFactory;
 use Akeneo\Tool\Component\Localization\Localizer\LocalizerInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,18 +29,20 @@ class NumberLocalizerSpec extends ObjectBehavior
         $this->supports('pim_catalog_price_collection')->shouldReturn(false);
     }
 
-    function it_valids_the_format()
+    function it_valids_the_format(ValidatorInterface $validator)
     {
-        $this->validate('10.05', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
-        $this->validate('-10.05', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
-        $this->validate('10', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
-        $this->validate('-10', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
+        $validator->validate(Argument::any(), Argument::any())->willReturn(new ConstraintViolationList());
+
+        $this->validate('10.05', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('-10.05', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('10', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('-10', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
         $this->validate(10, 'number', ['decimal_separator' => '.'])->shouldReturn(null);
         $this->validate(10.0585, 'number', ['decimal_separator' => '.'])->shouldReturn(null);
-        $this->validate(' 10.05 ', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
+        $this->validate(' 10.05 ', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
         $this->validate(null, 'number', ['decimal_separator' => '.'])->shouldReturn(null);
         $this->validate('', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
-        $this->validate('0', 'number', ['decimal_separator' => '.'])->shouldReturn(null);
+        $this->validate('0', 'number', ['decimal_separator' => '.'])->shouldBeLike(new ConstraintViolationList());
         $this->validate(0, 'number', ['decimal_separator' => '.'])->shouldReturn(null);
     }
 

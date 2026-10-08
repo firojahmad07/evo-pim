@@ -13,8 +13,12 @@ akeneo_job:
     ABANDONED: Abandoned
     UNKNOWN: Unknown
     IN_PROGRESS: In progress
+    PAUSING: Pausing
+    PAUSED: Paused
 
 akeneo_job_process_tracker:
+  tooltip:
+    paused: This job has been paused due to internal maintenance on your instance. It will be resumed automatically when it is done.
   last_operations:
     title: Last operations
     view_all: View all
@@ -41,10 +45,12 @@ akeneo_job_process_tracker:
     export: Export
     mass_edit: Mass Edit
     mass_delete: Mass delete products
+    attribute_mass_delete: Bulk delete attributes
     compute_family_variant_structure_changes: Compute family variant structure changes
     compute_completeness_of_products_family: Compute completeness of products family
     clean_removed_attribute_job: Cleaning removed attribute values
     execute_rules: Execute rules
+    scheduled_job: Scheduled job
   user_filter:
     label: User
     all: All
@@ -60,6 +66,8 @@ akeneo_job_process_tracker:
     stopping: Stopping
     unknown: Unknown
     in_progress: In progress
+    pausing: Pausing
+    paused: Paused
   automation_filter:
     all: All
     yes: Yes

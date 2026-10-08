@@ -30,18 +30,22 @@ class AverageMaxProductModelValuesSpec extends ObjectBehavior
         $this->shouldImplement(AverageMaxQuery::class);
     }
 
-    function it_gets_average_and_max_volume(Connection $connection, Result $statement)
+    function it_gets_average_and_max_volume(Connection $connection, \Doctrine\DBAL\Driver\Result $driverResult)
     {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(['average' => '4', 'max' => '10']);
+        $driverResult->fetchAssociative()->willReturn(['average' => '4', 'max' => '10']);
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
 
         $this->fetch()->shouldBeLike(new AverageMaxVolumes(10, 4, 'average_max_product_model_values'));
     }
 
-    function it_gets_average_and_max_volume_of_an_empty_catalog(Connection $connection, Result $statement)
+    function it_gets_average_and_max_volume_of_an_empty_catalog(Connection $connection, \Doctrine\DBAL\Driver\Result $driverResult)
     {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(['average' => null, 'max' => null]);
+        $driverResult->fetchAssociative()->willReturn(['average' => null, 'max' => null]);
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
 
         $this->fetch()->shouldBeLike(new AverageMaxVolumes(0, 0, 'average_max_product_model_values'));
     }

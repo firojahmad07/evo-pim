@@ -25,11 +25,17 @@ class JobInstanceFormProvider implements FormProviderInterface
         $this->formConfig = $formConfig;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getForm($jobInstance): string
     {
         return $this->formConfig[$jobInstance->getJobName()];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supports($element): bool
     {
         return $element instanceof JobInstance && isset($this->formConfig[$element->getJobName()]);

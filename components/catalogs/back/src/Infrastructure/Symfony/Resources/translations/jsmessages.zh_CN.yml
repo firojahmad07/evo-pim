@@ -126,13 +126,28 @@ akeneo_catalogs:
     source:
       title: 选择源
       parameters:
+        placeholder: 选择属性
         title: 源参数
         channel:
-          label: 渠道
           placeholder: 选择渠道
         locale:
-          label: 区域
           placeholder: 选择区域
+        label_locale:
+          label: 值翻译
+          placeholder: 选择翻译
+          helper: 选择要发送值的语言。
+        currency:
+          label: 货币
+          placeholder: 选择货币
+          helper: 选择要发送值的货币。
+        default_value:
+          label: 空时使用默认值
+          placeholder: 定义默认值
+        no_parameters_message: 没有此源的参数。
+        unit:
+          label: 单位
+          placeholder: 选择单位
+          helper: 选择要发送值的单位。
       select_source:
         label: PIM 源
         search: 搜索条件
@@ -148,3 +163,18 @@ akeneo_catalogs:
         illustration_title: UUID 是技术产品标识符。
         subtitle: 所有的应用都必须将其作为目标。您无需配置此目标，因为我们会自动将其与 Akeneo 产品 UUID 进行映射。
         link: 有关 UUID 的更多信息。
+      requirements:
+        title: 应用要求
+        help: 帮助
+        constraints:
+          minLength: '{0,1} 该目标必须有至少 {{ value }} 个字符。|[2,Inf[ 该目标必须有至少 {{ value }} 个字符。'
+          maxLength: '{0,1} 此目标不得超过 {{ value }} 个字符。|[2,Inf[ 此目标不得超过 {{ value }} 个字符。'
+          pattern: '[0,Inf[ 模式：此目标必须符合以下正则表达式："{{ value }}"。'
+          minimum: '[0,Inf[ 此目标必须大于或等于 {{ value }}。'
+          maximum: '[0,Inf[ 此目标必须小于或等于 {{ value }}。'
+          enum: '[0,Inf[ 枚举: 此目标仅接受以下值: {{ value }}。'
+      system_attributes:
+        categories:
+          label: 类别
+        family:
+          label: 品类

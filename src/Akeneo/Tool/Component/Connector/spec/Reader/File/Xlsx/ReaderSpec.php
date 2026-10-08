@@ -40,10 +40,11 @@ class ReaderSpec extends ObjectBehavior
         $jobParameters->get('storage')->willReturn(['type' => 'local', 'file_path' => $filePath]);
         $fileIterator->valid()->willReturn(true, true, true, false);
         $fileIterator->current()->willReturn(null);
-        $fileIterator->rewind()->shouldBeCalled();
+        $fileIterator->rewind()->shouldBeCalledTimes(3);
         $fileIterator->next()->shouldBeCalled();
         $fileIteratorFactory->create($filePath, [])->willReturn($fileIterator);
 
+        $this->initialize();
         /** Expect 2 items, even there is 3 lines because the first one (the header) is ignored */
         $this->totalItems()->shouldReturn(2);
     }
@@ -60,11 +61,18 @@ class ReaderSpec extends ObjectBehavior
         $jobParameters->get('storage')->willReturn(['type' => 'local', 'file_path' => $this->initFilePath()]);
 
         $this->initFileIterator($fileIteratorFactory, $fileIterator);
-        $converter->convert($this->initXlsData(), Argument::any())->willReturn($this->initXlsData());
+
+        $consolidatedData = [
+            'sku' => 'SKU-001',
+            'name' => 'door',
+        ];
+
+        $converter->convert($consolidatedData, Argument::any())->willReturn($consolidatedData);
 
         $stepExecution->incrementSummaryInfo('item_position')->shouldBeCalled();
 
-        $this->read()->shouldReturn($this->initXlsData());
+        $this->initialize();
+        $this->read()->shouldReturn($consolidatedData);
     }
 
     function it_skips_an_item_in_case_of_conversion_error(
@@ -78,11 +86,17 @@ class ReaderSpec extends ObjectBehavior
 
         $this->initFileIterator($fileIteratorFactory, $fileIterator);
 
-        $converter->convert($this->initXlsData(), Argument::any())->willThrow(
+        $consolidatedData = [
+            'sku' => 'SKU-001',
+            'name' => 'door',
+        ];
+
+        $converter->convert($consolidatedData, Argument::any())->willThrow(
             new DataArrayConversionException('message', 0, null, new ConstraintViolationList())
         );
         $stepExecution->incrementSummaryInfo("skip")->shouldBeCalled();
 
+        $this->initialize();
         $this->shouldThrow(InvalidItemFromViolationsException::class)->during('read');
     }
 
@@ -96,11 +110,55 @@ class ReaderSpec extends ObjectBehavior
         $this->initStepExecution($stepExecution, $jobParameters);
         $this->initFileIterator($fileIteratorFactory, $fileIterator);
 
-        $converter->convert($this->initXlsData(), Argument::any())->willThrow(
+        $consolidatedData = [
+            'sku' => 'SKU-001',
+            'name' => 'door',
+        ];
+
+        $converter->convert($consolidatedData, Argument::any())->willThrow(
             new BusinessArrayConversionException('message', 'messageKey', [])
         );
 
+        $this->initialize();
         $this->shouldThrow(InvalidItemException::class)->during('read');
+    }
+
+    function it_fill_blank_column_in_row(
+        FileIteratorFactory $fileIteratorFactory,
+        FileIteratorInterface $fileIterator,
+        ArrayConverterInterface $converter,
+        JobParameters $jobParameters,
+        StepExecution $stepExecution
+    ) {
+        $stepExecution->getJobParameters()->willReturn($jobParameters);
+        $jobParameters->has('storage')->willReturn(true);
+        $jobParameters->get('storage')->willReturn(['type' => 'local', 'file_path' => $this->initFilePath()]);
+
+        $fileIteratorFactory->create($this->initFilePath(), [])->willReturn($fileIterator);
+
+        $fileIterator->getHeaders()->willReturn(['sku', 'name', 'description', 'short_description']);
+        $fileIterator->rewind()->shouldBeCalled();
+        $fileIterator->next()->shouldBeCalled();
+        $fileIterator->valid()->willReturn(true);
+
+        $fileIterator->current()->willReturn([
+            0 => 'SKU-001',
+            2 => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+        ]);
+
+        $consolidatedData = [
+            'sku' => 'SKU-001',
+            'name' => '',
+            'description' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+            'short_description' => ''
+        ];
+
+        $converter->convert($consolidatedData, Argument::any())->willReturn($consolidatedData);
+
+        $stepExecution->incrementSummaryInfo('item_position')->shouldBeCalled();
+
+        $this->initialize();
+        $this->read()->shouldReturn($consolidatedData);
     }
 
     /**
@@ -108,10 +166,7 @@ class ReaderSpec extends ObjectBehavior
      */
     private function initXlsData(): array
     {
-        return [
-            'sku' => 'SKU-001',
-            'name' => 'door',
-        ];
+        return ['SKU-001', 'door',];
     }
 
     /**

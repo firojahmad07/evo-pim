@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration;
 
 use Akeneo\Tool\Bundle\ElasticsearchBundle\Client;
-use Elasticsearch\Client as NativeClient;
-use Elasticsearch\ClientBuilder;
 
 /**
  * The UpdateIndexMapping class needs some private services to work, we cannot use it for a migration for instance.
@@ -17,10 +15,11 @@ use Elasticsearch\ClientBuilder;
  */
 class UpdateIndexMappingWrapper
 {
-    private NativeClient $nativeClient;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $nativeClient;
     private Client $client;
 
-    public function __construct(ClientBuilder $clientBuilder, $hosts, Client $client)
+    public function __construct($clientBuilder, $hosts, Client $client)
     {
         $hosts = is_string($hosts) ? [$hosts] : $hosts;
         $this->nativeClient = $clientBuilder->setHosts($hosts)->build();

@@ -8,6 +8,7 @@ import {
   useSecurity,
   useTranslate,
   Translate,
+  useFeatureFlags,
 } from '@akeneo-pim-community/shared';
 import {
   ActivityIcon,
@@ -26,8 +27,7 @@ import {
 } from 'akeneo-design-system';
 import styled from 'styled-components';
 import {CountEntities, useCountEntities} from '../hooks';
-
-const featureFlags = require('pim/feature-flags');
+import {ResetButton} from './reset-pim';
 
 const SectionContent = styled.div`
   margin-top: 20px;
@@ -50,6 +50,7 @@ const SystemIndex = () => {
   const {isGranted} = useSecurity();
   const router = useRouter();
   const theme = useTheme();
+  const {isEnabled} = useFeatureFlags();
 
   const [isSSOEnabled, setIsSSOEnabled] = useState<boolean>(false);
 
@@ -66,6 +67,8 @@ const SystemIndex = () => {
   const canAccessRoles = isGranted('pim_user_role_index');
 
   const canAccessUsersNavigation = canAccessUsers || canAccessUserGroups || canAccessRoles;
+
+  const canResetPim = isEnabled('reset_pim') && isGranted('pim_reset_instance');
 
   const countEntities = useCountEntities();
 
@@ -116,6 +119,12 @@ const SystemIndex = () => {
           <>
             <SectionTitle>
               <SectionTitle.Title>{translate('pim_system.system_navigation')}</SectionTitle.Title>
+              {canResetPim && (
+                <>
+                  <SectionTitle.Spacer />
+                  <ResetButton />
+                </>
+              )}
             </SectionTitle>
             <SectionContent>
               <IconCardGrid>
@@ -152,7 +161,7 @@ const SystemIndex = () => {
                     onClick={() => redirectToRoute('pim_analytics_system_info_index')}
                   />
                 )}
-                {canAccessSSO && featureFlags.isEnabled('sso_configuration') && (
+                {canAccessSSO && isEnabled('sso_configuration') && (
                   <IconCard
                     id="pim-system-sso"
                     icon={<IdIcon />}
@@ -161,7 +170,7 @@ const SystemIndex = () => {
                     content={translate(isSSOEnabled ? 'pim_system.sso.enabled' : 'pim_system.sso.disabled')}
                   />
                 )}
-                {featureFlags.isEnabled('free_trial') && (
+                {isEnabled('free_trial') && (
                   <DisableIconCard
                     id="pim-system-sso"
                     icon={
@@ -198,7 +207,7 @@ const SystemIndex = () => {
                     )}
                   />
                 )}
-                {canAccessUserGroups && !featureFlags.isEnabled('free_trial') && (
+                {canAccessUserGroups && !isEnabled('free_trial') && (
                   <IconCard
                     id="pim-system-user-group"
                     icon={<GroupsIcon />}
@@ -212,7 +221,7 @@ const SystemIndex = () => {
                     )}
                   />
                 )}
-                {featureFlags.isEnabled('free_trial') && (
+                {isEnabled('free_trial') && (
                   <DisableIconCard
                     id="pim-system-user-group"
                     icon={

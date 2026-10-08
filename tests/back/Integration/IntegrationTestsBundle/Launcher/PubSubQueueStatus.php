@@ -17,21 +17,12 @@ use Google\Cloud\PubSub\Subscription;
  */
 final class PubSubQueueStatus
 {
-    private PubSubClientFactory $pubSubClientFactory;
-    private string $projectId;
-    private string $topicName;
-    private string $subscriptionName;
-
     public function __construct(
-        PubSubClientFactory $pubSubClientFactory,
-        string $projectId,
-        string $topicName,
-        string $subscriptionName
+        private readonly PubSubClientFactory $pubSubClientFactory,
+        private readonly string $projectId,
+        private readonly string $topicName,
+        private readonly string $subscriptionName
     ) {
-        $this->pubSubClientFactory = $pubSubClientFactory;
-        $this->projectId = $projectId;
-        $this->topicName = $topicName;
-        $this->subscriptionName = $subscriptionName;
     }
 
     public function hasMessageInQueue(): bool
@@ -48,7 +39,7 @@ final class PubSubQueueStatus
 
             if (!$subscription->exists()) {
                 // We can have multiple subscription for one topic,
-                // so we can have have message in the topic without having an existing subscription.
+                // so we can have message in the topic without having an existing subscription.
                 $subscription->create();
             }
 
@@ -113,5 +104,40 @@ final class PubSubQueueStatus
         $topic = $pubSubClient->topic($this->topicName);
 
         return $topic->subscription($this->subscriptionName);
+    }
+
+    public function createTopicAndSubscription(): void
+    {
+        $pubSubClient = $this->pubSubClientFactory->createPubSubClient(['projectId' => $this->projectId]);
+        $topic = $pubSubClient->topic($this->topicName);
+
+        if (!$topic->exists()) {
+            $topic->create();
+        }
+
+        $subscription = $topic->subscription($this->subscriptionName);
+        if (!$subscription->exists()) {
+            $subscription->create();
+        }
+    }
+
+    public function flushJobQueue(): void
+    {
+        $subscription = $this->getSubscription();
+        try {
+            $subscription->reload();
+        } catch (\Exception $e) {
+        }
+        if (!$subscription->exists()) {
+            return;
+        }
+
+        do {
+            $messages = $subscription->pull(['maxMessages' => 10, 'returnImmediately' => true]);
+            $count = count($messages);
+            if ($count > 0) {
+                $subscription->acknowledgeBatch($messages);
+            }
+        } while (0 < $count);
     }
 }

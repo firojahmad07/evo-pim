@@ -2,6 +2,11 @@ extensions:
     pim-family-edit-form:
         module: pim/form/common/edit-form
 
+    pim-family-edit-form-sandbox-helper:
+        module: pim/sandbox-helper
+        parent: pim-family-edit-form
+        targetZone: helper
+
     pim-family-edit-form-breadcrumbs:
         module: pim/common/breadcrumbs
         parent: pim-family-edit-form

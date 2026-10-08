@@ -29,6 +29,7 @@ class InternalApiToStdSpec extends ObjectBehavior
     public function it_converts($checker)
     {
         $data = [
+            'id' => 1,
             'properties' => [
                 'code' => 'mycode',
                 'labels' => [
@@ -37,9 +38,6 @@ class InternalApiToStdSpec extends ObjectBehavior
                 ]
             ],
             'attributes' => [
-                'attribute_codes' => [
-                    "title_87939c45-1d85-4134-9579-d594fff65030",
-                ],
                 'title_87939c45-1d85-4134-9579-d594fff65030_fr_FR' => [
                     "data" => "Les chaussures dont vous avez besoin !",
                     "locale" => "fr_FR",
@@ -48,15 +46,13 @@ class InternalApiToStdSpec extends ObjectBehavior
             ]
         ];
         $expected = [
+            'id' => 1,
             'code' => 'mycode',
             'labels' => [
                 'fr_FR' => 'Chaussettes',
                 'en_US' => 'Socks'
             ],
             'values' => [
-                'attribute_codes' => [
-                    "title_87939c45-1d85-4134-9579-d594fff65030",
-                ],
                 'title_87939c45-1d85-4134-9579-d594fff65030_fr_FR' => [
                     'data' => "Les chaussures dont vous avez besoin !",
                     'locale' => "fr_FR",

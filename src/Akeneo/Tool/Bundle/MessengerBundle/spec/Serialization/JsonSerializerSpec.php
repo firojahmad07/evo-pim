@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace spec\Akeneo\Tool\Bundle\MessengerBundle\Serialization;
 
 use Akeneo\Tool\Bundle\MessengerBundle\Serialization\JsonSerializer;
+use Akeneo\Tool\Component\Messenger\Stamp\CustomHeaderStamp;
 use Akeneo\Tool\Bundle\MessengerBundle\Stamp\TenantIdStamp;
 use PhpSpec\ObjectBehavior;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Stamp\RedeliveryStamp;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Prophecy\Argument;
 
 /**
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
@@ -19,6 +22,8 @@ class JsonSerializerSpec extends ObjectBehavior
 {
     public function let(NormalizerInterface $normalizer, DenormalizerInterface $denormalizer): void
     {
+        $normalizer->getSupportedTypes(Argument::any())->willReturn(['*' => true]);
+        $denormalizer->getSupportedTypes(Argument::any())->willReturn(['*' => true]);
         $this->beConstructedWith([$normalizer, $denormalizer]);
     }
 
@@ -36,6 +41,8 @@ class JsonSerializerSpec extends ObjectBehavior
             ]
         ];
 
+        $denormalizer->supportsDenormalization(null, \stdClass::class, 'json', [])
+            ->willReturn(false);
         $denormalizer->supportsDenormalization(['some_property' => 'Some value!'], \stdClass::class, 'json', [])
             ->willReturn(true);
 
@@ -86,5 +93,84 @@ class JsonSerializerSpec extends ObjectBehavior
                     'tenant_id' => 'my_tenant_id_value',
                 ],
             ]);
+    }
+
+    public function it_encodes_an_envelope_with_retry($normalizer): void
+    {
+        $message = new \stdClass();
+        $envelope = new Envelope($message, [
+            new RedeliveryStamp(5),
+        ]);
+
+        $normalizer->supportsNormalization($message, 'json', [])
+            ->willReturn(true);
+
+        $normalizer->normalize($message, 'json', [])
+            ->willReturn(['some_property' => 'Some value!']);
+
+        $this->encode($envelope)
+            ->shouldReturn([
+                'body' => '{"some_property":"Some value!"}',
+                'headers' => [
+                    'class' => \stdClass::class,
+                    'retry_count' => '5',
+                ],
+            ]);
+    }
+
+    public function it_encodes_an_envelope_with_custom_header($normalizer): void
+    {
+        $message = new \stdClass();
+        $envelope = new Envelope($message, [
+            $this->buildCustomStamp(),
+        ]);
+
+        $normalizer->supportsNormalization($message, 'json', [])
+            ->willReturn(true);
+
+        $normalizer->normalize($message, 'json', [])
+            ->willReturn(['some_property' => 'Some value!']);
+
+        $this->encode($envelope)
+            ->shouldReturn([
+                'body' => '{"some_property":"Some value!"}',
+                'headers' => [
+                    'customHeader' => 'customerHeaderValue',
+                    'class' => \stdClass::class,
+                ],
+            ]);
+    }
+
+    public function it_throw_an_exception_when_the_same_custom_header_is_used_twice($normalizer): void
+    {
+        $message = new \stdClass();
+        $envelope = new Envelope($message, [
+            $this->buildCustomStamp(),
+            $this->buildCustomStamp(),
+        ]);
+
+        $normalizer->supportsNormalization($message, 'json', [])
+            ->willReturn(true);
+
+        $normalizer->normalize($message, 'json', [])
+            ->willReturn(['some_property' => 'Some value!']);
+
+        $this->shouldThrow(\LogicException::class)
+            ->during('encode', [$envelope]);
+    }
+
+    private function buildCustomStamp(): CustomHeaderStamp
+    {
+        return new class implements CustomHeaderStamp {
+            public function header(): string
+            {
+                return 'customHeader';
+            }
+
+            public function value(): string
+            {
+                return 'customerHeaderValue';
+            }
+        };
     }
 }

@@ -1,10 +1,16 @@
-import React from 'react';
+import {ChannelCode} from '@akeneo-pim-community/shared';
 import {FileInfo} from 'akeneo-design-system';
+import React from 'react';
 import {Attribute, CATEGORY_ATTRIBUTE_TYPE_IMAGE} from '../../models';
 
 export type TextAttributeInputValue = string;
 
 export type ImageAttributeInputValue = FileInfo | null;
+
+export type ChannelTranslationAttributeValue = {
+  code: ChannelCode;
+  label: string;
+};
 
 export type AttributeInputValue = TextAttributeInputValue | ImageAttributeInputValue | null;
 
@@ -13,7 +19,7 @@ export type AttributeFieldBuilder<ValueType extends AttributeInputValue> = (
 ) => React.FC<AttributeFieldProps<ValueType>>;
 
 export type AttributeFieldProps<ValueType> = {
-  channel: string;
+  channel: ChannelTranslationAttributeValue;
   locale: string;
   value: ValueType;
   onChange: (value: ValueType) => void;

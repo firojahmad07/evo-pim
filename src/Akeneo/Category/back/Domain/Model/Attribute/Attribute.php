@@ -15,10 +15,13 @@ use Akeneo\Category\Domain\ValueObject\Attribute\AttributeUuid;
 use Akeneo\Category\Domain\ValueObject\Attribute\Value\AbstractValue;
 use Akeneo\Category\Domain\ValueObject\LabelCollection;
 use Akeneo\Category\Domain\ValueObject\Template\TemplateUuid;
+use Webmozart\Assert\Assert;
 
 /**
  * @copyright 2022 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ *
+ * @phpstan-import-type LocalizedLabels from LabelCollection
  */
 abstract class Attribute
 {
@@ -145,6 +148,13 @@ abstract class Attribute
         return $this->additionalProperties;
     }
 
+    public function setOrder(AttributeOrder $order): Attribute
+    {
+        $this->order = $order;
+
+        return $this;
+    }
+
     /**
      * @param array{
      *      uuid: string,
@@ -178,6 +188,22 @@ abstract class Attribute
                 json_decode($result['additional_properties'], true, 512, JSON_THROW_ON_ERROR),
             ) : null;
 
-        return Attribute::fromType($type, $id, $code, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties);
+        return self::fromType($type, $id, $code, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties);
+    }
+
+    /**
+     * @phpstan-param LocalizedLabels $labels
+     */
+    public function update(?bool $isRichTextArea, ?array $labels): void
+    {
+        if ($isRichTextArea !== null) {
+            $validTypes = [AttributeType::TEXTAREA, AttributeType::RICH_TEXT];
+            Assert::inArray((string) $this->getType(), $validTypes);
+            $this->type = new AttributeType(($isRichTextArea) ? AttributeType::RICH_TEXT : AttributeType::TEXTAREA);
+        }
+
+        if ($labels !== null) {
+            $this->labelCollection->merge(LabelCollection::fromArray($labels));
+        }
     }
 }

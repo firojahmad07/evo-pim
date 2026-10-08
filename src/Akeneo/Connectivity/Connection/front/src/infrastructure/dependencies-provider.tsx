@@ -9,7 +9,12 @@ import {LegacyContext} from './legacy-context';
 import {ViewBuilder} from './pim-view/view-builder';
 import {FeatureFlagsContext, FeatureFlags} from '../shared/feature-flags';
 import {PermissionFormRegistryContext, PermissionFormRegistry} from '../shared/permission-form-registry';
-import {DependenciesContext, Translate as SharedTranslate} from '@akeneo-pim-community/shared';
+import {
+    DependenciesContext,
+    Translate as SharedTranslate,
+    FeatureFlags as SharedFeatureFlags,
+    systemConfiguration,
+} from '@akeneo-pim-community/shared';
 
 interface Props {
     router: RouterInterface;
@@ -26,6 +31,8 @@ const DependenciesProvider = ({children, ...dependencies}: PropsWithChildren<Pro
     <DependenciesContext.Provider
         value={{
             translate: dependencies.translate as SharedTranslate,
+            featureFlags: dependencies.featureFlags as SharedFeatureFlags,
+            systemConfiguration,
             user: dependencies.user,
         }}
     >

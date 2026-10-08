@@ -22,11 +22,11 @@ use Doctrine\Common\Util\ClassUtils;
 class ChannelUpdater implements ObjectUpdaterInterface
 {
     public function __construct(
-        protected IdentifiableObjectRepositoryInterface $categoryRepository,
-        protected IdentifiableObjectRepositoryInterface $localeRepository,
-        protected IdentifiableObjectRepositoryInterface $currencyRepository,
-        protected IdentifiableObjectRepositoryInterface $attributeRepository,
-        protected TranslatableUpdater $translatableUpdater
+        protected readonly IdentifiableObjectRepositoryInterface $categoryRepository,
+        protected readonly IdentifiableObjectRepositoryInterface $localeRepository,
+        protected readonly IdentifiableObjectRepositoryInterface $currencyRepository,
+        protected readonly IdentifiableObjectRepositoryInterface $attributeRepository,
+        protected readonly TranslatableUpdater $translatableUpdater
     ) {
     }
 
@@ -134,7 +134,7 @@ class ChannelUpdater implements ObjectUpdaterInterface
      * @param ChannelInterface $channel
      * @param array            $localizedLabels
      */
-    private function setLabels($channel, $localizedLabels)
+    private function setLabels($channel, $localizedLabels): void
     {
         // using known locale code when found (modulo case-insensitive comparison)
         // leaving unknown locale code as is for the moment (Jira PIM-10372)

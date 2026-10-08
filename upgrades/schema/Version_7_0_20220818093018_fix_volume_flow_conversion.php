@@ -14,7 +14,7 @@ final class Version_7_0_20220818093018_fix_volume_flow_conversion extends Abstra
         $query = "SELECT standard_unit, units FROM akeneo_measurement WHERE code = 'VolumeFlow';";
         $volumeFlow = $this->connection->executeQuery($query)->fetchAssociative();
 
-        if (null === $volumeFlow) {
+        if (false === $volumeFlow) {
             // The volume flow measurement was removed.
             $this->removeMigrationWarning();
 

@@ -38,10 +38,7 @@ pim_title:
   akeneo_connectivity_connection_connect_connected_apps: Connected Apps
   akeneo_connectivity_connection_connect_connected_apps_edit: App settings
   akeneo_connectivity_connection_connect_connected_apps_delete: App delete
-  akeneo_connectivity_connection_connect_marketplace_test_app_create: Create a test app
-  akeneo_connectivity_connection_connect_marketplace_test_app_delete: Delete test app
   akeneo_connectivity_connection_connect_connected_apps_open: Open App
-  akeneo_connectivity_connection_connect_connected_apps_catalogs_edit: Edit catalogue
 akeneo_connectivity.connection:
   connect:
     marketplace:
@@ -54,7 +51,6 @@ akeneo_connectivity.connection:
         description: This is just an overview. For more details, take a look at the Akeneo App Store.
         link: Go to the Akeneo App Store
       search:
-        placeholder: Search by name
         total: '{0} No results|{1} 1 result|[2,Inf] {{ total }} results'
       card:
         developed_by: 'Developed by {{ author }}'
@@ -62,7 +58,6 @@ akeneo_connectivity.connection:
         more_info: More info
         connect: Connect
         connected: Connected
-        pending: Pending...
       extensions:
         title: Connectors
         total: '{0} No connectors|{1} 1 connector|[2,Inf] {{ total }} connectors'
@@ -73,51 +68,8 @@ akeneo_connectivity.connection:
         empty: No apps compatible with your version
       unreachable: We can't reach the App Store, please come back later.
       scroll_to_top: Scroll to the top
-      test_apps:
-        title: My test apps
+      custom_apps:
         removed_user: Removed user
-        create_a_test_app: Create a test app
-        modal:
-          subtitle: Create a test app
-          app_information:
-            title: App information
-            description: If you need help, please check our article
-            link: How to test my App before publishing it?
-            fields:
-              name: Name
-              activate_url: Activate url
-              callback_url: Callback url
-          credentials:
-            title: Credentials
-            warning: Make sure to save these credentials somewhere as we show them only once here.
-            client_id: Client id
-            client_secret: Client secret
-        errors:
-          page_not_found: Page not found
-          creation:
-            name:
-              min_length: The name of the test app is too short. It must have 3 characters or more.
-              max_length: The name of the test app is too long. It must have 255 characters or less.
-              not_blank: The name of the test app is required.
-            client_id:
-              max_length: The client id of the test app is too long. It must have 36 characters or less.
-              not_blank: The client id is required.
-            activate_url:
-              max_length: The activate url of the test app is too long. It must have 255 characters or less.
-              must_be_url: The activate url must be a valid URL.
-              not_blank: The activate url is required.
-            callback_url:
-              max_length: The callback url of the test app is too long. It must have 255 characters or less.
-              must_be_url: The callback url must be a valid URL.
-              not_blank: The callback url is required.
-        delete:
-          subtitle: Apps
-          title: Confirm deletion
-          description: You are about to delete your test app from this PIM.
-          warning: By confirming the deletion, you will delete the test app on the App Store page and the related connected app.
-          flash:
-            success: Test app successfully deleted.
-            error: Sorry, an error occured while deleting the test app.
     connected_apps:
       list:
         apps:
@@ -126,10 +78,7 @@ akeneo_connectivity.connection:
           empty: No apps connected yet.
           check_marketplace: 'Check the {{ marketplaceLink }} to browse all the available content and install your first app.'
           marketplace_link_anchor: App Store
-          at_least_one_is_not_listed_on_the_appstore: Some of your connected apps are not compatible with your PIM version or don't exist any more on the Akeneo App Store. Contact us to get more information.
-          pending_apps: Some of your apps are not connected with your PIM.
-        test_apps:
-          title: My test apps
+        custom_apps:
           removed_user: Removed user
         helper:
           title: '[0,1] Your PIM is connected with {{ count }} app.|[2,Inf] Your PIM is connected with {{ count }} apps.'
@@ -138,23 +87,15 @@ akeneo_connectivity.connection:
           link: Check out our Help Center for more information.
         card:
           developed_by: 'Developed by {{ author }}'
-          new_access_authorization_required: New access authorisation required.
-          not_listed_on_the_appstore: App no longer listed on the Akeneo App Store. Please contact the App support.
           manage_app: Manage app
           open_app: Open App
-          pending: App not connected. Opening the App should fix the connection issues.
         flash:
           error: Sorry, an error occured while fetching the connected apps list.
       edit:
-        header:
-          open_app_button:
-            label: Go to app
-            icon_alt: Go to app icon
         not_found: App not found
         tabs:
           settings: Settings
           permissions: Permissions
-          catalogs: Catalogues
           error_monitoring: Error monitoring
         settings:
           monitoring:
@@ -162,15 +103,20 @@ akeneo_connectivity.connection:
           authorizations:
             title: authorizations
             information: 'To know more about app authorizations, check out our {{ link }}.'
-            no_access_to_product_information: 'This connected app cannot access your product information.'
             information_link_anchor: Help Center article
             no_scope: No specific authorizations have been requested.
           authentication:
-            title: authentication
-            information: 'To know more about app authentication, check out our {{ link }}.'
             information_link_anchor: Help Center article
-            openid_only: This app uses Akeneo App authentication without using your personal data.
-          pending: This app is not connected to your PIM. Opening the app should fix the connection issue. If it persists, please contact the App support.
+          credentials:
+            title: Credentials
+            client_id: Client id
+            client_secret: Client secret
+            regenerate_button: Regenerate
+            regenerate_secret:
+              flash_error: Sorry, an error occurred while regenerating the connection secret.
+              confirm:
+                regenerate_button: Regenerate
+                cancel_button: Cancel
         error_monitoring:
           error: Oups, something went wrong!
           helper:
@@ -182,13 +128,6 @@ akeneo_connectivity.connection:
               1: To track errors on this app,
               2: activate monitoring
               3: in the settings.
-        catalogs:
-          edit:
-            flash:
-              success: Catalogue settings successfully updated.
-              error: The catalogue could not be saved. Please resolve displayed errors, then save again.
-              unknown_error: An error occurred whilst saving the catalogue.
-            not_found: Catalogue not found
         flash:
           load_permissions_error.title: 'To track errors on this app,'
           load_permissions_error.description: Please retry later.
@@ -204,9 +143,6 @@ akeneo_connectivity.connection:
         flash:
           success: App successfully deleted.
           error: Sorry, an error occured while deleting the app.
-      open:
-        flash:
-          error: Sorry, an error occurred while opening the App.
     apps:
       loader:
         message: Loading ...
@@ -246,10 +182,6 @@ akeneo_connectivity.connection:
           no_scope: No specific authorizations have been requested.
           helper: To know more about app authorization,
           helper_link: check out our Help Center article.
-          is_allowed_to: 'Is already allowed to:'
-          certification_consent:
-            label: 'I have read and I accept the following disclaimer about the certification.'
-            subtext: 'Akeneo waives any responsibility for the use of the app by the customer as well as its functionalities. The certification does not guarantee the interoperability of the app nor that it will work properly in the customer’s environment.'
         flash:
           success: App successfully configured.
           error: Sorry, an error occurred while connecting the App.
@@ -277,10 +209,7 @@ akeneo_connectivity.connection:
           reference_entity_record: reference entity records
           asset_families: asset families
           assets: assets
-          catalogs: catalogues
-        new: NEW
       error:
-        sub_text: Please contact the App support.
         app_not_found: The client_id does not match any existing app.
       constraint:
         client_id:
@@ -293,12 +222,34 @@ akeneo_connectivity.connection:
         redirect_uri:
           not_blank: The redirect_uri is required.
           must_be_url: The redirect_uri is not a valid url.
-        scope:
-          too_long: The scope list must not contain more than 1000 characters.
+    custom_apps:
+      create_modal:
+        app_information:
+          title: App information
+          description: If you need help, please check our article
+          link: How to test my App before publishing it?
+          fields:
+            name: Name
+            activate_url: Activate url
+            callback_url: Callback url
+        credentials:
+          title: Credentials
+          client_id: Client id
+          client_secret: Client secret
+        errors:
+          client_id:
+            not_blank: The client id is required.
+          activate_url:
+            must_be_url: The activate url must be a valid URL.
+            not_blank: The activate url is required.
+          callback_url:
+            must_be_url: The callback url must be a valid URL.
+            not_blank: The callback url is required.
+      delete_modal:
+        title: Confirm deletion
   connections: Connections
   secondary_actions:
     title: Other actions
-  developer_mode: Developer mode
   connection:
     code: Code
     label: Label
@@ -330,8 +281,6 @@ akeneo_connectivity.connection:
       type:
         required: Connection type is required.
         too_long: Connection type is too long. It should have 30 characters or less.
-      user_group:
-        must_exist: The user group was not found. Make sure the specified user group exists.
   flow_type:
     data_source: Data source | Data sources
     data_destination: Data destination | Data destinations
@@ -486,7 +435,6 @@ akeneo_connectivity.connection:
       url: URL
       secret: Secret
       enabled: Event subscription activation
-      is_using_uuid: Use product UUID instead of product identifier?
       test: Test
     error:
       wrong_url: This value is not a valid URL.
@@ -592,10 +540,5 @@ pim_permissions:
       view: View
     all: All
 pim_notification:
-  types:
-    connected_app_authorizations: Connected App authorisations
-    disabled_catalog: App catalogue disabled
   connected_app_authorizations:
     button_label: Open App
-  disabled_catalog:
-    button_label: Catalogue Settings

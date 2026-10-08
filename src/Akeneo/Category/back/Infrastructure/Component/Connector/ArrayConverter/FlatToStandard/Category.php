@@ -61,6 +61,7 @@ class Category implements ArrayConverterInterface
     /**
      * @param array $convertedItem
      * @param string $field
+     * @param mixed $data
      *
      * @return array
      */

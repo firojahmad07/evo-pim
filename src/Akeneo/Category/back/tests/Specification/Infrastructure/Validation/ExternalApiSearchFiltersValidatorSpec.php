@@ -117,10 +117,17 @@ class ExternalApiSearchFiltersValidatorSpec extends ObjectBehavior
             ],
         ];
 
+        $violation->getMessage()->willReturn('Invalid filter');
+
         $violations = [
             $violation->getWrappedObject()
         ];
-        $validator->validate(Argument::any(), Argument::any())->shouldBeCalled()->willReturn(new ConstraintViolationList($violations));
+
+        $validator
+            ->validate(Argument::any(), Argument::any())
+            ->shouldBeCalled()
+            ->willReturn(new ConstraintViolationList($violations));
+
         $this->shouldThrow(\InvalidArgumentException::class)->duringValidate($searchFilters);
     }
 }

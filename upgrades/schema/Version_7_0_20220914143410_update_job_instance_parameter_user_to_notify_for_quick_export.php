@@ -23,11 +23,7 @@ final class Version_7_0_20220914143410_update_job_instance_parameter_user_to_not
     {
         $jobInstancesToMigrate = $this->getJobInstancesToMigrate();
 
-        if (empty($jobInstancesToMigrate)) {
-            $this->write('No remaining job instance to migrate');
-
-            return;
-        }
+        $this->skipIf(empty($jobInstancesToMigrate), 'No remaining job instance to migrate');
 
         foreach ($jobInstancesToMigrate as $jobInstance) {
             $rawParameters = unserialize($jobInstance['raw_parameters']);

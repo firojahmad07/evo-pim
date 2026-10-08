@@ -18,6 +18,9 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class AkeneoCategoryBundle extends Bundle
 {
+    /**
+     * {@inheritdoc}
+     */
     public function build(ContainerBuilder $container): void
     {
         $container

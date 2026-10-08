@@ -4,7 +4,6 @@ namespace Specification\Akeneo\UserManagement\Bundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Akeneo\UserManagement\Bundle\Form\Transformer\AccessLevelToBooleanTransformer;
-use Akeneo\UserManagement\Bundle\Form\Type\AclAccessLevelSelectorType;
 use Prophecy\Argument;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,7 +29,8 @@ class AclAccessLevelSelectorTypeSpec extends ObjectBehavior
                     'choices' => [0 => 0, 5 => 5]
                 ]
             )
-            ->shouldBeCalled();
+            ->willReturn($resolver);
+
         $this->configureOptions($resolver);
     }
 
@@ -41,7 +41,7 @@ class AclAccessLevelSelectorTypeSpec extends ObjectBehavior
                 Argument::type(AccessLevelToBooleanTransformer::class),
                 true
             )
-            ->shouldBeCalled();
+            ->willReturn($builder);
         $this->buildForm($builder, []);
     }
 }

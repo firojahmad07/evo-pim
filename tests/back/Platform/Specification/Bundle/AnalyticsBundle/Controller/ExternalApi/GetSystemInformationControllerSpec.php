@@ -13,13 +13,18 @@ use Symfony\Component\HttpFoundation\Request;
 
 class GetSystemInformationControllerSpec extends ObjectBehavior
 {
-    public function it_is_a_system_information_controller(VersionProviderInterface $versionProvider): void
+    public function it_is_a_system_information_controller(
+        VersionProviderInterface $versionProvider
+    ): void
     {
         $this->beConstructedWith($versionProvider, new GrowthVersion());
         $this->shouldHaveType(GetSystemInformationController::class);
     }
 
-    public function it_provides_system_information_for_community(VersionProviderInterface $versionProvider, Request $request): void
+    public function it_provides_system_information_for_community(
+        VersionProviderInterface $versionProvider,
+        Request $request
+    ): void
     {
         $this->beConstructedWith($versionProvider, new GrowthVersion());
         $versionProvider->getVersion()->willReturn('12345678');
@@ -35,7 +40,10 @@ class GetSystemInformationControllerSpec extends ObjectBehavior
         ));
     }
 
-    public function it_provides_system_information_enterprise(VersionProviderInterface $versionProvider, Request $request): void
+    public function it_provides_system_information_for_enterprise(
+        VersionProviderInterface $versionProvider,
+        Request $request
+    ): void
     {
         $this->beConstructedWith($versionProvider, new GrowthVersion());
         $versionProvider->getVersion()->willReturn('12345678');

@@ -25,7 +25,7 @@ class EmptyConstraintAndDefaultValuesProvider implements
      */
     public function getConstraintCollection(): Collection
     {
-        return new Collection([]);
+        return new Collection(['fields' => []]);
     }
 
     /**

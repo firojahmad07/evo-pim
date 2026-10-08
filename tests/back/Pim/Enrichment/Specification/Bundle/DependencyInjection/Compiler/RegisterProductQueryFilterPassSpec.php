@@ -33,7 +33,7 @@ class RegisterProductQueryFilterPassSpec extends ObjectBehavior
         $container->findTaggedServiceIds('pim_catalog.elasticsearch.query.product_filter')
             ->willReturn(['filterId' => [['priority' => '22']]]);
 
-        $registryDefinition->addMethodCall('register', Argument::any())->shouldBeCalled();
+        $registryDefinition->addMethodCall('register', Argument::any())->willReturn($registryDefinition);
 
         $this->process($container);
     }
@@ -41,6 +41,7 @@ class RegisterProductQueryFilterPassSpec extends ObjectBehavior
     function it_throws_exception_when_registry_is_not_configured(
         ContainerBuilder $container
     ) {
+        $container->hasDefinition('pim_catalog.query.filter.product_registry')->willReturn(false);
         $this->shouldThrow('\LogicException')->during('process', [$container]);
     }
 }

@@ -83,19 +83,25 @@ class DatagridViewController
 
         $user = $this->tokenStorage->getToken()->getUser();
 
-        $options = $request->query->get('options', []);
+        $options = $request->get('options', []);
         $options = array_merge(['limit' => 20, 'page' => 1], $options);
 
-        $term = $request->query->get('search', '');
+        $term = $request->get('search', '');
 
-        $views = $this->datagridViewRepo->findDatagridViewBySearch($user, $alias, $term, $options);
+        $views = $this->datagridViewRepo->findAllDatagridViewsBySearch($user, $alias, $term);
 
         $filteredViews = $this->datagridViewFilter->filterCollection($views, 'pim.internal_api.datagrid_view.view');
 
-        $moreResults = count($views) >= $options['limit'];
+        $viewsInPage = array_slice(
+            $filteredViews,
+            ($options['page']-1)*$options['limit'],
+            $options['limit']
+        );
+
+        $moreResults = count($filteredViews) > $options['page']*$options['limit'];
 
         return new JsonResponse([
-            'results' => $this->normalizer->normalize($filteredViews, 'internal_api'),
+            'results' => $this->normalizer->normalize($viewsInPage, 'internal_api'),
             'more' => $moreResults,
         ]);
     }
@@ -144,7 +150,7 @@ class DatagridViewController
             return new RedirectResponse('/');
         }
 
-        $view = $request->request->get('view', null);
+        $view = $request->get('view', null);
 
         if (null === $view) {
             throw new BadRequestHttpException('Parameter "view" needed in the request.');

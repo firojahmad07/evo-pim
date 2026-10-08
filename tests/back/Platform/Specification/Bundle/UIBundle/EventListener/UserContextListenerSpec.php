@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class UserContextListenerSpec extends ObjectBehavior
 {
@@ -18,9 +19,10 @@ class UserContextListenerSpec extends ObjectBehavior
         AddLocaleListener $listener,
         CatalogContext $catalogContext,
         UserContext $userContext,
-        RequestEvent $event
+        RequestEvent $event,
+        TokenInterface $token
     ) {
-        $tokenStorage->getToken()->willReturn(true);
+        $tokenStorage->getToken()->willReturn($token);
         $event->getRequestType()->willReturn(HttpKernel::MAIN_REQUEST);
 
         $userContext->getCurrentLocaleCode()->willReturn('de_DE');
@@ -36,7 +38,7 @@ class UserContextListenerSpec extends ObjectBehavior
 
     function it_does_nothing_if_request_type_is_not_main_request($event, $listener, $catalogContext)
     {
-        $event->getRequestType()->willReturn('foo');
+        $event->getRequestType()->willReturn(HttpKernel::SUB_REQUEST);
 
         $listener->setLocale()->shouldNotBeCalled();
         $catalogContext->setLocaleCode()->shouldNotBeCalled();

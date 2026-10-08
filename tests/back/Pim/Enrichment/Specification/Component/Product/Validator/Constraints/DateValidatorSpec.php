@@ -61,7 +61,7 @@ class DateValidatorSpec extends ObjectBehavior
         $goodDate = '2021-02-01';
         $constraint = new Date(['attributeCode' => 'a_code']);
 
-        $context->getViolations()->willReturn([]);
+        $context->getViolations()->willReturn(new ConstraintViolationList());
         $context->buildViolation(Argument::cetera())->shouldNotBeCalled();
 
         $this->validate($goodDate, $constraint);

@@ -2,6 +2,11 @@ extensions:
     pim-user-edit-form:
         module: pim/user-edit-form/edit-form
 
+    pim-user-edit-form-sandbox-helper:
+        module: pim/sandbox-helper
+        parent: pim-user-edit-form
+        targetZone: helper
+
     pim-user-edit-form-breadcrumbs:
         module: pim/common/breadcrumbs
         parent: pim-user-edit-form
@@ -215,7 +220,7 @@ extensions:
             label: pim_user_management.entity.user.properties.phone
 
     pim-user-edit-form-avatar:
-        module: pim/form/common/fields/media
+        module: pim/form/common/fields/image-media
         parent: pim-user-edit-form-general-tab-content
         position: 100
         targetZone: content
@@ -423,10 +428,16 @@ extensions:
             isMultiple: false
             allowClear: false
 
+    pim-user-edit-form-unsupported-ui-locale-warning-view:
+        module: pim/user/form/unsupported-ui-locale-warning-view
+        parent: pim-user-edit-form-interfaces-tab-content
+        position: 20
+        targetZone: content
+
     pim-user-edit-form-timezone:
         module: pim/user/fields/timezone
         parent: pim-user-edit-form-interfaces-tab-content
-        position: 20
+        position: 30
         targetZone: content
         config:
             fieldName: timezone

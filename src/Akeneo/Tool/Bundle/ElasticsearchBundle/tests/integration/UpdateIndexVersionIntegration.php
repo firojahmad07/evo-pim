@@ -15,8 +15,7 @@ namespace Akeneo\Tool\Bundle\ElasticsearchBundle\tests\integration;
 
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
+use Akeneo\Tool\Bundle\ElasticsearchBundle\SearchEngine\SearchEngineClientBuilderFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -77,9 +76,9 @@ class UpdateIndexVersionIntegration extends TestCase
         return $commandTester;
     }
 
-    private function getClient(): Client
+    private function getClient()
     {
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts([$this->getParameter('index_hosts')]);
 
         return $clientBuilder->build();
@@ -87,7 +86,7 @@ class UpdateIndexVersionIntegration extends TestCase
 
     private function getProductAndProductModelIndexName(): string
     {
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts([$this->getParameter('index_hosts')]);
         $client = $clientBuilder->build();
 

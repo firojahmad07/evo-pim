@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class IsConnectionsNumberLimitReachedActionSpec extends ObjectBehavior
 {
-    public function let(IsConnectionsNumberLimitReachedQueryInterface $isConnectionsNumberLimitReachedQuery)
+    public function let(IsConnectionsNumberLimitReachedQueryInterface $isConnectionsNumberLimitReachedQuery): void
     {
         $this->beConstructedWith($isConnectionsNumberLimitReachedQuery);
     }
@@ -29,6 +29,7 @@ class IsConnectionsNumberLimitReachedActionSpec extends ObjectBehavior
 
     public function it_redirects_on_missing_xmlhttprequest_header(Request $request): void
     {
+        $request->isXmlHttpRequest()->willReturn(false);
         $this->__invoke($request)->shouldBeLike(new RedirectResponse('/'));
     }
 

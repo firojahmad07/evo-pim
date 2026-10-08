@@ -1,3 +1,5 @@
+export * from './Avatar/Avatar';
+export * from './Avatar/Avatars';
 export * from './Badge/Badge';
 export * from './Block/Block';
 export * from './BlockButton/BlockButton';
@@ -36,3 +38,4 @@ export * from './Tags/Tags';
 export * from './Tiles/Tiles';
 export * from './Toolbar/Toolbar';
 export * from './Tree/Tree';
+export * from './Tooltip/Tooltip';

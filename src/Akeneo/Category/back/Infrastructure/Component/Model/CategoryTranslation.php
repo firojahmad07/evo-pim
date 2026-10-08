@@ -16,6 +16,9 @@ class CategoryTranslation extends AbstractTranslation implements CategoryTransla
     /** @var string */
     protected $label;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setLabel($label)
     {
         $this->label = $label;
@@ -23,6 +26,9 @@ class CategoryTranslation extends AbstractTranslation implements CategoryTransla
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getLabel()
     {
         return $this->label;

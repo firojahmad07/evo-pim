@@ -8,7 +8,7 @@ use Akeneo\Connectivity\Connection\Application\Settings\Service\RegenerateUserPa
 use Akeneo\Connectivity\Connection\Domain\Settings\Model\ValueObject\UserId;
 use Akeneo\UserManagement\Bundle\Manager\UserManager;
 use Akeneo\UserManagement\Component\Model\UserInterface;
-use Doctrine\DBAL\Driver\Connection as DbalConnection;
+use Doctrine\DBAL\Connection as DbalConnection;
 
 /**
  * @author    Pierre Jolly <pierre.jolly@akeneo.com>
@@ -17,16 +17,8 @@ use Doctrine\DBAL\Driver\Connection as DbalConnection;
  */
 class RegenerateUserPassword implements RegenerateUserPasswordInterface
 {
-    private UserManager $userManager;
-
-    private DbalConnection $dbalConnection;
-
-    public function __construct(
-        UserManager $userManager,
-        DbalConnection $dbalConnection
-    ) {
-        $this->userManager = $userManager;
-        $this->dbalConnection = $dbalConnection;
+    public function __construct(private UserManager $userManager, private DbalConnection $dbalConnection)
+    {
     }
 
     public function execute(UserId $userId): string

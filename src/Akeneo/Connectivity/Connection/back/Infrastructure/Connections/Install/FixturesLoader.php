@@ -225,8 +225,8 @@ class FixturesLoader
                 $data
             ),
             [
-                'allowed_grant_types' => Types::ARRAY,
-                'redirect_uris' => Types::ARRAY,
+                'allowed_grant_types' => Types::JSON,
+                'redirect_uris' => Types::JSON,
             ]
         );
 
@@ -258,7 +258,7 @@ class FixturesLoader
             throw new \InvalidArgumentException(
                 \sprintf(
                     'Object "%s" is not valid, cf following constraint violations "%s"',
-                    \get_class($object),
+                    $object::class,
                     \implode(', ', $messages)
                 )
             );

@@ -170,10 +170,11 @@ define([
      * @param {Element} dropDown
      */
     addSelect2Footer: function (dropDown) {
+      $('#select2-drop .select2-drop-footer').remove();
+
       const targetLevel = dropDown[0].dataset.level;
       this.getEntityParentCode(targetLevel).then(parentCode => {
         this.isVariantProduct(parentCode).then(async isVariantProduct => {
-          $('#select2-drop .select2-drop-footer').remove();
           if (!(await this.isCreationGranted(isVariantProduct))) {
             return;
           }
@@ -290,7 +291,7 @@ define([
 
         if (entity.meta?.identifier_generator_warnings) {
           const normalizedWarnings = entity.meta.identifier_generator_warnings.map(warning => {
-            return `${warning.path}: ${warning.message} `;
+            return warning.path ? `${warning.path}: ${warning.message} ` : warning.message;
           });
 
           messenger.notify(
@@ -456,7 +457,7 @@ define([
         return;
       }
 
-      analytics.track('product-model:form:variant-selected', {
+      analytics.appcuesTrack('product-model:form:variant-selected', {
         identifier: entity.identifier,
       });
 

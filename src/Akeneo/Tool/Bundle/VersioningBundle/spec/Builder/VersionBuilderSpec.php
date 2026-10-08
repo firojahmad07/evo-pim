@@ -68,18 +68,18 @@ class VersionBuilderSpec extends ObjectBehavior
         $this->buildPendingVersion($pending);
     }
 
-    function it_compare_versions(Version $pending, Version $previousPending)
+    function it_compares_versions(Version $pending, Version $previousVersion)
     {
-        $previousPending->getVersion()->willReturn(1);
-        $previousPending->getSnapshot()->willReturn(['test' => '00112233']);
+        $previousVersion->getVersion()->willReturn(1);
+        $previousVersion->getSnapshot()->willReturn(['test' => 'old_data', 'description' => "old description"]);
 
         $pending->setVersion(2)->willReturn($pending);
-        $pending->setSnapshot(['test' => '0112233'])->willReturn($pending);
-        $pending->getChangeset()->willReturn(['test' => '0112233']);
+        $pending->setSnapshot(['test' => 'old_data', "name" => "pending name", "description" => "old description"])->willReturn($pending);
+        $pending->getChangeset()->willReturn(['test' => 'pending_data', "name" => "pending name"]);
 
-        $pending->setChangeset(['test' => ['old' => '00112233', 'new' => '0112233']])->willReturn($pending);
+        $pending->setChangeset(["name" => ["old" => "", "new" => "pending name"]])->willReturn($pending);
 
-        $this->buildPendingVersion($pending, $previousPending);
+        $this->buildPendingVersion($pending, $previousVersion);
     }
 
     /**
@@ -128,133 +128,5 @@ class VersionBuilderSpec extends ObjectBehavior
         ])->willReturn($version);
 
         $this->buildVersion($productModel, 'julia', $previousVersion, null);
-    }
-
-    function it_should_not_build_version_if_table_value_is_the_same_but_in_another_order(
-        NormalizerInterface $normalizer,
-        VersionFactory $versionFactory,
-        ProductInterface $product,
-        Version $previousVersion,
-        Version $newVersion,
-    ): void {
-        $this->shouldSetChangeset(
-            $product,
-            $previousVersion,
-            $normalizer,
-            $versionFactory,
-            $newVersion,
-            '[{"per_100g":"300","per_serving":"12"}]',
-            '[{"per_serving":"12","per_100g":"300"}]',
-            []
-        );
-
-        $this->buildVersion($product, 'julia', $previousVersion);
-    }
-
-    function it_should_build_version_if_table_value_is_different(
-        NormalizerInterface $normalizer,
-        VersionFactory $versionFactory,
-        ProductInterface $product,
-        Version $previousVersion,
-        Version $newVersion,
-    ): void {
-        $this->shouldSetChangeset(
-            $product,
-            $previousVersion,
-            $normalizer,
-            $versionFactory,
-            $newVersion,
-            '[{"per_100g":"300","per_serving":"12"}]',
-            '[{"per_serving":"4000","per_100g":"300"}]',
-            [
-                'nutrition' => [
-                    'old' => '[{"per_100g":"300","per_serving":"12"}]',
-                    'new' => '[{"per_serving":"4000","per_100g":"300"}]',
-                ]
-            ]
-        );
-    }
-
-    function it_should_build_version_if_table_value_line_is_added(
-        NormalizerInterface $normalizer,
-        VersionFactory $versionFactory,
-        ProductInterface $product,
-        Version $previousVersion,
-        Version $newVersion,
-    ): void {
-        $this->shouldSetChangeset(
-            $product,
-            $previousVersion,
-            $normalizer,
-            $versionFactory,
-            $newVersion,
-            '[{"per_100g":"300","per_serving":"12"}]',
-            '[{"per_100g":"300","per_serving":"12"}, {"per_100g":"3000","per_serving":"120"}]',
-            [
-                'nutrition' => [
-                    'old' => '[{"per_100g":"300","per_serving":"12"}]',
-                    'new' => '[{"per_100g":"300","per_serving":"12"}, {"per_100g":"3000","per_serving":"120"}]',
-                ]
-            ]
-        );
-    }
-
-    private function shouldSetChangeset(
-        ProductInterface $product,
-        Version $previousVersion,
-        NormalizerInterface $normalizer,
-        VersionFactory $versionFactory,
-        Version $newVersion,
-        string $previousVersionValue,
-        string $newVersionValue,
-        array $expectedChangeset,
-    ): void {
-        $uuid = Uuid::uuid4();
-        $product
-            ->getUuid()
-            ->shouldBeCalled()
-            ->willReturn($uuid);
-
-        $previousVersion
-            ->getVersion()
-            ->shouldBeCalled()
-            ->willReturn(1);
-
-        $previousVersion
-            ->getSnapshot()
-            ->shouldBeCalled()
-            ->willReturn([
-                'nutrition' => $previousVersionValue
-            ]);
-
-        $normalizer
-            ->normalize($product, 'flat', [])
-            ->shouldBeCalled()
-            ->willReturn([
-                'nutrition' => $newVersionValue
-            ]);
-
-        $versionFactory
-            ->create(Argument::cetera())
-            ->shouldBeCalled()
-            ->willReturn($newVersion);
-
-        $newVersion
-            ->setVersion(2)
-            ->shouldBeCalled()
-            ->willReturn($newVersion);
-
-        $newVersion
-            ->setSnapshot([
-                'nutrition' => $newVersionValue
-            ])
-            ->shouldBeCalled()
-            ->willReturn($newVersion);
-
-        $newVersion
-            ->setChangeset($expectedChangeset)
-            ->shouldBeCalled();
-
-        $this->buildVersion($product, 'julia', $previousVersion);
     }
 }

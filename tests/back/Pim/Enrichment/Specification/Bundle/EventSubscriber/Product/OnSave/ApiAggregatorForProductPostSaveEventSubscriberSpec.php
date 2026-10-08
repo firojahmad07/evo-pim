@@ -47,7 +47,7 @@ class ApiAggregatorForProductPostSaveEventSubscriberSpec extends ObjectBehavior
         $product = new Product();
         $event->getSubject()->willReturn($product);
         $event->getArguments()->willReturn(['unitary' => true]);
-        $event->setArgument('unitary', false)->shouldBeCalled();
+        $event->setArgument('unitary', false)->willReturn($event);
         $event->stopPropagation()->shouldNotBeCalled();
         $this->batchEvents($event);
         $this->getEventProducts()->shouldHaveCount(1);
@@ -63,7 +63,7 @@ class ApiAggregatorForProductPostSaveEventSubscriberSpec extends ObjectBehavior
         $product = new Product();
         $event->getSubject()->willReturn($product);
         $event->getArguments()->willReturn(['unitary' => true]);
-        $event->setArgument(Argument::cetera())->shouldNotBeCalled();
+        $event->setArgument(Argument::cetera())->willReturn($event);
         $event->stopPropagation()->shouldNotBeCalled();
 
         $this->batchEvents($event);
@@ -77,7 +77,7 @@ class ApiAggregatorForProductPostSaveEventSubscriberSpec extends ObjectBehavior
         $this->deactivate();
         $event->getSubject()->willReturn($product);
         $event->getArguments()->willReturn(['unitary' => true]);
-        $event->setArgument(Argument::cetera())->shouldNotBeCalled();
+        $event->setArgument(Argument::cetera())->willReturn($event);
         $event->stopPropagation()->shouldNotBeCalled();
 
         $this->batchEvents($event);
@@ -91,7 +91,7 @@ class ApiAggregatorForProductPostSaveEventSubscriberSpec extends ObjectBehavior
         $product = new Product();
         $event->getSubject()->willReturn($product);
         $event->getArguments()->willReturn(['unitary' => false]);
-        $event->setArgument(Argument::cetera())->shouldNotBeCalled();
+        $event->setArgument(Argument::cetera())->willReturn($event);
         $event->stopPropagation()->shouldNotBeCalled();
 
         $this->batchEvents($event);
@@ -109,7 +109,7 @@ class ApiAggregatorForProductPostSaveEventSubscriberSpec extends ObjectBehavior
         $object = new \stdClass();
         $event->getSubject()->willReturn($object);
         $event->getArguments()->willReturn(['unitary' => true]);
-        $event->setArgument(Argument::cetera())->shouldNotBeCalled();
+        $event->setArgument(Argument::cetera())->willReturn($event);
         $event->stopPropagation()->shouldNotBeCalled();
 
         $this->batchEvents($event);

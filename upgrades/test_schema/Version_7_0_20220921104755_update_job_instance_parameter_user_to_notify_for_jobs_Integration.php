@@ -37,7 +37,7 @@ final class Version_7_0_20220921104755_update_job_instance_parameter_user_to_not
         $this->assertFalse($this->jobIsMigrated('a_mass_upload', []));
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         $this->assertTrue($this->jobIsMigrated('a_mass_edit', ['admin']));
         $this->assertTrue($this->jobIsMigrated('a_mass_edit_rule', ['greg']));
@@ -55,7 +55,7 @@ final class Version_7_0_20220921104755_update_job_instance_parameter_user_to_not
         $this->assertFalse($this->jobIsMigrated('a_mass_upload', []));
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         $this->assertTrue($this->jobIsMigrated('a_mass_edit', ['admin']));
         $this->assertTrue($this->jobIsMigrated('a_mass_edit_rule', ['greg']));
@@ -112,7 +112,7 @@ SQL;
 
     private function jobIsMigrated(string $jobCode, array $usersToNotify): bool
     {
-        $this->jobInstanceRepository->clear();
+        $this->get('doctrine.orm.entity_manager')->clear();
 
         /** @var JobInstance $jobInstance */
         $jobInstance = $this->jobInstanceRepository->findOneByCode($jobCode);

@@ -6,6 +6,7 @@ use Akeneo\Tool\Component\Localization\Factory\NumberFactory;
 use Akeneo\Tool\Component\Localization\Localizer\LocalizerInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -28,22 +29,24 @@ class MetricLocalizerSpec extends ObjectBehavior
         $this->supports('pim_catalog_price_collection')->shouldReturn(false);
     }
 
-    function it_valids_the_format()
+    function it_valids_the_format(ValidatorInterface $validator)
     {
+        $validator->validate(Argument::any(), Argument::any())->willReturn(new ConstraintViolationList());
+
         $this->validate(['amount' => '10.05', 'unit' => 'KILOGRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
         $this->validate(['amount' => '-10.05', 'unit' => 'KILOGRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
         $this->validate(['amount' => '10', 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
         $this->validate(['amount' => '-10', 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
         $this->validate(['amount' => 10, 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
             ->shouldReturn(null);
         $this->validate(['amount' => 10.05, 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
             ->shouldReturn(null);
         $this->validate(['amount' => ' 10.05 ', 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
         $this->validate(['amount' => null, 'unit' => null], 'metric', ['decimal_separator' => '.'])
             ->shouldReturn(null);
         $this->validate(['amount' => '', 'unit' => ''], 'metric', ['decimal_separator' => '.'])
@@ -51,7 +54,7 @@ class MetricLocalizerSpec extends ObjectBehavior
         $this->validate(['amount' => 0, 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
             ->shouldReturn(null);
         $this->validate(['amount' => '0', 'unit' => 'GRAM'], 'metric', ['decimal_separator' => '.'])
-            ->shouldReturn(null);
+            ->shouldBeLike(new ConstraintViolationList());
     }
 
     function it_returns_a_constraint_if_the_decimal_separator_is_not_valid(

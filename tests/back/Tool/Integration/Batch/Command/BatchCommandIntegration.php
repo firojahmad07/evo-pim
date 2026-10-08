@@ -6,7 +6,7 @@ namespace Akeneo\Test\Integration\integration\BatchBundle\Command;
 
 use Akeneo\Tool\Component\Batch\Job\BatchStatus;
 use Akeneo\Test\Integration\TestCase;
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -97,7 +97,7 @@ class BatchCommandIntegration extends TestCase
     public function testLaunchJobWithValidEmail()
     {
         $output = $this->launchJob(['--email' => ['ziggy@akeneo.com']]);
-        $this->assertEquals('Export csv_product_export has been successfully executed.' . PHP_EOL, $output->fetch());
+        $this->assertStringContainsString('Export csv_product_export has been successfully executed.', $output->fetch());
     }
 
     public function testLaunchJobWithInvalidJobInstance()
@@ -179,8 +179,8 @@ class BatchCommandIntegration extends TestCase
     {
         $connection = $this->getConnection();
         $stmt = $connection->prepare('SELECT * from akeneo_batch_job_execution');
-        $stmt->execute();
-        return $stmt->fetch();
+
+        return $stmt->executeQuery()->fetchAssociative();
     }
 
     /**

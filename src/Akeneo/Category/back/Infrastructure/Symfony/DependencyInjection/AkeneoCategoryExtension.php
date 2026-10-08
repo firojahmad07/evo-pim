@@ -18,11 +18,14 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  */
 class AkeneoCategoryExtension extends Extension
 {
+    /**
+     * {@inheritdoc}
+     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('bus.yml');
         $loader->load('cli.yml');
-        $loader->load('feature_flags.yml');
         $loader->load('controllers.yml');
         $loader->load('entities.yml');
         $loader->load('forms.yml');
@@ -30,15 +33,14 @@ class AkeneoCategoryExtension extends Extension
         $loader->load('normalizers.yml');
         $loader->load('readers.yml');
         $loader->load('repositories.yml');
-        $loader->load('serializers_standard.yml');
-        $loader->load('serializers_versioning.yml');
-        $loader->load('message_buses.yml');
+        $loader->load('serializers.yml');
         $loader->load('queries.yml');
         $loader->load('converters.yml');
         $loader->load('filters.yml');
         $loader->load('handlers.yml');
         $loader->load('appliers.yml');
         $loader->load('factories.yml');
+        $loader->load('registry.yml');
         $loader->load('subscribers.yml');
         $loader->load('validators.yml');
         $loader->load('storage/save.yml');
@@ -50,5 +52,11 @@ class AkeneoCategoryExtension extends Extension
         $loader->load('parameters.yml');
         $loader->load('preview_generators.yml');
         $loader->load('builders.yml');
+        $loader->load('migration.yml');
+        $loader->load('cleaners.yml');
+        $loader->load('jobs.yml');
+        $loader->load('counters.yml');
+        $loader->load('savers.yml');
+        $loader->load('twig.yml');
     }
 }

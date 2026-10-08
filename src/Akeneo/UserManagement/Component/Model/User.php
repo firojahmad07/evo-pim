@@ -207,7 +207,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * {@inheritdoc}
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         $this->plainPassword = null;
     }
@@ -239,9 +239,9 @@ class User implements UserInterface, EquatableInterface
     /**
      * {@inheritDoc}
      */
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string
     {
-        return $this->username;
+        return $this->username ?? '';
     }
 
     /**
@@ -1101,6 +1101,16 @@ class User implements UserInterface, EquatableInterface
         $this->timezone = $timezone;
 
         return $this;
+    }
+
+    public function isUiUser(): bool
+    {
+        return self::TYPE_USER === $this->type;
+    }
+
+    public function defineAsUiUser(): void
+    {
+        $this->type = self::TYPE_USER;
     }
 
     public function isApiUser(): bool

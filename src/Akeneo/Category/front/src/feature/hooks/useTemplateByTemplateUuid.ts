@@ -1,52 +1,24 @@
+import {NotificationLevel, useNotify, useRouter, useTranslate} from '@akeneo-pim-community/shared';
 import {useQuery} from 'react-query';
+import {useHistory} from 'react-router';
 import {Template} from '../models';
-import {FetchStatus, useRouter} from '@akeneo-pim-community/shared';
-import {useCallback, useMemo} from 'react';
+import {apiFetch} from '../tools/apiFetch';
 
-const TEMPLATE_FETCH_STALE_TIME = 60 * 60 * 1000;
-
-type Result = {
-  status: FetchStatus;
-  data: Template | undefined;
-  error: any;
-};
-
-const getFetchingStatus = (status: 'idle' | 'loading' | 'error' | 'success'): FetchStatus => {
-  if (status === 'loading') return 'fetching';
-  if (status === 'success') return 'fetched';
-  return status;
-};
-
-export const useTemplateByTemplateUuid = (uuid: string | null): Result => {
+export const useTemplateByTemplateUuid = (uuid: string | null) => {
   const router = useRouter();
-  const url = useMemo(() => {
-    if (uuid === null) {
-      return null;
-    }
-    return router.generate('pim_category_template_rest_get_by_template_uuid', {
-      templateUuid: uuid,
-    });
-  }, [router, uuid]);
+  const translate = useTranslate();
+  const notify = useNotify();
+  const history = useHistory();
 
-  const fetchTemplate = useCallback(async () => {
-    if (url === null || uuid === null || uuid.length === 0) {
-      return {};
-    }
+  const url = router.generate('pim_category_template_rest_get_by_template_uuid', {
+    templateUuid: uuid,
+  });
 
-    return fetch(url).then(response => {
-      return response.json();
-    });
-  }, [uuid, url]);
-
-  const options = {
-    enabled: uuid !== null && url !== null,
-    staleTime: TEMPLATE_FETCH_STALE_TIME,
-  };
-
-  const response = useQuery<Template, any>(['template'], fetchTemplate, options);
-
-  return {
-    ...response,
-    status: getFetchingStatus(response.status),
-  };
+  return useQuery(['get-template', uuid], () => apiFetch<Template>(url, {}), {
+    enabled: null !== uuid,
+    onError: () => {
+      history.push('/');
+      notify(NotificationLevel.ERROR, translate('akeneo.category.template.not_found'));
+    },
+  });
 };

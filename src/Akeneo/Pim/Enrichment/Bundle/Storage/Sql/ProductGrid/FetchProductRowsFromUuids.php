@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Akeneo\Pim\Enrichment\Bundle\Storage\Sql\ProductGrid;
 
-use Akeneo\Channel\Infrastructure\Component\Query\PublicApi\ChannelExistsWithLocaleInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Factory\WriteValueCollectionFactory;
 use Akeneo\Pim\Enrichment\Component\Product\Grid\ReadModel;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
-use Akeneo\Pim\Enrichment\Component\Product\Query\FetchProductRowsFromIdentifiersInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Query\FetchProductRowsFromUuidsInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Query\GetProductCompletenesses;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
@@ -19,12 +19,12 @@ use Ramsey\Uuid\UuidInterface;
  * @copyright 2018 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-final class FetchProductRowsFromUuids implements FetchProductRowsFromIdentifiersInterface
+final class FetchProductRowsFromUuids implements FetchProductRowsFromUuidsInterface
 {
     public function __construct(
-        private Connection $connection,
-        private WriteValueCollectionFactory $valueCollectionFactory,
-        private ChannelExistsWithLocaleInterface $channelExistsWithLocale,
+        private readonly Connection $connection,
+        private readonly WriteValueCollectionFactory $valueCollectionFactory,
+        private readonly GetProductCompletenesses $getProductCompletenesses,
     ) {
     }
 
@@ -90,9 +90,15 @@ final class FetchProductRowsFromUuids implements FetchProductRowsFromIdentifiers
     private function getProperties(array $uuids): array
     {
         $sql = <<<SQL
+            WITH main_identifier AS (
+                SELECT id
+                FROM pim_catalog_attribute
+                WHERE main_identifier = 1
+                LIMIT 1
+            )
             SELECT 
                 BIN_TO_UUID(p.uuid) AS uuid,
-                p.identifier,
+                raw_data AS identifier,
                 p.family_id,
                 p.is_enabled,
                 p.created,
@@ -100,7 +106,10 @@ final class FetchProductRowsFromUuids implements FetchProductRowsFromIdentifiers
                 pm.code as product_model_code
             FROM
                 pim_catalog_product p
-                LEFT JOIN pim_catalog_product_model pm ON p.product_model_id = pm.id 
+                LEFT JOIN pim_catalog_product_model pm ON p.product_model_id = pm.id
+                LEFT JOIN pim_catalog_product_unique_data pcpud
+                    ON pcpud.product_uuid = p.uuid
+                    AND pcpud.attribute_id = (SELECT id FROM main_identifier)
             WHERE 
                 uuid IN (:uuids)
 SQL;
@@ -170,12 +179,8 @@ SQL;
         foreach ($valueCollections as $productUuid => $valueCollection) {
             $result[$productUuid]['value_collection'] = $valueCollection->filter(
                 function (ValueInterface $value) use ($channelCode, $localeCode) {
-                    $isScopeMatching = $value->getScopeCode() === null || $value->getScopeCode() === $channelCode;
-                    $isLocaleMatching = $value->getLocaleCode() === null || $value->getLocaleCode() === $localeCode;
-                    $isLocaleBoundToChannel = null === $value->getLocaleCode()
-                        || $this->channelExistsWithLocale->isLocaleBoundToChannel($value->getLocaleCode(), $channelCode);
-
-                    return $isScopeMatching && $isLocaleMatching && $isLocaleBoundToChannel;
+                    return ($value->getScopeCode() === $channelCode || $value->getScopeCode() === null)
+                        && ($value->getLocaleCode() === $localeCode || $value->getLocaleCode() === null);
                 }
             );
         }
@@ -188,9 +193,15 @@ SQL;
     {
         $result = [];
         $sql = <<<SQL
+            WITH main_identifier AS (
+                SELECT id
+                FROM pim_catalog_attribute
+                WHERE main_identifier = 1
+                LIMIT 1
+            )
             SELECT 
                 BIN_TO_UUID(p.uuid) as uuid,
-                p.identifier as identifier,
+                pcpud.raw_data as identifier,
                 a_label.code as label_code,
                 a_label.is_localizable,
                 a_label.is_scopable
@@ -198,6 +209,9 @@ SQL;
                 pim_catalog_product p
                 LEFT JOIN pim_catalog_family f ON f.id = p.family_id
                 LEFT JOIN pim_catalog_attribute a_label ON a_label.id = f.label_attribute_id
+                LEFT JOIN pim_catalog_product_unique_data pcpud
+                    ON pcpud.product_uuid = p.uuid
+                    AND pcpud.attribute_id = (SELECT id FROM main_identifier)
             WHERE 
                 uuid IN (:uuids)
 SQL;
@@ -221,7 +235,7 @@ SQL;
             if (null !== $labelValue && null !== $labelValue->getData()) {
                 $result[$row['uuid']]['label'] = $labelValue->getData();
             } else {
-                $result[$row['uuid']]['label'] = sprintf('[%s]', $row['identifier'] ?? $row['uuid']);
+                $result[$row['uuid']]['label'] = $row['identifier'] ?? sprintf('[%s]', $row['uuid']);
             }
         }
 
@@ -265,38 +279,11 @@ SQL;
     /** @param array<UuidInterface> $uuids */
     private function getCompletenesses(array $uuids, string $channelCode, string $localeCode): array
     {
+        $completenessCollection = $this->getProductCompletenesses->fromProductUuids($uuids, $channelCode, [$localeCode]);
+
         $result = [];
         foreach ($uuids as $uuid) {
-            $result[$uuid->toString()]['completeness'] = null;
-        }
-
-        $sql = <<<SQL
-            SELECT 
-                BIN_TO_UUID(p.uuid) as uuid,
-                FLOOR(100 * (c.required_count - c.missing_count) / c.required_count) AS ratio
-            FROM
-                pim_catalog_product p
-                JOIN pim_catalog_completeness c ON c.product_uuid = p.uuid
-                JOIN pim_catalog_locale l ON l.id = c.locale_id
-                JOIN pim_catalog_channel ch ON ch.id = c.channel_id
-            WHERE 
-                uuid IN (:uuids)
-                AND l.code = :locale_code
-                AND ch.code = :channel_code
-SQL;
-
-        $rows = $this->connection->executeQuery(
-            $sql,
-            [
-                'uuids' => array_map(fn (UuidInterface $uuid): string => $uuid->getBytes(), $uuids),
-                'locale_code' => $localeCode,
-                'channel_code' => $channelCode
-            ],
-            ['uuids' => \Doctrine\DBAL\Connection::PARAM_STR_ARRAY]
-        )->fetchAllAssociative();
-
-        foreach ($rows as $row) {
-            $result[$row['uuid']]['completeness'] = (int) $row['ratio'];
+            $result[$uuid->toString()]['completeness'] = $completenessCollection[$uuid->toString()]?->getCompletenessForChannelAndLocale($channelCode, $localeCode)?->ratio();
         }
 
         return $result;

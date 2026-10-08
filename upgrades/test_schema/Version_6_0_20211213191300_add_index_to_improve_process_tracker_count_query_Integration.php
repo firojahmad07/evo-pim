@@ -45,7 +45,7 @@ class Version_6_0_20211213191300_add_index_to_improve_process_tracker_count_quer
         $this->dropIndexIfExists();
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         Assert::assertTrue($this->indexExists());
     }

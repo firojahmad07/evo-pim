@@ -175,13 +175,13 @@ class DoctrineJobRepositoryIntegration extends TestCase
         return $this->catalog->useMinimalCatalog();
     }
 
-    private function selectJobExecution(int $id): array {
+    private function selectJobExecution(int $id): array 
+    {
         $connection = $this->get('doctrine.orm.default_entity_manager')->getConnection();
         $stmt = $connection->prepare('SELECT * from akeneo_batch_job_execution where id = :id');
         $stmt->bindParam('id', $id);
-        $stmt->execute();
-        return $stmt->fetch();
 
+        return $stmt->executeQuery()->fetchAssociative();
     }
 
     private function createJobInstance(string $jobName): JobInstance
@@ -200,8 +200,12 @@ class DoctrineJobRepositoryIntegration extends TestCase
      */
     private function addNewFeatureFlag(string $featureFlag): void
     {
-        $featureFlagService = new class implements FeatureFlag {
-            public function isEnabled(): bool { return false; }
+        $featureFlagService = new class implements FeatureFlag
+        {
+            public function isEnabled(?string $feature = null): bool
+            {
+                return false;
+            }
         };
         $this->get('akeneo.feature_flag.service.registry')->add($featureFlag, $featureFlagService);
     }

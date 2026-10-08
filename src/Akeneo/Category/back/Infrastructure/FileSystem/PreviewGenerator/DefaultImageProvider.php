@@ -31,6 +31,9 @@ class DefaultImageProvider implements DefaultImageProviderInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getImageUrl(string $fileKey, string $filter): string
     {
         $filter = self::SUPPORTED_TYPES[$filter] ?? $filter;
@@ -47,6 +50,9 @@ class DefaultImageProvider implements DefaultImageProviderInterface
         return $this->cacheManager->resolve($fileKey, $filter);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getImageBinary(string $fileType): Binary
     {
         if (isset($this->defaultImages[$fileType])) {

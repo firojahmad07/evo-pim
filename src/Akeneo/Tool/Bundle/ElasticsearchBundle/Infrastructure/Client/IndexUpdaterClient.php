@@ -9,16 +9,15 @@ declare(strict_types=1);
 
 namespace Akeneo\Tool\Bundle\ElasticsearchBundle\Infrastructure\Client;
 
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 use Monolog\Logger;
 use Webmozart\Assert\Assert;
 
 final class IndexUpdaterClient
 {
-    private Client $client;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $client;
 
-    public function __construct(private Logger $logger, ClientBuilder $clientBuilder, array $hosts)
+    public function __construct(private Logger $logger, $clientBuilder, array $hosts)
     {
         $this->client = $clientBuilder->setHosts($hosts)->build();
     }
@@ -65,7 +64,7 @@ final class IndexUpdaterClient
 
     public function reindexAllDocuments(string $sourceAliasName, string $destinationAliasName)
     {
-        $this->logger->notice("First indexation into the new elasticsearch index");
+        $this->logger->notice("First indexation into the new search index");
         $reindexResponse = $this->client->reindex([
             'wait_for_completion' => true,
             'body' => [
@@ -203,7 +202,7 @@ final class IndexUpdaterClient
 
     public function isAnAlias(string $indexName): bool
     {
-        return $this->client->indices()->existsAlias(['name' => $indexName]);
+        return (bool) $this->client->indices()->existsAlias(['name' => $indexName]);
     }
 
     public function haveAlias(string $indexName): bool

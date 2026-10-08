@@ -12,7 +12,6 @@ use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetIdentifierValue;
 use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetSimpleSelectValue;
 use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\UserIntent;
 use Akeneo\Pim\Enrichment\Product\API\ValueObject\ProductUuid;
-use Akeneo\Pim\Enrichment\Product\Domain\Model\ProductIdentifier;
 use Akeneo\Pim\Enrichment\Product\Domain\Query\GetCategoryCodes;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
@@ -85,28 +84,6 @@ final class SqlGetCategoryCodesIntegration extends TestCase
     }
 
     /** @test */
-    public function it_gets_product_categories_by_identifier(): void
-    {
-        Assert::assertSame([], $this->getCategoryCodes->fromProductIdentifiers([]));
-        $this->assertEqualArrays(
-            [
-                'foo' => ['categoryA', 'categoryB'],
-                'bar' => ['categoryA', 'categoryA1'],
-                'baz' => ['categoryA', 'categoryA1', 'categoryC'],
-            ],
-            $this->getCategoryCodes->fromProductIdentifiers(
-                [
-                    ProductIdentifier::fromString('foo'),
-                    ProductIdentifier::fromString('unknown_sku'),
-                    ProductIdentifier::fromString('baz'),
-                    ProductIdentifier::fromString('bar'),
-                    ProductIdentifier::fromString('foo'),
-                ]
-            )
-        );
-    }
-
-    /** @test */
     public function it_gets_product_category_codes_by_uuids(): void
     {
         Assert::assertSame([], $this->getCategoryCodes->fromProductUuids([]));
@@ -153,14 +130,6 @@ final class SqlGetCategoryCodesIntegration extends TestCase
         $this->get('pim_catalog.updater.product_model')->update($productModel, $data);
         Assert::assertCount(0, $this->get('validator')->validate($productModel));
         $this->get('pim_catalog.saver.product_model')->save($productModel);
-    }
-
-    private function getUserId(string $username): int
-    {
-        return (int)$this->get('database_connection')->fetchOne(
-            'SELECT id FROM oro_user WHERE username = :username',
-            ['username' => $username]
-        );
     }
 
     private function assertEqualArrays(array $expected, array $actual): void

@@ -28,7 +28,6 @@ Akeneo\Tool\Component\Batch\Model\JobInstance:
             column: job_name
         status:
             type: integer
-            lenght: 11
             column: status
         connector:
             type: string
@@ -50,6 +49,11 @@ Akeneo\Tool\Component\Batch\Model\JobInstance:
             type: string
             length: 255
             column: type
+        isVisible:
+            type: boolean
+            column: is_visible
+            options:
+                default: true
     oneToMany:
         jobExecutions:
             targetEntity: Akeneo\Tool\Component\Batch\Model\JobExecution

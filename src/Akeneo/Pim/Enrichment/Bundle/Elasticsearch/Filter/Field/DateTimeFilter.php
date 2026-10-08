@@ -274,9 +274,18 @@ class DateTimeFilter extends AbstractFieldFilter implements FieldFilterInterface
 
         if (!$dateTime instanceof \DateTimeInterface) {
             $dateTime = \DateTimeImmutable::createFromFormat(static::DATETIME_FORMAT, $dateTime, $utcTimeZone);
-            $errors = $dateTime !== false ? $dateTime->getLastErrors() : false;
 
-            if (false === $dateTime || (false !== $errors && 0 < $errors['warning_count'])) {
+            if (false === $dateTime) {
+                throw InvalidPropertyException::dateExpected(
+                    $field,
+                    static::DATETIME_FORMAT,
+                    static::class,
+                    $value
+                );
+            }
+
+            $errors = $dateTime->getLastErrors();
+            if (false !== $errors && isset($errors['warning_count']) && 0 < $errors['warning_count']) {
                 throw InvalidPropertyException::dateExpected(
                     $field,
                     static::DATETIME_FORMAT,

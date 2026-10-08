@@ -13,6 +13,7 @@ use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\LabelCollection;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Property\FreeText;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Structure;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Target;
+use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\TextTransformation;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Repository\IdentifierGeneratorRepository;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
@@ -55,8 +56,7 @@ class ImportProductsIntegration extends TestCase
         Assert::assertEquals([
             [
                 'reason' => "Your product has been saved but your identifier could not be generated:
-identifier: The identifier attribute must not contain more than 255 characters. The submitted value is too long.
-sku: The identifier attribute must not contain more than 255 characters. The submitted value is too long.",
+sku: The sku attribute must not contain more than 255 characters. The submitted value is too long.",
                 'item' => [
                     'sku' => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 ],
@@ -80,6 +80,7 @@ sku: The identifier attribute must not contain more than 255 characters. The sub
             LabelCollection::fromNormalized(['fr' => 'Générateur']),
             Target::fromString('sku'),
             Delimiter::fromString('-'),
+            TextTransformation::fromString('no'),
         );
 
         $this->getIdentifierGeneratorRepository()->save($identifierGenerator);
@@ -102,6 +103,7 @@ sku: The identifier attribute must not contain more than 255 characters. The sub
             LabelCollection::fromNormalized(['fr' => 'Générateur']),
             Target::fromString('sku'),
             Delimiter::fromString('-'),
+            TextTransformation::fromString('no'),
         );
 
         $this->getIdentifierGeneratorRepository()->save($identifierGenerator);

@@ -33,10 +33,13 @@ class InMemoryUserRepository implements IdentifiableObjectRepositoryInterface, S
             throw new \InvalidArgumentException('Only user objects are supported.');
         }
         if (null === $user->getId()) {
-            $user->setId(Uuid::uuid4()->toString());
+            $user->setId(rand(0, 1000000));
         }
 
-        $this->users->set($user->getUserIdentifier(), $user);
+        $identifier = $user->getUserIdentifier();
+        if ($identifier !== '' && $identifier !== null) {
+            $this->users->set($identifier, $user);
+        }
     }
 
     /**

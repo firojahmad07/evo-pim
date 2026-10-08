@@ -1,31 +1,29 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import {screen, act} from '@testing-library/react';
+import {screen} from '@testing-library/react';
 import {renderWithProviders, ValidationError} from '@akeneo-pim-community/shared';
-import {LocalStorage, SftpStorage} from '../model';
 import {SftpStorageConfigurator} from './SftpStorageConfigurator';
+import {SftpStorage, LocalStorage} from '../../models';
+
+jest.mock('./CheckStorageConnection', () => ({
+  CheckStorageConnection: () => <button>Check connection</button>,
+}));
+
+jest.mock('../../hooks/useGetPublicKey', () => ({
+  useGetPublicKey: () => '-----BEGIN CERTIFICATE-----publickey-----END CERTIFICATE-----',
+}));
+
+const notifyMock = jest.fn();
+jest.mock('@akeneo-pim-community/shared', () => ({
+  ...jest.requireActual('@akeneo-pim-community/shared'),
+  useNotify: () => notifyMock,
+}));
 
 beforeEach(() => {
-  global.fetch = mockFetch;
+  notifyMock.mockClear();
 });
 
-const mockFetch = jest.fn().mockImplementation(async (route: string) => {
-  switch (route) {
-    case 'pimee_job_automation_get_public_key':
-      return {
-        ok: true,
-        json: async () => '-----BEGIN CERTIFICATE-----publickey-----END CERTIFICATE-----',
-      };
-    case 'pimee_job_automation_get_storage_connection_check':
-      return {
-        ok: true,
-      };
-    default:
-      throw new Error();
-  }
-});
-
-test('it renders the sftp storage configurator', async () => {
+test('it renders the sftp storage configurator', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '/tmp/file.xlsx',
@@ -37,23 +35,21 @@ test('it renders the sftp storage configurator', async () => {
     password: 'root',
   };
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={jest.fn()}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={jest.fn()}
+    />
+  );
 
   expect(screen.getByDisplayValue('/tmp/file.xlsx')).toBeInTheDocument();
   expect(screen.getByDisplayValue('c1:91:5e:42:55:5c:74:65:b6:12:32:7e:1f:6d:80:3e')).toBeInTheDocument();
 });
 
-test('it allows user to fill file_path field', async () => {
+test('it allows user to fill file_path field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '/tmp/test.xls',
@@ -66,17 +62,15 @@ test('it allows user to fill file_path field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const file_pathInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.file_path.label pim_common.required_label'
@@ -86,7 +80,7 @@ test('it allows user to fill file_path field', async () => {
   expect(onStorageChange).toHaveBeenLastCalledWith({...storage, file_path: '/tmp/test.xlsx'});
 });
 
-test('it allows user to fill host field', async () => {
+test('it allows user to fill host field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -99,17 +93,15 @@ test('it allows user to fill host field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const hostInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.host.label pim_common.required_label'
@@ -119,7 +111,7 @@ test('it allows user to fill host field', async () => {
   expect(onStorageChange).toHaveBeenLastCalledWith({...storage, host: 'example.com'});
 });
 
-test('it allows user to fill fingerprint field', async () => {
+test('it allows user to fill fingerprint field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -132,17 +124,15 @@ test('it allows user to fill fingerprint field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   userEvent.paste(
     screen.getByLabelText('pim_import_export.form.job_instance.storage_form.fingerprint.label'),
@@ -155,7 +145,7 @@ test('it allows user to fill fingerprint field', async () => {
   });
 });
 
-test('it removes fingerprint from model when clearing input', async () => {
+test('it removes fingerprint from model when clearing input', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -169,17 +159,15 @@ test('it removes fingerprint from model when clearing input', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   userEvent.clear(screen.getByLabelText('pim_import_export.form.job_instance.storage_form.fingerprint.label'));
 
@@ -189,7 +177,7 @@ test('it removes fingerprint from model when clearing input', async () => {
   });
 });
 
-test('it allows user to fill port field', async () => {
+test('it allows user to fill port field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -202,17 +190,15 @@ test('it allows user to fill port field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const portInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.port.label pim_common.required_label'
@@ -298,7 +284,7 @@ test('it allows user to change login type from private key to password', () => {
   expect(onStorageChange).toHaveBeenLastCalledWith(passwordStorage);
 });
 
-test('it displays a public key field', async () => {
+test('it displays a public key field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -310,24 +296,22 @@ test('it displays a public key field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const publicKeyField = screen.getByTestId('publicKey');
   expect(publicKeyField).toBeInTheDocument();
   expect(publicKeyField).toHaveDisplayValue('-----BEGIN CERTIFICATE-----publickey-----END CERTIFICATE-----');
 });
 
-test('it copy to clipboard a public key', async () => {
+test('it copy to clipboard a public key', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -346,24 +330,23 @@ test('it copy to clipboard a public key', async () => {
   });
   jest.spyOn(navigator.clipboard, 'writeText');
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
+
   userEvent.click(screen.getByTestId('copyToClipboard'));
   expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
     '-----BEGIN CERTIFICATE-----publickey-----END CERTIFICATE-----'
   );
 });
 
-test('it allows user to fill username field', async () => {
+test('it allows user to fill username field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -376,17 +359,15 @@ test('it allows user to fill username field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const usernameInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.username.label pim_common.required_label'
@@ -396,7 +377,7 @@ test('it allows user to fill username field', async () => {
   expect(onStorageChange).toHaveBeenLastCalledWith({...storage, username: 'root'});
 });
 
-test('it allows user to fill password field', async () => {
+test('it allows user to fill password field', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -409,17 +390,15 @@ test('it allows user to fill password field', async () => {
 
   const onStorageChange = jest.fn();
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   const passwordInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.password.label pim_common.required_label'
@@ -429,7 +408,7 @@ test('it allows user to fill password field', async () => {
   expect(onStorageChange).toHaveBeenLastCalledWith({...storage, password: 'root'});
 });
 
-test('it hides password field if the password is obfuscated', async () => {
+test('it hides password field if the password is obfuscated', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -439,17 +418,15 @@ test('it hides password field if the password is obfuscated', async () => {
     username: '',
   };
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={jest.fn()}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={jest.fn()}
+    />
+  );
 
   const connectionStringInput = screen.getByLabelText(
     'pim_import_export.form.job_instance.storage_form.password.label pim_common.required_label'
@@ -459,7 +436,7 @@ test('it hides password field if the password is obfuscated', async () => {
   expect(connectionStringInput).toHaveValue('••••••••');
 });
 
-test('it can edit the password field if the password is obfuscated', async () => {
+test('it can edit the password field if the password is obfuscated', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '',
@@ -470,23 +447,22 @@ test('it can edit the password field if the password is obfuscated', async () =>
   };
 
   const onStorageChange = jest.fn();
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={[]}
-        onStorageChange={onStorageChange}
-      />
-    );
-  });
+
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={[]}
+      onStorageChange={onStorageChange}
+    />
+  );
 
   userEvent.click(screen.getByText('pim_common.edit'));
   expect(onStorageChange).toHaveBeenLastCalledWith({...storage, password: ''});
 });
 
-test('it throws an exception when passing a non-sftp storage', async () => {
+test('it throws an exception when passing a non-sftp storage', () => {
   const mockedConsole = jest.spyOn(console, 'error').mockImplementation();
 
   const storage: LocalStorage = {
@@ -509,7 +485,7 @@ test('it throws an exception when passing a non-sftp storage', async () => {
   mockedConsole.mockRestore();
 });
 
-test('it displays validation errors', async () => {
+test('it displays validation errors', () => {
   const storage: SftpStorage = {
     type: 'sftp',
     file_path: '/tmp/file.xlsx',
@@ -566,17 +542,15 @@ test('it displays validation errors', async () => {
     },
   ];
 
-  await act(async () => {
-    renderWithProviders(
-      <SftpStorageConfigurator
-        jobInstanceCode="csv_product_export"
-        storage={storage}
-        fileExtension="xlsx"
-        validationErrors={validationErrors}
-        onStorageChange={jest.fn()}
-      />
-    );
-  });
+  renderWithProviders(
+    <SftpStorageConfigurator
+      jobInstanceCode="csv_product_export"
+      storage={storage}
+      fileExtension="xlsx"
+      validationErrors={validationErrors}
+      onStorageChange={jest.fn()}
+    />
+  );
 
   expect(screen.getByText('error.key.a_file_path_error')).toBeInTheDocument();
   expect(screen.getByText('error.key.a_host_error')).toBeInTheDocument();
@@ -586,18 +560,18 @@ test('it displays validation errors', async () => {
   expect(screen.getByText('error.key.a_password_error')).toBeInTheDocument();
 });
 
-test('it can check connection', async () => {
+test('it does not copy public key to clipboard if browser does not allow it', () => {
   const storage: SftpStorage = {
     type: 'sftp',
-    file_path: '/tmp/file.xlsx',
+    file_path: '',
     host: 'example.com',
     port: 22,
-    login_type: 'password',
-    username: 'root',
-    password: 'root',
+    login_type: 'private_key',
+    username: '',
   };
-
   const onStorageChange = jest.fn();
+  // @ts-ignore
+  delete navigator.clipboard;
 
   renderWithProviders(
     <SftpStorageConfigurator
@@ -609,58 +583,6 @@ test('it can check connection', async () => {
     />
   );
 
-  const checkButton = screen.getByText('pim_import_export.form.job_instance.connection_checker.label');
-  await act(async () => {
-    userEvent.click(checkButton);
-  });
-
-  expect(checkButton).toBeDisabled();
-});
-
-test('it can check connection, display message if error', async () => {
-  mockFetch.mockImplementation((route: string) => {
-    switch (route) {
-      case 'pimee_job_automation_get_public_key':
-        return {
-          ok: true,
-          json: async () => '-----BEGIN CERTIFICATE-----publickey-----END CERTIFICATE-----',
-        };
-      case 'pimee_job_automation_get_storage_connection_check':
-        return {
-          ok: false,
-        };
-      default:
-        throw new Error();
-    }
-  });
-
-  const storage: SftpStorage = {
-    type: 'sftp',
-    file_path: '/tmp/file.xlsx',
-    host: 'example.com',
-    port: 22,
-    login_type: 'password',
-    username: 'root',
-    password: 'root',
-  };
-
-  const onStorageChange = jest.fn();
-
-  renderWithProviders(
-    <SftpStorageConfigurator
-      jobInstanceCode="csv_product_export"
-      storage={storage}
-      fileExtension="xlsx"
-      validationErrors={[]}
-      onStorageChange={onStorageChange}
-    />
-  );
-
-  const checkButton = screen.getByText('pim_import_export.form.job_instance.connection_checker.label');
-  await act(async () => {
-    userEvent.click(checkButton);
-  });
-
-  expect(checkButton).not.toBeDisabled();
-  expect(screen.getByText('pim_import_export.form.job_instance.connection_checker.exception')).toBeInTheDocument();
+  userEvent.click(screen.getByTestId('copyToClipboard'));
+  expect(notifyMock).not.toHaveBeenCalled();
 });

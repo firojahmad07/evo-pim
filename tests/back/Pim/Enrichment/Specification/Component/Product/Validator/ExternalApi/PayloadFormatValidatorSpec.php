@@ -63,7 +63,7 @@ class PayloadFormatValidatorSpec extends ObjectBehavior
 
         $context->getValidator()->shouldBeCalledOnce()->willReturn($validator);
         $validator->inContext($context)->shouldBeCalledOnce()->willReturn($contextualValidator);
-        $contextualValidator->validate($payload, Argument::type('array'))->shouldBeCalledOnce();
+        $contextualValidator->validate($payload, Argument::type('array'))->willReturn($contextualValidator);
 
         $this->validate($payload, new PayloadFormat());
     }

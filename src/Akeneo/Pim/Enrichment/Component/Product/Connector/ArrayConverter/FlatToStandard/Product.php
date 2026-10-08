@@ -291,8 +291,8 @@ class Product implements ArrayConverterInterface
         foreach ($nonLocalizableOrScopableFields as $nonLocalizableOrScopableField) {
             $messages[] = sprintf(
                 'The field "%s" needs an additional locale and/or a channel information; ' .
-                'in order to do that, please set the code as follow: ' .
-                '\'%s-[locale_code]-[channel_code]\'.',
+                    'in order to do that, please set the code as follow: ' .
+                    '\'%s-[locale_code]-[channel_code]\'.',
                 $nonLocalizableOrScopableField,
                 $nonLocalizableOrScopableField
             );

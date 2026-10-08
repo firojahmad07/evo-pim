@@ -4,7 +4,7 @@ namespace Akeneo\Platform\Bundle\ImportExportBundle\Controller\Ui;
 
 use Akeneo\Platform\Bundle\ImportExportBundle\Event\JobExecutionEvents;
 use Akeneo\Platform\Bundle\ImportExportBundle\Repository\InternalApi\JobExecutionRepository;
-use Akeneo\Tool\Bundle\ConnectorBundle\EventListener\JobExecutionArchivist;
+use Akeneo\Tool\Bundle\ConnectorBundle\EventListener\StepExecutionArchivist;
 use Akeneo\Tool\Component\Batch\Job\BatchStatus;
 use Akeneo\Tool\Component\Batch\Job\JobRegistry;
 use Akeneo\Tool\Component\Batch\Job\JobWithStepsInterface;
@@ -38,7 +38,7 @@ class JobTrackerController
 {
     protected EventDispatcherInterface $eventDispatcher;
     protected JobExecutionRepository $jobExecutionRepo;
-    protected JobExecutionArchivist $archivist;
+    protected StepExecutionArchivist $archivist;
     protected SecurityFacade $securityFacade;
     protected array $jobSecurityMapping;
     private SqlUpdateJobExecutionStatus $updateJobExecutionStatus;
@@ -49,7 +49,7 @@ class JobTrackerController
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         JobExecutionRepository $jobExecutionRepo,
-        JobExecutionArchivist $archivist,
+        StepExecutionArchivist $archivist,
         SecurityFacade $securityFacade,
         array $jobSecurityMapping,
         SqlUpdateJobExecutionStatus $updateJobExecutionStatus,
@@ -141,6 +141,7 @@ class JobTrackerController
      * Returns if a user has read permission on an import or export.
      *
      * @param JobExecution $jobExecution
+     * @param mixed        $object
      */
     protected function isJobGranted($jobExecution, $object = null): bool
     {

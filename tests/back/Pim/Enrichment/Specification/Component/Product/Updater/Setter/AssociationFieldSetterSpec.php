@@ -22,6 +22,7 @@ use Akeneo\Pim\Enrichment\Component\Product\Updater\Setter\AssociationFieldSette
 use Akeneo\Pim\Enrichment\Component\Product\Updater\Setter\FieldSetterInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Updater\Setter\SetterInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Updater\TwoWayAssociationUpdaterInterface;
+use Akeneo\Pim\Enrichment\Component\Product\Value\IdentifierValue;
 use Akeneo\Pim\Structure\Component\Model\AssociationType;
 use Akeneo\Pim\Structure\Component\Model\AssociationTypeInterface;
 use Akeneo\Pim\Structure\Component\Repository\AssociationTypeRepositoryInterface;
@@ -159,9 +160,9 @@ class AssociationFieldSetterSpec extends ObjectBehavior
 
         $product->getAssociations()->willReturn(new ArrayCollection([$xsellAssociation->getWrappedObject()]));
 
-        $assocProductOne = (new Product())->setIdentifier('assocProductOne');
-        $assocProductTwo = (new Product())->setIdentifier('assocProductTwo');
-        $assocProductThree = (new Product())->setIdentifier('assocProductThree');
+        $assocProductOne = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductOne'));
+        $assocProductTwo = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductTwo'));
+        $assocProductThree = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductThree'));
         $assocProductModelOne = new ProductModel();
         $assocProductModelOne->setCode('assocProductModelOne');
         $assocProductModelTwo = new ProductModel();
@@ -232,9 +233,9 @@ class AssociationFieldSetterSpec extends ObjectBehavior
 
         $product->getAssociations()->willReturn(new ArrayCollection([$xsellAssociation->getWrappedObject()]));
 
-        $assocProductOne = (new Product())->setIdentifier('assocProductOne');
-        $assocProductTwo = (new Product())->setIdentifier('assocProductTwo');
-        $assocProductThree = (new Product())->setIdentifier('assocProductThree');
+        $assocProductOne = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductOne'));
+        $assocProductTwo = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductTwo'));
+        $assocProductThree = (new Product())->addValue(IdentifierValue::value('sku', true, 'assocProductThree'));
 
         $productRepository->find($assocProductOne->getUuid()->toString())->willReturn($assocProductOne);
         $productRepository->find($assocProductTwo->getUuid()->toString())->willReturn($assocProductTwo);
@@ -279,7 +280,7 @@ class AssociationFieldSetterSpec extends ObjectBehavior
         $product = new Product();
         $product->addAssociation($compatibilityAssociation);
 
-        $productAssociated = (new Product())->setIdentifier('productAssociated');
+        $productAssociated = (new Product())->addValue(IdentifierValue::value('sku', true, 'productAssociated'));
 
         $productModelAssociated = new ProductModel();
         $productModelAssociated->setCode('productModelAssociated');
@@ -318,7 +319,7 @@ class AssociationFieldSetterSpec extends ObjectBehavior
         $compatibilityAssociationType->setCode('COMPATIBILITY');
         $associationTypeRepository->findOneByIdentifier('COMPATIBILITY')->willReturn($compatibilityAssociationType);
 
-        $productAssociated = (new Product())->setIdentifier('productAssociated');
+        $productAssociated = (new Product())->addValue(IdentifierValue::value('sku', true, 'productAssociated'));
 
         $productModelAssociated = new ProductModel();
         $productModelAssociated->setCode('productModelAssociated');
@@ -365,7 +366,7 @@ class AssociationFieldSetterSpec extends ObjectBehavior
         $compatibilityAssociationType->setCode('COMPATIBILITY');
         $associationTypeRepository->findOneByIdentifier('COMPATIBILITY')->willReturn($compatibilityAssociationType);
 
-        $productAssociated = (new Product())->setIdentifier('productAssociated');
+        $productAssociated = (new Product())->addValue(IdentifierValue::value('sku', true, 'productAssociated'));
 
         $productModelAssociated = new ProductModel();
         $productModelAssociated->setCode('productModelAssociated');
@@ -397,6 +398,81 @@ class AssociationFieldSetterSpec extends ObjectBehavior
                     'product_models' => [],
                 ],
             ]
+        );
+    }
+
+    function it_does_not_create_an_inversed_association_when_the_product_is_already_associated_through_the_parent(
+        ProductRepositoryInterface $productRepository,
+        AssociationTypeRepositoryInterface $associationTypeRepository,
+        MissingAssociationAdder $missingAssociationAdder,
+        TwoWayAssociationUpdater $twoWayAssociationUpdater,
+        ProductInterface $variant,
+        AssociationInterface $inheritedAssociation,
+        AssociationTypeInterface $compatibility
+    ) {
+        $compatibility->getCode()->willReturn('COMPATIBILITY');
+        $compatibility->isTwoWay()->willReturn(true);
+        $compatibility->isQuantified()->willReturn(false);
+        $associationTypeRepository->findOneByIdentifier('COMPATIBILITY')->willReturn($compatibility);
+
+        $productAssociated = (new Product())->addValue(IdentifierValue::value('sku', true, 'productAssociated'));
+        $productRepository->findOneByIdentifier('productAssociated')->willReturn($productAssociated);
+
+        // The variant's own associations do not contain the product yet, so it will be added...
+        $variant->getAssociatedProducts('COMPATIBILITY')->willReturn(new ArrayCollection());
+        // ...but the merged associations (inherited from the parent product model) already contain it.
+        $inheritedAssociation->getAssociationType()->willReturn($compatibility);
+        $inheritedAssociation->hasProduct($productAssociated)->willReturn(true);
+        $variant->getAllAssociations()->willReturn(new ArrayCollection([$inheritedAssociation->getWrappedObject()]));
+
+        $missingAssociationAdder->addMissingAssociations($variant)->shouldBeCalled();
+        $variant->addAssociatedProduct($productAssociated, 'COMPATIBILITY')->shouldBeCalled();
+
+        // Point 2: the inverse association must NOT be created because it already exists via the parent.
+        $twoWayAssociationUpdater->createInversedAssociation(Argument::cetera())->shouldNotBeCalled();
+
+        $this->setFieldData(
+            $variant,
+            'associations',
+            ['COMPATIBILITY' => ['products' => ['productAssociated']]]
+        );
+    }
+
+    function it_does_not_create_an_inversed_association_when_the_product_model_is_already_associated_through_the_parent(
+        ProductModelRepositoryInterface $productModelRepository,
+        AssociationTypeRepositoryInterface $associationTypeRepository,
+        MissingAssociationAdder $missingAssociationAdder,
+        TwoWayAssociationUpdater $twoWayAssociationUpdater,
+        ProductInterface $variant,
+        AssociationInterface $inheritedAssociation,
+        AssociationTypeInterface $compatibility
+    ) {
+        $compatibility->getCode()->willReturn('COMPATIBILITY');
+        $compatibility->isTwoWay()->willReturn(true);
+        $compatibility->isQuantified()->willReturn(false);
+        $associationTypeRepository->findOneByIdentifier('COMPATIBILITY')->willReturn($compatibility);
+
+        $productModelAssociated = new ProductModel();
+        $productModelAssociated->setCode('productModelAssociated');
+        $productModelRepository->findOneByIdentifier('productModelAssociated')->willReturn($productModelAssociated);
+
+        // The variant's own associations do not contain the product model yet, so it will be added...
+        $variant->getAssociatedProductModels('COMPATIBILITY')->willReturn(new ArrayCollection());
+        // ...but the merged associations (inherited from the parent product model) already contain it.
+        $inheritedAssociation->getAssociationType()->willReturn($compatibility);
+        $inheritedAssociation->getProductModels()->willReturn(new ArrayCollection([$productModelAssociated]));
+        $variant->getAllAssociations()->willReturn(new ArrayCollection([$inheritedAssociation->getWrappedObject()]));
+
+        $missingAssociationAdder->addMissingAssociations($variant)->shouldBeCalled();
+        $variant->addAssociatedProductModel($productModelAssociated, 'COMPATIBILITY')->shouldBeCalled();
+
+        // Point 2: the inverse association must NOT be created because it already exists via the parent.
+        $twoWayAssociationUpdater->createInversedAssociation(Argument::cetera())->shouldNotBeCalled();
+
+        $this->setFieldData(
+            $variant,
+            'associations',
+            ['COMPATIBILITY' => ['product_models' => ['productModelAssociated']]]
         );
     }
 

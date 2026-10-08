@@ -7,6 +7,7 @@ use Akeneo\Tool\Component\Localization\Localizer\LocalizerInterface;
 use Akeneo\Tool\Component\Localization\Validator\Constraints\DateFormat;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -40,14 +41,24 @@ class DateLocalizerSpec extends ObjectBehavior
         $this->supports('pim_catalog_number')->shouldReturn(false);
     }
 
-    function it_validates_the_format()
+    function it_validates_the_format(ValidatorInterface $validator)
     {
-        $this->validate('28/10/2015', 'date', ['date_format' => 'd/m/Y'])->shouldReturn(null);
-        $this->validate('01/10/2015', 'date', ['date_format' => 'd/m/Y'])->shouldReturn(null);
-        $this->validate('2015/10/25', 'date', ['date_format' => 'Y/m/d'])->shouldReturn(null);
-        $this->validate('2015/10/01', 'date', ['date_format' => 'Y/m/d'])->shouldReturn(null);
-        $this->validate('2015-10-25', 'date', ['date_format' => 'Y-m-d'])->shouldReturn(null);
-        $this->validate('2015-10-01', 'date', ['date_format' => 'Y-m-d'])->shouldReturn(null);
+        $validator->validate('28/10/2015', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('01/10/2015', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('2015/10/25', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('2015/10/01', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('2015-10-25', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('2015-10-01', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate('', Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate(null, Argument::any())->willReturn(new ConstraintViolationList());
+        $validator->validate(Argument::type(\DateTime::class), Argument::any())->willReturn(new ConstraintViolationList());
+
+        $this->validate('28/10/2015', 'date', ['date_format' => 'd/m/Y'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('01/10/2015', 'date', ['date_format' => 'd/m/Y'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('2015/10/25', 'date', ['date_format' => 'Y/m/d'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('2015/10/01', 'date', ['date_format' => 'Y/m/d'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('2015-10-25', 'date', ['date_format' => 'Y-m-d'])->shouldBeLike(new ConstraintViolationList());
+        $this->validate('2015-10-01', 'date', ['date_format' => 'Y-m-d'])->shouldBeLike(new ConstraintViolationList());
         $this->validate('', 'date', ['date_format' => 'Y-m-d'])->shouldReturn(null);
         $this->validate(null, 'date', ['date_format' => 'Y-m-d'])->shouldReturn(null);
         $this->validate(new \DateTime(), 'date', ['date_format' => 'Y-m-d'])->shouldReturn(null);

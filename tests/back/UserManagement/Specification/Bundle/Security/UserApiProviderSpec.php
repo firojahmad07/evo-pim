@@ -7,7 +7,7 @@ use Akeneo\UserManagement\Component\Repository\UserRepositoryInterface;
 use PhpSpec\ObjectBehavior;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 use Symfony\Component\Security\Core\User\User;
 
@@ -20,7 +20,7 @@ class UserApiProviderSpec extends ObjectBehavior
 
     function it_loads_a_user_by_its_username(UserRepositoryInterface $userRepository, UserInterface $julia)
     {
-        $julia->isJobUser()->willReturn(false);
+        $julia->isApiUser()->willReturn(true);
         $julia->isEnabled()->willReturn(true);
         $userRepository->findOneByIdentifier('julia')->willReturn($julia);
         $this->loadUserByUsername('julia')->shouldReturn($julia);
@@ -29,13 +29,13 @@ class UserApiProviderSpec extends ObjectBehavior
     function it_throws_an_exception_if_username_does_not_exist(UserRepositoryInterface $userRepository)
     {
         $userRepository->findOneByIdentifier('jean-pacôme')->willReturn(null);
-        $this->shouldThrow(UsernameNotFoundException::class)
+        $this->shouldThrow(UserNotFoundException::class)
             ->during('loadUserByUsername', ['jean-pacôme']);
     }
 
     function it_throws_an_exception_if_user_is_disabled(UserRepositoryInterface $userRepository, UserInterface $disabledGuy)
     {
-        $disabledGuy->isJobUser()->willReturn(false);
+        $disabledGuy->isApiUser()->willReturn(true);
         $disabledGuy->isEnabled()->willReturn(false);
         $userRepository->findOneByIdentifier('disabled-guy')->willReturn($disabledGuy);
         $this->shouldThrow(DisabledException::class)
@@ -44,9 +44,9 @@ class UserApiProviderSpec extends ObjectBehavior
 
     function it_throws_an_exception_if_user_is_job_user(UserRepositoryInterface $userRepository, UserInterface $jobUser)
     {
-        $jobUser->isJobUser()->willReturn(true);
+        $jobUser->isApiUser()->willReturn(false);
         $userRepository->findOneByIdentifier('job-user')->willReturn($jobUser);
-        $this->shouldThrow(UsernameNotFoundException::class)
+        $this->shouldThrow(UserNotFoundException::class)
             ->during('loadUserByUsername', ['job-user']);
     }
 
@@ -54,7 +54,7 @@ class UserApiProviderSpec extends ObjectBehavior
     {
         $userRepository->find(42)->willReturn($julia);
         $julia->getId()->willReturn(42);
-        $julia->isJobUser()->willReturn(false);
+        $julia->isApiUser()->willReturn(true);
         $this->refreshUser($julia)->shouldReturn($julia);
     }
 
@@ -71,7 +71,7 @@ class UserApiProviderSpec extends ObjectBehavior
         $julia->getId()->willReturn(42);
         $userRepository->find(42)->willReturn(null);
 
-        $this->shouldThrow(UsernameNotFoundException::class)
+        $this->shouldThrow(UserNotFoundException::class)
             ->during('refreshUser', [$julia]);
     }
 }

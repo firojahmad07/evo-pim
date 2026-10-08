@@ -126,13 +126,28 @@ akeneo_catalogs:
     source:
       title: ソースを選択
       parameters:
+        placeholder: 属性を選択
         title: ソースパラメータ
         channel:
-          label: チャンネル
           placeholder: チャンネルを選択してください
         locale:
-          label: ロケール
           placeholder: ロケールを選択してください
+        label_locale:
+          label: 値の翻訳
+          placeholder: 翻訳を選択
+          helper: 送信する値の言語を選択します。
+        currency:
+          label: 通貨
+          placeholder: 通貨を選択
+          helper: 送信する値の通貨を選択します。
+        default_value:
+          label: 空の場合の既定値
+          placeholder: 既定値を定義
+        no_parameters_message: このソースのパラメータはありません。
+        unit:
+          label: ユニット
+          placeholder: 単位を選択
+          helper: 値の送信ユニットを選択します。
       select_source:
         label: PIMソース
         search: 検索条件
@@ -148,3 +163,18 @@ akeneo_catalogs:
         illustration_title: UUID は技術的な商品識別子です。
         subtitle: ターゲットとしてすべてのアプリで必要です。Akeneo 商品 UUID に自動的にマッピングされるため、このターゲットには何も構成する必要はありません。
         link: UUID に関する詳細について。
+      requirements:
+        title: アプリの要件
+        help: ヘルプ
+        constraints:
+          minLength: '{0,1} このターゲットには少なくとも{{ value }}文字必要です。|[2,Inf[ このターゲットには少なくとも{{ value }}文字必要です。'
+          maxLength: '{0,1} このターゲットは{{ value }}文字を超えられません。|[2,Inf[ このターゲットは{{ value }}文字を超えられません。'
+          pattern: '[0,Inf[ パターン: このターゲットは次の正規表現に一致する必要があります: "{{ value }}"。'
+          minimum: '[0,Inf[ このターゲットは{{ value }}以上である必要があります。'
+          maximum: '[0,Inf[ このターゲットは{{ value }}以下である必要があります。'
+          enum: '[0,Inf[ 列挙: このターゲットは次の値しか受け入れません: {{ value }}。'
+      system_attributes:
+        categories:
+          label: カテゴリ
+        family:
+          label: ファミリー

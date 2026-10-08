@@ -37,6 +37,10 @@ akeneo_catalogs:
       locale:
         unknown: '此区域“{{ locale_name }}”已停用。请检查您的区域设置或移除此筛选器。'
     product_mapping:
+      schema:
+        missing_targets: '映射未完成，缺少以下目标：{{ targets }}。'
+        additional_targets: "映射不正确，下列目标不存在：{{ targets }}。"
+        incorrect_type: '选定的源类型不符合要求：{{ expected_type }}。'
       source:
         invalid: '此属性已被删除。'
         unknown: '未知源值'
@@ -49,3 +53,10 @@ akeneo_catalogs:
           empty: '此区域不能为空。'
           unknown: '此区域已被禁用或不再存在。请检查您的渠道和区域设置。'
           disabled: '此区域已禁用。请检查您的渠道和区域设置或更新此值。'
+        required: '源为必填项。'
+        currency:
+          disabled: '此货币未激活。请检查您的渠道和货币设置或更新此值。'
+        measurement:
+          unit:
+            not_exist: '字段“{{ field }}”的单位不存在。'
+            not_empty: '单位不能为空。'

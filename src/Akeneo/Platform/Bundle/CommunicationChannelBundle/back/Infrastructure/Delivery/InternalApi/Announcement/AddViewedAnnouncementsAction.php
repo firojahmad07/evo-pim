@@ -34,8 +34,9 @@ class AddViewedAnnouncementsAction
 
     public function __invoke(Request $request)
     {
-        if (!$request->request->has('viewed_announcement_ids')) {
-            throw new UnprocessableEntityHttpException('You should give a "viewed_announcements_ids" key.');
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['viewed_announcement_ids'])) {
+            throw new UnprocessableEntityHttpException('You should give a "viewed_announcement_ids" key.');
         }
 
         if (null === $user = $this->userContext->getUser()) {
@@ -43,7 +44,7 @@ class AddViewedAnnouncementsAction
         }
 
         $command = new AddViewedAnnouncementsByUserCommand(
-            (array) $request->request->get('viewed_announcement_ids'),
+            (array) $data['viewed_announcement_ids'],
             $user->getId()
         );
         $this->addViewedAnnouncementsByUserHandler->execute($command);

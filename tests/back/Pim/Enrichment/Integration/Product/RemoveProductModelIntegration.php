@@ -6,7 +6,6 @@ namespace AkeneoTest\Pim\Enrichment\Integration\Product;
 
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 /**
  * @author    Florian Klein (florian.klein@akeneo.com)

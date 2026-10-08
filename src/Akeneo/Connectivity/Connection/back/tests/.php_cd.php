@@ -164,7 +164,7 @@ $rules = [
 
             'Ramsey\Uuid\Uuid',
 
-            'Akeneo\Catalogs\ServiceAPI\Model\Catalog',
+            'Generator',
         ]
     )->in('Akeneo\Connectivity\Connection\Application'),
 
@@ -203,8 +203,6 @@ $rules = [
             'Akeneo\UserManagement\Component\Repository\UserRepositoryInterface',
 
             'Symfony\Component\EventDispatcher\EventDispatcherInterface',
-
-            'Akeneo\Catalogs\ServiceAPI\Model\Catalog',
         ]
     )->in('Akeneo\Connectivity\Connection\Application\Apps'),
 
@@ -246,12 +244,23 @@ $rules = [
             'Akeneo\Connectivity\Connection\Application\Marketplace',
 
             // Exceptions
-            'Akeneo\Connectivity\Connection\Application\RandomCodeGeneratorInterface',
 
             'Akeneo\Platform\Bundle\FrameworkBundle\Service\PimUrl',
             'Akeneo\Platform\Bundle\PimVersionBundle\VersionProviderInterface',
         ]
     )->in('Akeneo\Connectivity\Connection\Application\Marketplace'),
+
+    $builder->only(
+        [
+            'Akeneo\Connectivity\Connection\Domain\CustomApps',
+            'Akeneo\Connectivity\Connection\Application\CustomApps',
+
+            // Exceptions
+            'Akeneo\Connectivity\Connection\Application\RandomCodeGeneratorInterface',
+            'Symfony\Component\Validator\Constraint',
+            'Symfony\Component\Validator\Exception\UnexpectedTypeException',
+        ]
+    )->in('Akeneo\Connectivity\Connection\Application\CustomApps'),
 
     $builder->only(
         [
@@ -310,6 +319,8 @@ $rules = [
             'Psr\Http\Message\ResponseInterface',
 
             'Ramsey\Uuid\Uuid',
+
+            'Generator',
         ]
     )->in('Akeneo\Connectivity\Connection\Application\Webhook'),
 

@@ -10,7 +10,7 @@ use Akeneo\Connectivity\Connection\Infrastructure\Service\User\RegenerateUserPas
 use Akeneo\UserManagement\Bundle\Manager\UserManager;
 use Akeneo\UserManagement\Component\Model\UserInterface;
 use Doctrine\DBAL\Connection as DbalConnection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Statement;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -26,7 +26,7 @@ class RegenerateUserPasswordSpec extends ObjectBehavior
         $this->beConstructedWith($userManager, $dbalConnection);
     }
 
-    public function it_is_initializable()
+    public function it_is_initializable(): void
     {
         $this->shouldBeAnInstanceOf(RegenerateUserPassword::class);
         $this->shouldImplement(RegenerateUserPasswordInterface::class);
@@ -54,7 +54,7 @@ class RegenerateUserPasswordSpec extends ObjectBehavior
         $this->execute($userId);
     }
 
-    public function it_throws_an_exception_if_user_not_found($userManager, $dbalConnection)
+    public function it_throws_an_exception_if_user_not_found($userManager, $dbalConnection): void
     {
         $userId = new UserId(1);
 

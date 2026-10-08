@@ -34,8 +34,13 @@ class GetSystemInformationEndToEnd extends ApiTestCase
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
         Assert::assertCount(2, $content);
-        Assert::assertEquals('CE', $content['edition']);
-        Assert::assertMatchesRegularExpression('/^7.0.[0-9]*$/', $content['version']);
+        Assert::assertSame(
+            [
+                'version' => 'master',
+                'edition' => 'CE',
+            ],
+            $content
+        );
     }
 
     /**
@@ -61,8 +66,13 @@ class GetSystemInformationEndToEnd extends ApiTestCase
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
         Assert::assertCount(2, $content);
-        Assert::assertEquals('GE', $content['edition']);
-        Assert::assertMatchesRegularExpression('/^7.0.[0-9]*$/', $content['version']);
+        Assert::assertSame(
+            [
+                'version' => 'master',
+                'edition' => 'GE',
+            ],
+            $content
+        );
     }
 
     /**
@@ -88,8 +98,13 @@ class GetSystemInformationEndToEnd extends ApiTestCase
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
         Assert::assertCount(2, $content);
-        Assert::assertEquals('EE', $content['edition']);
-        Assert::assertMatchesRegularExpression('/^7.0.[0-9]*$/', $content['version']);
+        Assert::assertSame(
+            [
+                'version' => 'master',
+                'edition' => 'EE',
+            ],
+            $content
+        );
     }
 
     /**
@@ -115,8 +130,13 @@ class GetSystemInformationEndToEnd extends ApiTestCase
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent(), true);
         Assert::assertCount(2, $content);
-        Assert::assertEquals('Serenity', $content['edition']);
-        Assert::assertMatchesRegularExpression('/^7.0.[0-9]*$/', $content['version']);
+        Assert::assertSame(
+            [
+                'version' => 'master',
+                'edition' => 'Serenity',
+            ],
+            $content
+        );
     }
 
     protected function getConfiguration(): Configuration

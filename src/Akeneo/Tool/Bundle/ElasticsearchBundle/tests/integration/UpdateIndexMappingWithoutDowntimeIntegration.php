@@ -8,19 +8,19 @@ use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration\Loader;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration\UpdateIndexMappingWithoutDowntime;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
+use Akeneo\Tool\Bundle\ElasticsearchBundle\SearchEngine\SearchEngineClientBuilderFactory;
 use PHPUnit\Framework\Assert;
 
 class UpdateIndexMappingWithoutDowntimeIntegration extends TestCase
 {
-    private Client $client;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $client;
 
     protected function setUp(): void
     {
         parent::setUp();
         $indexHost = $this->getParameter('index_hosts');
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts(is_string($indexHost) ? [$indexHost] : $indexHost);
         $this->client = $clientBuilder->build();
         $this->loadData();
@@ -32,7 +32,7 @@ class UpdateIndexMappingWithoutDowntimeIntegration extends TestCase
         $indexConfigurationLoader = $this->get('akeneo_elasticsearch.client.product_and_product_model.index_configuration.files');
         $productAndProductModelIndexAlias = $this->getParameter('product_and_product_model_index_name');
 
-        $aliasesBeforeMigration = array_map(fn (array $index) => $index['alias'], $this->client->cat()->aliases());
+        $aliasesBeforeMigration = array_map(fn (array $index) => $index['alias'], $this->client->cat()->aliases(['format' => 'json']));
         $indexNameBeforeMigration = $this->getIndexNameFromAlias($productAndProductModelIndexAlias);
 
         /** @var ProductQueryBuilderFactory $pqb */
@@ -54,7 +54,7 @@ class UpdateIndexMappingWithoutDowntimeIntegration extends TestCase
             ],
         );
 
-        $aliasesAfterMigration = array_map(fn (array $index) => $index['alias'], $this->client->cat()->aliases());
+        $aliasesAfterMigration = array_map(fn (array $index) => $index['alias'], $this->client->cat()->aliases(['format' => 'json']));
         $indexNameAfterMigration = $this->getIndexNameFromAlias($productAndProductModelIndexAlias);
 
         Assert::assertEqualsCanonicalizing($aliasesBeforeMigration, $aliasesAfterMigration);

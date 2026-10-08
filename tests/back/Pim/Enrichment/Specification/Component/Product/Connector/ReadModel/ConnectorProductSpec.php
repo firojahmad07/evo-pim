@@ -76,8 +76,9 @@ class ConnectorProductSpec extends ObjectBehavior
                 ScalarValue::localizableValue('attribute_code_2', 'data', 'fr_FR'),
                 OptionValue::value('simple_select', 'Option_1'),
                 OptionsValue::value('multi_select', ['Option1', 'OPTION2']),
-                OptionValue::value('other_simple_select','42'),
-                OptionsValue::value('other_multi_select', ['30']),
+                OptionValue::localizableValue('other_simple_select','1', 'en_US'),
+                OptionValue::localizableValue('other_simple_select','001', 'fr_FR'),
+                OptionsValue::value('other_multi_select', ['00', '0', '000']),
             ]),
             null,
             null
@@ -115,7 +116,7 @@ class ConnectorProductSpec extends ObjectBehavior
                         ['uuid' => '11cd5db0-c69f-4f12-819c-ab55240d5ac3', 'identifier' => 'product_code_1'],
                     ],
                     'product_models' => [],
-                    'groups' => ['group_code_2'],
+                    'groups' => ['group_code_2']
                 ],
                 'UPSELL' => [
                     'products' => [],
@@ -151,22 +152,22 @@ class ConnectorProductSpec extends ObjectBehavior
         );
     }
 
-    function it_filters_associated_with_quantity_products_with_empty_array_of_product_uuids()
+    function it_filters_associated_with_quantity_products_with_empty_array_of_product_identifiers()
     {
-        $connectorProduct = $this->filterAssociatedWithQuantityProductsByProductUuids([]);
-        $connectorProduct->associatedWithQuantityProductUuids()->shouldReturn([]);
+        $connectorProduct = $this->filterAssociatedWithQuantityProductsByProductIdentifiers([]);
+        $connectorProduct->associatedWithQuantityProductIdentifiers()->shouldReturn([]);
     }
 
-    function it_filters_associated_with_quantity_product_by_uuid()
+    function it_filters_associated_with_quantity_product_by_identifier()
     {
-        $connectorProduct = $this->filterAssociatedWithQuantityProductsByProductUuids(
-            ['b9c3b775-d6ef-4748-b384-a99a759e469a', '77ff41a7-69fc-4b4a-898c-3117e08e60da']
+        $connectorProduct = $this->filterAssociatedWithQuantityProductsByProductIdentifiers(
+            ['product_2', 'product_4']
         );
 
         $connectorProduct->quantifiedAssociations()->shouldReturn([
             'PRODUCT_SET' => [
                 'products' => [
-                    ['identifier' => 'product_1', 'quantity' => 1, 'uuid' => 'b9c3b775-d6ef-4748-b384-a99a759e469a'],
+                    ['identifier' => 'product_2', 'quantity' => 2, 'uuid' => '894631da-832f-4818-a2ae-44d70c16e679'],
                 ],
                 'product_models' => [
                     ['identifier' => 'product_model_1', 'quantity' => 3],
@@ -174,10 +175,7 @@ class ConnectorProductSpec extends ObjectBehavior
                 ],
             ],
             'PRODUCT_SET1' => [
-                'products' => [
-                    ['identifier' => 'product_1', 'quantity' => 2, 'uuid' => 'b9c3b775-d6ef-4748-b384-a99a759e469a'],
-                    ['identifier' => 'product_3', 'quantity' => 9, 'uuid' => '77ff41a7-69fc-4b4a-898c-3117e08e60da'],
-                ],
+                'products' => [],
                 'product_models' => [
                     ['identifier' => 'product_model_1', 'quantity' => 2],
                     ['identifier' => 'product_model_3', 'quantity' => 3],
@@ -265,13 +263,9 @@ class ConnectorProductSpec extends ObjectBehavior
     }
 
 
-    function it_gets_associated_with_quantity_product_uuids()
+    function it_gets_associated_with_quantity_product_identifiers()
     {
-        $this->associatedWithQuantityProductUuids()->shouldBeLike([
-            'b9c3b775-d6ef-4748-b384-a99a759e469a',
-            '894631da-832f-4818-a2ae-44d70c16e679',
-            '77ff41a7-69fc-4b4a-898c-3117e08e60da',
-        ]);
+        $this->associatedWithQuantityProductIdentifiers()->shouldBeLike(['product_1', 'product_2', 'product_3']);
     }
 
     function it_gets_associated_with_quantity_product_model_codes()
@@ -308,7 +302,7 @@ class ConnectorProductSpec extends ObjectBehavior
 
         $this->associatedProductUuids()->shouldReturn([]);
         $this->associatedProductModelCodes()->shouldReturn([]);
-        $this->associatedWithQuantityProductUuids()->shouldReturn([]);
+        $this->associatedWithQuantityProductIdentifiers()->shouldReturn([]);
         $this->associatedWithQuantityProductModelCodes()->shouldReturn([]);
     }
 
@@ -325,7 +319,7 @@ class ConnectorProductSpec extends ObjectBehavior
         $connectorProduct->completenesses()->shouldReturn($completenessCollection);
     }
 
-    function it_returns_the_option_labels()
+    public function it_returns_the_option_labels(): void
     {
         $connectorProductWithLinkedData = $this->buildLinkedData([
             'simple_select' => [
@@ -342,27 +336,34 @@ class ConnectorProductSpec extends ObjectBehavior
                 'Option2' => [
                     'en_US' => null,
                     'fr_FR' => null,
-                ]
+                ],
             ],
             'other_simple_select' => [
-                '42' => [
-                    'en_US' => '42',
-                    'fr_FR' => '42',
-                ]
+                '1' => [
+                    'en_US' => 'option 1',
+                    'fr_FR' => 'option 1',
+                ],
+                '001' => [
+                    'en_US' => 'option 001',
+                    'fr_FR' => 'option 001',
+                ],
             ],
             'other_multi_select' => [
-                '42' => [
-                    'en_US' => '42',
-                    'fr_FR' => '42',
+                '0' => [
+                    'en_US' => '0',
+                    'fr_FR' => '0',
                 ],
-                '30' => [
-                    'en_US' => '30',
-                    'fr_FR' => '30',
-                ]
-            ]
+                '00' => [
+                    'en_US' => '00',
+                    'fr_FR' => '00',
+                ],
+                '000' => [
+                    'en_US' => '000',
+                    'fr_FR' => '000',
+                ],
+            ],
         ]);
         $connectorProductWithLinkedData->shouldBeAnInstanceOf(ConnectorProduct::class);
-        /** @var ReadValueCollection $values */
         $connectorProductWithLinkedData->values()->toArray()->shouldBeLike(
             [
                 ScalarValue::value('attribute_code_1', 'data'),
@@ -408,35 +409,64 @@ class ConnectorProductSpec extends ObjectBehavior
                 ),
                 new OptionValueWithLinkedData(
                     'other_simple_select',
-                    '42',
+                    '1',
                     null,
-                    null,
+                    'en_US',
                     [
                         'attribute' => 'other_simple_select',
-                        'code' => '42',
+                        'code' => '1',
                         'labels' => [
-                            'en_US' => '42',
-                            'fr_FR' => '42',
-                            ]
-
+                            'en_US' => 'option 1',
+                            'fr_FR' => 'option 1',
+                        ]
+                    ]
+                ),
+                new OptionValueWithLinkedData(
+                    'other_simple_select',
+                    '001',
+                    null,
+                    'fr_FR',
+                    [
+                        'attribute' => 'other_simple_select',
+                        'code' => '001',
+                        'labels' => [
+                            'en_US' => 'option 001',
+                            'fr_FR' => 'option 001',
+                        ]
                     ]
                 ),
                 new OptionsValueWithLinkedData(
                     'other_multi_select',
-                    ['30'],
+                    ['00', '0', '000'],
                     null,
                     null,
                     [
-                        '30' => [
+                        '00' => [
                             'attribute' => 'other_multi_select',
-                            'code' => '30',
+                            'code' => '00',
                             'labels' => [
-                                'en_US' => '30',
-                                'fr_FR' => '30',
+                                'en_US' => '00',
+                                'fr_FR' => '00',
                             ],
-                        ]
+                        ],
+                        '0' => [
+                            'attribute' => 'other_multi_select',
+                            'code' => '0',
+                            'labels' => [
+                                'en_US' => '0',
+                                'fr_FR' => '0',
+                            ],
+                        ],
+                        '000' => [
+                            'attribute' => 'other_multi_select',
+                            'code' => '00',
+                            'labels' => [
+                                'en_US' => '000',
+                                'fr_FR' => '000',
+                            ],
+                        ],
                     ]
-                )
+                ),
             ]
         );
     }

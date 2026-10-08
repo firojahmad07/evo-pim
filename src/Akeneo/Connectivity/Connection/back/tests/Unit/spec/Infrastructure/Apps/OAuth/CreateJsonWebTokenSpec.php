@@ -10,7 +10,7 @@ use Akeneo\Connectivity\Connection\Domain\Apps\ValueObject\ScopeList;
 use Akeneo\Connectivity\Connection\Domain\ClockInterface;
 use Akeneo\Connectivity\Connection\Infrastructure\Apps\OAuth\CreateJsonWebToken;
 use Akeneo\Platform\Bundle\FrameworkBundle\Service\PimUrl;
-use Lcobucci\Clock\FrozenClock;
+
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -18,6 +18,7 @@ use Lcobucci\JWT\Token\RegisteredClaims;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
+use Symfony\Component\Clock\MockClock;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\RelatedTo;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
@@ -122,7 +123,7 @@ class CreateJsonWebTokenSpec extends ObjectBehavior
             new IssuedBy($this->pimUrl),
             new RelatedTo($this->ppid),
             new PermittedFor($this->clientId),
-            new LooseValidAt(new FrozenClock($this->now)),
+            new LooseValidAt(new MockClock($this->now)),
             new SignedWith($configuration->signer(), $configuration->verificationKey())
         );
 
@@ -149,6 +150,8 @@ class CreateJsonWebTokenSpec extends ObjectBehavior
         if (\in_array(AuthenticationScope::SCOPE_EMAIL, $scopes)) {
             Assert::assertTrue($token->claims()->has('email'));
             Assert::assertEquals($this->email, $token->claims()->get('email'));
+            Assert::assertTrue($token->claims()->has('email_verified'));
+            Assert::assertFalse($token->claims()->get('email_verified'));
         }
     }
 

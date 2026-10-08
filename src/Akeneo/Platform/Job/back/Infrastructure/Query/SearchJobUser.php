@@ -22,6 +22,9 @@ class SearchJobUser implements SearchJobUserInterface
     ) {
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function search(SearchJobUserQuery $query): array
     {
         $sql = $this->createSqlQuery($query);

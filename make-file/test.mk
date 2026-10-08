@@ -6,7 +6,7 @@ find-legacy-translations:
 	.circleci/find_legacy_translations.sh
 
 .PHONY: coupling-back
-coupling-back: structure-coupling-back user-management-coupling-back channel-coupling-back enrichment-coupling-back connectivity-connection-coupling-back communication-channel-coupling-back import-export-coupling-back job-coupling-back data-quality-insights-coupling-back enrichment-product-coupling-back migration-coupling-back identifier-generator-coupling-back
+coupling-back: structure-coupling-back user-management-coupling-back channel-coupling-back enrichment-coupling-back connectivity-connection-coupling-back communication-channel-coupling-back import-export-coupling-back job-coupling-back data-quality-insights-coupling-back enrichment-product-coupling-back migration-coupling-back identifier-generator-coupling-back installer-coupling-back
 
 .PHONY: migration-coupling-back
 migration-coupling-back:
@@ -32,17 +32,19 @@ lint-back:
 	APP_ENV=dev $(DOCKER_COMPOSE) run -e APP_DEBUG=1 --rm php bin/console cache:warmup
 	$(DOCKER_COMPOSE) run --rm php php -d memory_limit=1G vendor/bin/phpstan analyse src/Akeneo/Pim --level 2
 	${PHP_RUN} vendor/bin/php-cs-fixer fix --diff --dry-run --config=.php_cs.php
-	$(MAKE) migration-lint-back
-	$(MAKE) connectivity-connection-lint-back
+	$(MAKE) category-lint-back
+	$(MAKE) channel-lint-back
 	$(MAKE) communication-channel-lint-back
+	$(MAKE) connectivity-connection-lint-back
 	$(MAKE) data-quality-insights-lint-back
 	$(MAKE) data-quality-insights-phpstan
-	$(MAKE) import-export-lint-back
-	$(MAKE) job-lint-back
 	$(MAKE) enrichment-product-lint-back
-	$(MAKE) channel-lint-back
-	$(MAKE) category-lint-back
 	$(MAKE) identifier-generator-lint-back
+	$(MAKE) import-export-lint-back
+	$(MAKE) installer-lint-back
+	$(MAKE) job-lint-back
+	$(MAKE) measurement-lint-back
+	$(MAKE) migration-lint-back
 	# Cache was created with debug enabled, removing it allows a faster one to be created for upcoming tests
 	$(DOCKER_COMPOSE) run --rm php rm -rf var/cache/dev
 
@@ -85,6 +87,7 @@ acceptance-back:
 	$(MAKE) channel-acceptance-back
 	$(MAKE) measurement-acceptance-back
 	$(MAKE) identifier-generator-acceptance-back
+	$(MAKE) installer-acceptance-back
 
 .PHONY: acceptance-front
 acceptance-front:
@@ -96,11 +99,11 @@ integration-front:
 	$(YARN_RUN) integration
 
 .PHONY: pim-integration-back
-pim-integration-back: var/tests/phpunit connectivity-connection-integration-back communication-channel-integration-back job-integration-back channel-integration-back identifier-generator-phpunit-back
+pim-integration-back: var/tests/phpunit connectivity-connection-integration-back communication-channel-integration-back job-integration-back channel-integration-back identifier-generator-phpunit-back installer-integration-back
 ifeq ($(CI),true)
 	.circleci/run_phpunit.sh . .circleci/find_phpunit.php PIM_Integration_Test
 else
-	@echo Run integration test locally is too long, please use the target defined for your bounded context (ex: bounded-context-integration-back)
+	@echo "Run integration test locally is too long, please use the target defined for your bounded context (ex: bounded-context-integration-back)"
 endif
 
 ### Migration tests
@@ -118,7 +121,7 @@ end-to-end-back: var/tests/phpunit
 ifeq ($(CI),true)
 	.circleci/run_phpunit.sh . .circleci/find_phpunit.php End_to_End
 else
-	@echo Run end to end test locally is too long, please use the target defined for your bounded context (ex: bounded-context-end-to-end-back)
+	@echo "Run end to end test locally is too long, please use the target defined for your bounded context (ex: bounded-context-end-to-end-back)"
 endif
 
 end-to-end-front:

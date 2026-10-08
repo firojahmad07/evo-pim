@@ -8,3 +8,6 @@ services:
         class: 'Akeneo\Pim\Structure\Bundle\Manager\AttributeCodeBlacklister'
         arguments:
             - '@database_connection'
+
+    pim_catalog.structure.clock:
+        class: 'Symfony\Component\Clock\NativeClock'

@@ -2,9 +2,9 @@
 # This file is a template Makefile. Some targets are presented here as examples.
 # Feel free to customize it to your needs!
 #
-CMD_ON_PROJECT = docker-compose run -u www-data --rm php
+CMD_ON_PROJECT = docker compose run -u www-data:www-data --rm php
 PHP_RUN = $(CMD_ON_PROJECT) php
-YARN_RUN = docker-compose run -u node --rm -e YARN_REGISTRY -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD node yarn
+YARN_RUN = docker compose run -u node --rm -e YARN_REGISTRY -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD node yarn
 
 ifdef NO_DOCKER
   CMD_ON_PROJECT =
@@ -53,6 +53,8 @@ front: assets css front-packages javascript-dev
 
 .PHONY: database
 database:
+	$(PHP_RUN) bin/console doctrine:database:drop --force --if-exists
+	$(PHP_RUN) bin/console doctrine:database:create --if-not-exists
 	$(PHP_RUN) bin/console pim:installer:db ${O}
 
 .PHONY: cache
@@ -90,7 +92,7 @@ endif
 	$(MAKE) javascript-prod
 	$(MAKE) css
 	$(MAKE) javascript-extensions
-	APP_ENV=prod $(MAKE) database O="--catalog vendor/akeneo/pim-community-dev/src/Akeneo/Platform/Bundle/InstallerBundle/Resources/fixtures/minimal"
+	APP_ENV=prod $(MAKE) database O="--catalog vendor/librepim/librepim-dev/src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/minimal"
 
 .PHONY: pim-dev
 pim-dev:
@@ -104,15 +106,15 @@ endif
 	$(MAKE) javascript-dev
 	$(MAKE) css
 	$(MAKE) javascript-extensions
-	APP_ENV=dev $(MAKE) database O="--catalog vendor/akeneo/pim-community-dev/src/Akeneo/Platform/Bundle/InstallerBundle/Resources/fixtures/icecat_demo_dev"
+	APP_ENV=dev $(MAKE) database O="--catalog vendor/librepim/librepim-dev/src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/icecat_demo_dev"
 
 .PHONY: up
 up:
-	docker-compose up -d --remove-orphans
+	docker compose up -d --remove-orphans
 
 .PHONY: down
 down:
-	docker-compose down -v
+	docker compose down -v
 
 .PHONY: upgrade-front
 upgrade-front:

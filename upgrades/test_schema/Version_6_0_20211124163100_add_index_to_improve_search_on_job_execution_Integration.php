@@ -45,7 +45,7 @@ class Version_6_0_20211124163100_add_index_to_improve_search_on_job_execution_In
         $this->dropIndexesIfExists();
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         Assert::assertTrue($this->indexesExists());
     }

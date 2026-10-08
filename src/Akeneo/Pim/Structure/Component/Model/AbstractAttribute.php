@@ -164,9 +164,8 @@ abstract class AbstractAttribute implements AttributeInterface
 
     protected ?array $rawTableConfiguration = null;
 
-    /**
-     * Constructor
-     */
+    protected bool $mainIdentifier;
+
     public function __construct()
     {
         $this->options = new ArrayCollection();
@@ -180,6 +179,7 @@ abstract class AbstractAttribute implements AttributeInterface
         $this->translations = new ArrayCollection();
         $this->validationRule = null;
         $this->properties = [];
+        $this->mainIdentifier = false;
     }
 
     /**
@@ -446,7 +446,7 @@ abstract class AbstractAttribute implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getGroupSequence()
+    public function getGroupSequence(): array|\Symfony\Component\Validator\Constraints\GroupSequence
     {
         $groups = ['Attribute', $this->getType()];
 
@@ -920,12 +920,12 @@ abstract class AbstractAttribute implements AttributeInterface
      */
     public function getTranslation(?string $locale = null): ?AttributeTranslationInterface
     {
-        $locale = ($locale) ? $locale : $this->locale;
+        $locale = $locale ?: $this->locale;
         if (null === $locale) {
             return null;
         }
         foreach ($this->getTranslations() as $translation) {
-            if ($translation->getLocale() === $locale) {
+            if (\strtolower($translation->getLocale()) === \strtolower($locale)) {
                 return $translation;
             }
         }
@@ -1103,5 +1103,10 @@ abstract class AbstractAttribute implements AttributeInterface
     public function setRawTableConfiguration(?array $rawTableConfiguration): void
     {
         $this->rawTableConfiguration = $rawTableConfiguration;
+    }
+
+    public function isMainIdentifier(): bool
+    {
+        return $this->mainIdentifier;
     }
 }

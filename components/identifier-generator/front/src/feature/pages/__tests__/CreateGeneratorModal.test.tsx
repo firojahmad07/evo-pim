@@ -3,8 +3,9 @@ import {fireEvent, render, screen} from '../../tests/test-utils';
 import {CreateGeneratorModal} from '../';
 import {waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import {TEXT_TRANSFORMATION} from '../../models';
 
-jest.mock('../../hooks/useIdentifierAttributes');
+jest.mock('../../hooks/useGetIdentifierGenerators');
 
 describe('CreateGeneratorModal', () => {
   it('should render creation form', async () => {
@@ -38,7 +39,8 @@ describe('CreateGeneratorModal', () => {
       delimiter: null,
       labels: {en_US: 'Other label'},
       structure: [],
-      target: 'sku',
+      target: '',
+      text_transformation: TEXT_TRANSFORMATION.NO,
     });
   });
 
@@ -57,6 +59,17 @@ describe('CreateGeneratorModal', () => {
     expect(codeInput).toHaveValue('new_code');
 
     expect(confirmButton).toBeEnabled();
+
+    fireEvent.click(confirmButton);
+    expect(onSave).toBeCalledWith({
+      code: 'new_code',
+      conditions: [],
+      delimiter: null,
+      labels: {},
+      structure: [],
+      target: '',
+      text_transformation: TEXT_TRANSFORMATION.NO,
+    });
   });
 
   it('should limit label string length', () => {
@@ -100,7 +113,27 @@ describe('CreateGeneratorModal', () => {
       delimiter: null,
       labels: {en_US: 'New label 123'},
       structure: [],
-      target: 'sku',
+      target: '',
+      text_transformation: TEXT_TRANSFORMATION.NO,
     });
+  });
+
+  it('should prevent creating a generator with a code already used', () => {
+    render(<CreateGeneratorModal onClose={jest.fn()} onSave={jest.fn()} />);
+
+    const confirmButton = screen.getByText('pim_common.confirm');
+    const codeInput = screen.getByRole('textbox', {name: 'pim_common.code pim_common.required_label'});
+
+    fireEvent.change(codeInput, {target: {value: 'test'}});
+    expect(confirmButton).toBeDisabled();
+    expect(screen.getByText('validation.create.code_already_used')).toBeInTheDocument();
+
+    fireEvent.change(codeInput, {target: {value: 'TEST'}});
+    expect(confirmButton).toBeDisabled();
+    expect(screen.getByText('validation.create.code_already_used')).toBeInTheDocument();
+
+    fireEvent.change(codeInput, {target: {value: 'other_code'}});
+    expect(confirmButton).not.toBeDisabled();
+    expect(screen.queryByText('validation.create.code_already_used')).not.toBeInTheDocument();
   });
 });

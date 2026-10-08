@@ -1,10 +1,10 @@
 import React, {FC, useContext, useEffect} from 'react';
 import {renderHook} from '@testing-library/react-hooks';
 import {act} from 'react-test-renderer';
-import {DraggedNode, TreeNode} from 'feature/models';
-import {OrderableTreeContext, OrderableTreeProvider} from 'feature/components';
+import {DraggedNode, TreeNode} from '../models';
+import {OrderableTreeContext, OrderableTreeProvider} from '../components';
 import {ReorderOnDropHandler, useDropTreeNode} from './useDropTreeNode';
-import {aDraggedNode, aTreeNode} from 'tests/provideTreeNodeHelper';
+import {aDraggedNode, aTreeNode} from '../../tests/provideTreeNodeHelper';
 
 const InitDraggedNodeWrapper: FC<{draggedNode: DraggedNode | null}> = ({children, draggedNode}) => {
   const {setDraggedNode} = useContext(OrderableTreeContext);
@@ -55,7 +55,7 @@ describe('useDropTreeNode', () => {
 
   test('it drags over the node', () => {
     const reorder = jest.fn();
-    const node = aTreeNode('node', 1111, [], 'a_node', 1, 'node');
+    const node = aTreeNode('node', 1111, [], 'a_node', '', 1, 'node');
     const draggedNode = aDraggedNode(9999);
     const {result} = renderUseDropTreeNode(node, reorder, draggedNode);
     const anElement = document.createElement('div');
@@ -120,7 +120,7 @@ describe('useDropTreeNode', () => {
 
   test('it drops on the node', () => {
     const reorder = jest.fn();
-    const node = aTreeNode('node', 1111, [], 'a_node', 1, 'node');
+    const node = aTreeNode('node', 1111, [], 'a_node', '', 1, 'node');
     const draggedNode = aDraggedNode(9999);
     const {result} = renderUseDropTreeNode(node, reorder, draggedNode);
     const anElement = document.createElement('div');

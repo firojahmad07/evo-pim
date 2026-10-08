@@ -34,12 +34,7 @@ final class Version_6_0_20210331105730_remove_datagrid_view_unique_label_constra
         SQL;
         $uniqueConstraintKeyName = $this->dbalConnection()->executeQuery($selectUniqueConstraint)->fetchOne();
 
-        if (!$uniqueConstraintKeyName) {
-            $this->write('pim_datagrid_view unique constraint is already up to date');
-
-            return;
-        }
-
+        $this->skipIf(!$uniqueConstraintKeyName, 'pim_datagrid_view unique constraint is already up to date');
         $this->addSql("ALTER TABLE pim_datagrid_view DROP index $uniqueConstraintKeyName");
     }
 

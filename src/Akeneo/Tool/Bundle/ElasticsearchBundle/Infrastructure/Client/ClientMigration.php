@@ -9,22 +9,21 @@ declare(strict_types=1);
 
 namespace Akeneo\Tool\Bundle\ElasticsearchBundle\Infrastructure\Client;
 
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 use Webmozart\Assert\Assert;
 
 final class ClientMigration implements ClientMigrationInterface
 {
-    private Client $client;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $client;
 
-    public function __construct(ClientBuilder $clientBuilder, array $hosts)
+    public function __construct($clientBuilder, array $hosts)
     {
         $this->client = $clientBuilder->setHosts($hosts)->build();
     }
 
     public function aliasExist(string $indexAlias): bool
     {
-        return $this->client->indices()->existsAlias(['name' => $indexAlias]);
+        return (bool) $this->client->indices()->existsAlias(['name' => $indexAlias]);
     }
 
     public function getIndexNameFromAlias(string $indexAlias): array
@@ -34,7 +33,7 @@ final class ClientMigration implements ClientMigrationInterface
         return \array_keys($aliases);
     }
 
-    public function reindex(string $sourceIndexAlias, string $targetIndexAlias, array $query, ?int $batchSize = null)
+    public function reindex(string $sourceIndexAlias, string $targetIndexAlias, array $query)
     {
         $reindexResponse = $this->client->reindex([
             'wait_for_completion' => true,
@@ -42,7 +41,6 @@ final class ClientMigration implements ClientMigrationInterface
                 "source" => [
                     "index" => $sourceIndexAlias,
                     "query" => $query,
-                    "size" => (null != $batchSize) ? $batchSize : 1000
                 ],
                 "dest" => [
                     "index" => $targetIndexAlias,

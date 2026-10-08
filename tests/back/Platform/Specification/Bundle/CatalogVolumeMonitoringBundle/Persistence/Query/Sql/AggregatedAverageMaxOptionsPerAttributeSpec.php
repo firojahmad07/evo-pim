@@ -30,13 +30,16 @@ class AggregatedAverageMaxOptionsPerAttributeSpec extends ObjectBehavior
         $this->shouldImplement(AverageMaxQuery::class);
     }
 
-    function it_fetches_an_average_max_volume($connection, Statement $statement, Result $result)
+    function it_fetches_an_average_max_volume($connection, Statement $statement, \Doctrine\DBAL\Driver\Result $driverResult)
     {
         $connection->prepare(Argument::any())->willReturn($statement);
 
         $statement->bindValue(Argument::cetera())->shouldBeCalled();
+        
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
         $statement->executeQuery()->shouldBeCalled()->willReturn($result);
-        $result->fetchAssociative()->willReturn(
+        
+        $driverResult->fetchAssociative()->willReturn(
             [
                 'max' => 12,
                 'average' => 7,
@@ -49,13 +52,16 @@ class AggregatedAverageMaxOptionsPerAttributeSpec extends ObjectBehavior
     function it_fetches_a_average_max_with_empty_values_if_no_aggregated_volume_has_been_found(
         Connection $connection,
         Statement $statement,
-        Result $result
+        \Doctrine\DBAL\Driver\Result $driverResult
     ) {
         $connection->prepare(Argument::any())->willReturn($statement);
 
         $statement->bindValue(Argument::cetera())->shouldBeCalled();
+        
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
         $statement->executeQuery()->shouldBeCalled()->willReturn($result);
-        $result->fetchAssociative()->willReturn(null);
+        
+        $driverResult->fetchAssociative()->willReturn(null);
 
         $this->fetch()->shouldBeLike(new AverageMaxVolumes(0, 0, 'average_max_options_per_attribute'));
     }

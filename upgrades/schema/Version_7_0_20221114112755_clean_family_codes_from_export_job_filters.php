@@ -26,11 +26,7 @@ final class Version_7_0_20221114112755_clean_family_codes_from_export_job_filter
         $jobInstances = $this->fetchJobInstances();
         $jobInstancesToClean = $this->filterJobInstanceToClean($jobInstances, $familyCodes);
 
-        if (empty($jobInstancesToClean)) {
-            $this->write('Export job filters are already cleaned');
-
-            return;
-        }
+        $this->skipIf(empty($jobInstancesToClean), 'Export job filters are already cleaned');
 
         foreach ($jobInstancesToClean as $jobInstance) {
             $cleanedRawParameters = $this->cleanRawParameters($jobInstance['raw_parameters'], $familyCodes);

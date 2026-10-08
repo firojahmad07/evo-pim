@@ -105,11 +105,11 @@ class VersionBuilder
         $oldSnapshot = $previousVersion ? $previousVersion->getSnapshot() : [];
 
         $modification = $pending->getChangeset();
-        $snapshot = $modification + $oldSnapshot;
-        $changeset = $this->buildChangeset($oldSnapshot, $snapshot);
+        $snapshotFromPreviousVersion = \array_replace($modification, $oldSnapshot);
+        $changeset = $this->buildChangeset($oldSnapshot, $snapshotFromPreviousVersion);
 
         $pending->setVersion($versionNumber)
-            ->setSnapshot($snapshot)
+            ->setSnapshot($snapshotFromPreviousVersion)
             ->setChangeset($changeset);
 
         return $pending;
@@ -123,7 +123,7 @@ class VersionBuilder
      *
      * @return array
      */
-    protected function buildChangeset(array $oldSnapshot, array $newSnapshot)
+    public function buildChangeset(array $oldSnapshot, array $newSnapshot)
     {
         return $this->filterChangeset($this->mergeSnapshots($oldSnapshot, $newSnapshot));
     }
@@ -184,14 +184,8 @@ class VersionBuilder
 
     private function hasValueChanged($old, $new): bool
     {
-        $hasLegacyDateChanged = $this->hasLegacyDateChanged($old, $new);
-        if (null !== $hasLegacyDateChanged) {
-            return $hasLegacyDateChanged;
-        }
-
-        $hasTableAttributeChanged = $this->hasTableAttributeChanged($old, $new);
-        if (null !== $hasTableAttributeChanged) {
-            return $hasTableAttributeChanged;
+        if (null !== $hasChanged = $this->hasLegacyDateChanged($old, $new)) {
+            return $hasChanged;
         }
 
         return $old !== $new;
@@ -233,42 +227,5 @@ class VersionBuilder
         }
 
         return $oldDateTime->format('U') !== $newDateTime->format('U');
-    }
-
-    /**
-     * In the case of a table attribute value, ordering of each line is not important. We need to ensure that
-     * '[{columnA: "valueA", columnB: "valueB"}]' and '[{columnB: "valueB", columnA: "valueA"}]' do not add a new
-     * version for the product.
-     */
-    private function hasTableAttributeChanged($old, $new): bool|null
-    {
-        if (!is_string($old) || !is_string($new)) {
-            return null;
-        }
-
-        $oldJson = \json_decode($old, true);
-        $newJson = \json_decode($new, true);
-
-        if (!\is_array($oldJson) || !\is_array($newJson)) {
-            return null;
-        }
-
-        if (\count($oldJson) !== \count($newJson)) {
-            return true;
-        }
-
-        foreach ($oldJson as $oldJsonItem) {
-            if (!\is_array($oldJsonItem)) {
-                return null;
-            }
-        }
-
-        foreach ($newJson as $newJsonItem) {
-            if (!\is_array($newJsonItem)) {
-                return null;
-            }
-        }
-
-        return $oldJson != $newJson;
     }
 }

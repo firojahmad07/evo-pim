@@ -11,14 +11,15 @@ import {
   AssetsIcon,
 } from '../../icons';
 import {useTabBar} from "../../hooks/useTabBar";
+import { Tooltip } from '../Tooltip/Tooltip';
 
 <Meta
   title="Components/Tiles"
   component={Tiles}
   argTypes={{
-    size: {control: {type: 'select'}, options: ['small', 'big']},
+    size: {control: {type: 'select'}, options: ['small', 'big']}, disabled: {control: {type: 'boolean'}},
   }}
-  args={{size: 'small'}}
+  args={{size: 'small', disabled: false}}
 />
 
 # Tiles
@@ -59,9 +60,15 @@ The component is displayed in a configurable responsive grid (width and gap). Ti
         </Tile>
         <Tile icon={<AttributeTextIcon/>} selected={isCurrent('Text')} onClick={() => {switchTo('Text')}}>
           Text
+          <Tooltip>
+            This is a text
+          </Tooltip>
         </Tile>
-        <Tile icon={<AttributeNumberIcon/>} selected={isCurrent('Number')} onClick={() => {switchTo('Number')}}>
+        <Tile icon={<AttributeNumberIcon/>} selected={isCurrent('Number')} onClick={() => {switchTo('Number')}} disabled>
           Number
+          <Tooltip>
+            This is a disabled number
+          </Tooltip>
         </Tile>
       </Tiles>;
     }}
@@ -91,6 +98,26 @@ The component is displayed in a configurable responsive grid (width and gap). Ti
             </Tile>
             <Tile icon={<DateIcon/>}>
               Big Date
+            </Tile>
+          </Tiles>
+          <Tiles size={'small'} inline={true}>
+              <Tile>
+                Big Assets collection
+                <Tooltip direction={'bottom'}>Big Assets collection</Tooltip>
+              </Tile>
+              <Tile>
+                Big Date
+                <Tooltip direction={'bottom'}>Big Date</Tooltip>
+              </Tile>
+            </Tiles>
+          <Tiles size={'big'} inline={true}>
+            <Tile>
+              Big Assets collection
+              <Tooltip direction={'bottom'}>Big Assets collection</Tooltip>
+            </Tile>
+            <Tile>
+              Big Date
+              <Tooltip direction={'bottom'}>Big Date</Tooltip>
             </Tile>
           </Tiles>
         </>

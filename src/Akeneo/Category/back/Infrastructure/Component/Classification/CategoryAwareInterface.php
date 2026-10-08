@@ -20,8 +20,14 @@ interface CategoryAwareInterface
      */
     public function getCategories();
 
+    /**
+     * @return mixed
+     */
     public function removeCategory(CategoryInterface $category);
 
+    /**
+     * @return mixed
+     */
     public function addCategory(CategoryInterface $category);
 
     /**

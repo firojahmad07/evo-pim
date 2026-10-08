@@ -48,15 +48,13 @@ define(['pim/form/common/label', 'pim/user-context', 'pim/fetcher-registry'], fu
       var locale = UserContext.get('catalogLocale');
 
       var values = this.getFormData().values[attributeAsLabelIdentifier];
-      if (!values) {
-        return '';
+      if (values) {
+        return values.find(value => {
+          return (false === scopable || value.scope === scope) && (false === localizable || value.locale === locale);
+        }).data;
       }
 
-      const valueScopableLocalizable = values.find(value => {
-        return (false === scopable || value.scope === scope) && (false === localizable || value.locale === locale);
-      });
-
-      return valueScopableLocalizable?.data ?? '';
+      return '';
     },
 
     getLabelFromMeta: function () {

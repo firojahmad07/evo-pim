@@ -1,10 +1,12 @@
 import React, {FC} from 'react';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import {pimTheme} from 'akeneo-design-system';
-import {DependenciesContext} from '@akeneo-pim-community/shared';
+import {DefaultProviders, useSecurity} from '@akeneo-pim-community/shared';
 import {ThemeProvider} from 'styled-components';
 import {render, RenderOptions, RenderResult} from '@testing-library/react';
-import {IdentifierGeneratorContextProvider} from '../context';
+import {IdentifierGeneratorAclContextProvider, IdentifierGeneratorContextProvider} from '../context';
+
+// By default, the tests should behave as if all identifier generator ACLs are granted
 
 const AllTheProviders: FC<{children: React.ReactNode}> = ({children}) => {
   const queryClient = new QueryClient({
@@ -18,11 +20,13 @@ const AllTheProviders: FC<{children: React.ReactNode}> = ({children}) => {
 
   return (
     <ThemeProvider theme={pimTheme}>
-      <DependenciesContext.Provider value={{translate: k => k}}>
+      <DefaultProviders>
         <QueryClientProvider client={queryClient}>
-          <IdentifierGeneratorContextProvider>{children}</IdentifierGeneratorContextProvider>
+          <IdentifierGeneratorContextProvider>
+            <IdentifierGeneratorAclContextProvider>{children}</IdentifierGeneratorAclContextProvider>
+          </IdentifierGeneratorContextProvider>
         </QueryClientProvider>
-      </DependenciesContext.Provider>
+      </DefaultProviders>
     </ThemeProvider>
   );
 };
@@ -44,7 +48,7 @@ const mockResponse: (
     (console.error as jest.Mock).mockImplementation(() => null);
   }
   const fetchImplementation = jest.fn().mockImplementation((requestUrl: string, args: {method: string}) => {
-    if (requestUrl === url && args.method === method) {
+    if (requestUrl === url && (args?.method || 'GET') === method) {
       return Promise.resolve({
         ok: response.ok ?? true,
         json: () => Promise.resolve(response.json || {}),
@@ -53,16 +57,16 @@ const mockResponse: (
       } as Response);
     }
 
-    throw new Error(`Unmocked url "${requestUrl}" [${args.method}]`);
+    throw new Error(`Unmocked url "${requestUrl}" [${args?.method || 'GET'}]`);
   });
   jest.spyOn(global, 'fetch').mockImplementation(fetchImplementation);
 
   return () => {
-    if (method === 'POST') {
+    if (method === 'POST' || method === 'PATCH') {
       expect(fetchImplementation).toBeCalledWith(url, {
         headers: {'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json'},
         body: JSON.stringify(response.body),
-        method: 'POST',
+        method,
       });
     } else {
       expect(fetchImplementation).toBeCalledWith(url, {
@@ -73,5 +77,15 @@ const mockResponse: (
   };
 };
 
+const mockACLs: (view: boolean, manage: boolean) => void = (view: boolean, manage: boolean) => {
+  (useSecurity as jest.Mock).mockImplementation(() => ({
+    isGranted: (acl: string) =>
+      ({
+        pim_identifier_generator_view: view,
+        pim_identifier_generator_manage: manage,
+      }[acl] ?? false),
+  }));
+};
+
 export * from '@testing-library/react';
-export {customRender as render, mockResponse};
+export {customRender as render, mockResponse, mockACLs};

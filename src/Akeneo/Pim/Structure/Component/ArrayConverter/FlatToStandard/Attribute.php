@@ -151,10 +151,20 @@ class Attribute implements ArrayConverterInterface
             return null;
         }
 
-        $datetime = \DateTime::createFromFormat('Y-m-d', $date);
+        $timezone = new \DateTimeZone(\date_default_timezone_get());
+        $datetime = \DateTime::createFromFormat('Y-m-d', $date, $timezone);
         $errors = \DateTime::getLastErrors();
 
-        if (false === $errors || (0 === $errors['warning_count'] && 0 === $errors['error_count'])) {
+        // PHP 8.1+ returns FALSE on success
+        if (false === $errors) {
+            $errors = ['warning_count' => 0, 'error_count' => 0];
+        }
+
+        if (
+            $datetime instanceof \DateTimeInterface &&
+            0 === ($errors['warning_count'] ?? 0) &&
+            0 === ($errors['error_count'] ?? 0)
+        ) {
             $datetime->setTime(0, 0, 0);
 
             return $datetime->format('c');

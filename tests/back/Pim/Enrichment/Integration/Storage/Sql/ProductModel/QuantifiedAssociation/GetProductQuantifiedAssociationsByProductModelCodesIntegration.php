@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace AkeneoTest\Pim\Enrichment\Integration\Storage\Sql\ProductModel\Association;
 
 use Akeneo\Pim\Enrichment\Bundle\Storage\Sql\ProductModel\QuantifiedAssociation\GetProductQuantifiedAssociationsByProductModelCodes;
-use Akeneo\Test\Integration\Configuration;
 use AkeneoTest\Pim\Enrichment\EndToEnd\Product\EntityWithQuantifiedAssociations\QuantifiedAssociationsTestCaseTrait;
 use AkeneoTest\Pim\Enrichment\Integration\Storage\Sql\AbstractQuantifiedAssociationIntegration;
 use Doctrine\DBAL\Connection;
@@ -46,8 +45,8 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
      */
     public function itReturnQuantifiedAssociationWithProductsOnSingleProductModel()
     {
-        $uuidA = $this->getEntityBuilder()->createProduct('productA', 'aFamily', [])->getUuid();
-        $uuidB = $this->getEntityBuilder()->createProduct('productB', 'aFamily', [])->getUuid();
+        $this->getEntityBuilder()->createProduct('productA', 'aFamily', []);
+        $this->getEntityBuilder()->createProduct('productB', 'aFamily', []);
         $this->getEntityBuilder()->createProductModel('productModelA', 'familyVariantWithTwoLevels', null, [
             'quantified_associations' => [
                 'PRODUCT_SET' => [
@@ -64,8 +63,8 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
             'productModelA' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productA', 'quantity' => 8, 'uuid' => $uuidA->toString()],
-                        ['identifier' => 'productB', 'quantity' => 6, 'uuid' => $uuidB->toString()],
+                        ['identifier' => 'productA', 'quantity' => 8],
+                        ['identifier' => 'productB', 'quantity' => 6],
                     ],
                 ],
             ],
@@ -79,8 +78,8 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
      */
     public function itReturnQuantifiedAssociationWithProductsOnMultipleProductModels()
     {
-        $uuidA = $this->getEntityBuilder()->createProduct('productA', 'aFamily', [])->getUuid();
-        $uuidB = $this->getEntityBuilder()->createProduct('productB', 'aFamily', [])->getUuid();
+        $this->getEntityBuilder()->createProduct('productA', 'aFamily', []);
+        $this->getEntityBuilder()->createProduct('productB', 'aFamily', []);
         $rootProductModel = $this->getEntityBuilder()->createProductModel('productModelA', 'familyVariantWithTwoLevels', null, [
             'quantified_associations' => [
                 'PRODUCT_SET' => [
@@ -106,15 +105,15 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
             'productModelA' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productA', 'quantity' => 3, 'uuid' => $uuidA->toString()],
+                        ['identifier' => 'productA', 'quantity' => 3],
                     ],
                 ],
             ],
             'productModelB' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productB', 'quantity' => 1, 'uuid' => $uuidB->toString()],
-                        ['identifier' => 'productA', 'quantity' => 3, 'uuid' => $uuidA->toString()],
+                        ['identifier' => 'productB', 'quantity' => 1],
+                        ['identifier' => 'productA', 'quantity' => 3],
                     ],
                 ],
             ],
@@ -128,7 +127,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
      */
     public function itReturnsTheQuantifiedAssociationOfTheChildrenWhenDesynchronizedWithTheParent()
     {
-        $uuidA = $this->getEntityBuilder()->createProduct('productA', 'aFamily', [])->getUuid();
+        $this->getEntityBuilder()->createProduct('productA', 'aFamily', []);
         $rootProductModel = $this->getEntityBuilder()->createProductModel('root_product_model', 'familyVariantWithTwoLevels', null, [
             'quantified_associations' => [
                 'PRODUCT_SET' => [
@@ -153,7 +152,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
             'productModelB' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productA', 'quantity' => 1, 'uuid' => $uuidA->toString()],
+                        ['identifier' => 'productA', 'quantity' => 1],
                     ],
                 ],
             ],
@@ -167,7 +166,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
      */
     public function itOnlyReturnProductModelsWithQuantifiedAssociation()
     {
-        $uuidA = $this->getEntityBuilder()->createProduct('productA', 'aFamily', [])->getUuid();
+        $this->getEntityBuilder()->createProduct('productA', 'aFamily', []);
         $this->getEntityBuilder()->createProductModel('productModelA', 'familyVariantWithTwoLevels', null, []);
         $this->getEntityBuilder()->createProductModel('productModelB', 'familyVariantWithTwoLevels', null, [
             'quantified_associations' => [
@@ -184,7 +183,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
             'productModelB' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productA', 'quantity' => 3, 'uuid' => $uuidA->toString()],
+                        ['identifier' => 'productA', 'quantity' => 3],
                     ],
                 ],
             ],
@@ -201,7 +200,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
         $rootProductModel = $this->getEntityBuilder()->createProductModel('root_product_model', 'familyVariantWithTwoLevels', null, []);
         $this->getEntityBuilder()->createProductModel('sub_product_model_1', 'familyVariantWithTwoLevels', $rootProductModel, []);
 
-        $uuidA = $this->getEntityBuilder()->createProduct('productA', 'aFamily', [])->getUuid();
+        $this->getEntityBuilder()->createProduct('productA', 'aFamily', []);
         $this->getEntityBuilder()->createProductModel('productModelA', 'familyVariantWithTwoLevels', null, [
             'quantified_associations' => [
                 'PRODUCT_SET' => [
@@ -221,7 +220,7 @@ class GetProductQuantifiedAssociationsByProductModelCodesIntegration extends Abs
             'productModelA' => [
                 'PRODUCT_SET' => [
                     'products' => [
-                        ['identifier' => 'productA', 'quantity' => 3, 'uuid' => $uuidA->toString()],
+                        ['identifier' => 'productA', 'quantity' => 3],
                     ],
                 ],
             ],
@@ -322,38 +321,7 @@ SQL;
         $this->assertSame([], $actual);
     }
 
-    /** @test */
-    public function itDoesNotFailIfAssociatedProductsHaveNoIdentifier(): void
-    {
-        $uuidA = $this->getEntityBuilder()->createProduct(null, 'aFamily', [])->getUuid();
-        $uuidB = $this->getEntityBuilder()->createProduct('productB', 'aFamily', [])->getUuid();
-        $this->getEntityBuilder()->createProductModel('productModelA', 'familyVariantWithTwoLevels', null, [
-            'quantified_associations' => [
-                'PRODUCT_SET' => [
-                    'products' => [
-                        ['uuid' => $uuidA->toString(), 'quantity' => 8],
-                        ['uuid' => $uuidB->toString(), 'quantity' => 6],
-                    ],
-                ],
-            ],
-        ]);
-
-        $actual = $this->getQuery()->fromProductModelCodes(['productModelA']);
-        $expected = [
-            'productModelA' => [
-                'PRODUCT_SET' => [
-                    'products' => [
-                        ['identifier' => null, 'quantity' => 8, 'uuid' => $uuidA->toString()],
-                        ['identifier' => 'productB', 'quantity' => 6, 'uuid' => $uuidB->toString()],
-                    ],
-                ],
-            ],
-        ];
-
-        $this->assertSame($expected, $actual);
-    }
-
-    protected function getConfiguration(): Configuration
+    protected function getConfiguration()
     {
         return $this->catalog->useMinimalCatalog();
     }

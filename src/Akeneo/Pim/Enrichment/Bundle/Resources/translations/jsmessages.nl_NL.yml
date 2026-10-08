@@ -2,6 +2,7 @@ pim_notification:
   types:
     settings: Instellingen
     mass_delete: Verwijderen
+    attribute_mass_delete: Verwijderen
 flash:
   comment:
     create:
@@ -70,6 +71,7 @@ pim_enrich.entity.product:
       modified: Gewijzigd
       old_value: Oude waarde
       new_value: Nieuwe waarde
+      limit: 'Alleen de laatste {{ limit }} versies worden weergegeven.'
     meta:
       updated: Laatst bijgewerkt
       groups: Groepen
@@ -114,7 +116,7 @@ pim_enrich.entity.product:
         quantity: Aantal
         unlinked: Ontkoppeld
       search:
-        placeholder: Zoeken op label of ID
+        placeholder: Zoeken op label, id of uuid
       no_data: Er zijn geen gekoppelde producten
       remove: Koppeling verwijderen
       edit: Bewerk product
@@ -244,6 +246,9 @@ pim_enrich.entity.category:
     success: De boom "{{ tree }}" is verwijderd
     error: De boom "{{ tree }}" kon niet worden verwijderd
     confirmation: Weet u zeker dat u de boom {{ name }} wilt verwijderen? Alle categorieën in die boom worden verwijderd en de producten worden uit alle categorieën verwijderd.
+    confirmation_question: Weet u zeker dat u {{ name }} wilt verwijderen?
+    warning_categories_number: De {{ categoriesNumber }} geassocieerde categorieën worden verwijderd en de producten worden verwijderd uit alle deze categorieën.
+    warning_products: Alle bijbehorende producten worden verwijderd van {{ name }}
     products_limit_exceeded:
       title: Deze boom kan niet worden verwijderd.
       message: De boom "{{ tree }}" bevat meer dan {{ limit }} producten en kan daarom niet verwijderd worden.
@@ -251,6 +256,7 @@ pim_enrich.entity.category:
     success: De categorie "{{ name }}" is verwijderd
     error: De categorie "{{ name }}" kon niet worden verwijderd
     confirmation: Weet u zeker dat u de categorie {{ name }} wilt verwijderen? De producten in deze categorie worden niet verwijderd.
+    confirmation_question: Weet u zeker dat u {{ name }} wilt verwijderen?
     products_limit_exceeded:
       title: Deze categorie kan niet worden verwijderd
       message: De categorie "{{ name }}" bevat meer dan {{ limit }} producten en kan daarom niet worden verwijderd.
@@ -270,6 +276,8 @@ pim_enrich.export.product:
       empty: Alle attributen worden geëxporteerd
       modal:
         title: Attribuut selectie
+        helper:
+          text: "De primaire identifier wordt altijd geëxporteerd met de geselecteerde attributen. "
     attributes_selector:
       attributes: "Zoek in {{ itemsCount }} attributen"
       selected: "Geselecteerde attributen"
@@ -454,6 +462,7 @@ pim_datagrid:
     mass_delete: Groepsgewijs verwijderen
     selected:
       family: "]-Inf, 1]{{ count }} familie geselecteerd|]1, Inf[{{ count }} families geselecteerd"
+      attribute: "]-Inf, 1]{{ count }} attribuut geselecteerd|]1, Inf[{{ count }} attributen geselecteerd"
       product: "]-Inf, 1]{{ count }} resultaat geselecteerd|]1, Inf[{{ count }} resultaten geselecteerd"
   view_selector:
     view: Weergaves
@@ -496,12 +505,15 @@ pim_datagrid:
       label: Bijgewerkt op
     label_or_identifier:
       label: Label of identifier
+      label_with_uuid: Label, ID of UUID
     parent:
       label: Bovenliggende
     identifier:
       label: Identifier
     uuid:
       label: Uuid
+    code_or_label:
+      label: Code of label
   search: Zoeken op {{ label }}
 batch_jobs:
   add_association:

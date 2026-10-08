@@ -85,7 +85,7 @@ class EmailValidatorSpec extends ObjectBehavior
         $constraint = new Email(['attributeCode' => 'a_code']);
 
         $context->buildViolation(Argument::cetera())->shouldNotBeCalled();
-        $context->getViolations()->willReturn([]);
+        $context->getViolations()->willReturn(new ConstraintViolationList());
 
         $this->validate($goodEmail, $constraint);
     }

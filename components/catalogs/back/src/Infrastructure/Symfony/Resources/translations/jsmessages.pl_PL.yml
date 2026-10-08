@@ -126,19 +126,34 @@ akeneo_catalogs:
     source:
       title: Wybierz źródło
       parameters:
+        placeholder: Wybierz atrybut
         title: Parametry źródła
         channel:
-          label: Kanał
           placeholder: Wybierz kanał
         locale:
-          label: Wersja językowa
           placeholder: Wybierz wersję językową
+        label_locale:
+          label: Tłumaczenie wartości
+          placeholder: Wybierz tłumaczenie
+          helper: Wybierz język, w którym należy wysłać wartość.
+        currency:
+          label: Waluta
+          placeholder: Wybierz walutę
+          helper: Wybierz walutę, w której należy wysłać wartość.
+        default_value:
+          label: Wartość domyślna przy braku zadanej
+          placeholder: Zdefiniuj wartość domyślną
+        no_parameters_message: Brak parametrów dla tego źródła.
+        unit:
+          label: Jednostka
+          placeholder: Wybierz jednostkę
+          helper: Wybierz jednostkę, w której należy wysłać wartość.
       select_source:
         label: Źródło PIM
         search: Kryterium wyszukiwania
-        no_results: nie znaleziono dopasowań
-        section_system: system
-        section_attributes: atrybuty
+        no_results: Nie znaleziono dopasowań
+        section_system: System
+        section_attributes: Atrybuty
       placeholder:
         title: Wybierz źródło
         illustration_title: Kliknij cel w prawym panelu, aby skonfigurować mapowanie katalogu.
@@ -148,3 +163,18 @@ akeneo_catalogs:
         illustration_title: UUID to techniczny identyfikator produktu.
         subtitle: Wszystkie aplikacje muszą wymagać go jako celu. Nie musisz nic konfigurować w odniesieniu do tego celu, ponieważ automatycznie mapujemy go za pomocą identyfikatora UUID produktu Akeneo.
         link: Więcej informacji o identyfikatorze UUID.
+      requirements:
+        title: Wymagania aplikacji
+        help: Pomoc
+        constraints:
+          minLength: '{0,1} Ten celu musi składać się z co najmniej {{ value }} znaku.|[2,Inf[ Ten cel musi składać się z co najmniej {{ value }} znaków.'
+          maxLength: '{0,1} Ten cel nie może zawierać więcej niż {{ value }} znaku.|[2,Inf[ Ten cel nie może zawierać więcej niż {{ value }} znaków.'
+          pattern: '[0,Inf[ Pattern: Ten cel musi być zgodny z następującym wyrażeniem regularnym: „{{ value }}”.'
+          minimum: '[0,Inf[ Ten cel musi być większy lub równy {{ value }}.'
+          maximum: '[0,Inf[ Ten cel musi być równy {{ value }} lub większy.'
+          enum: '[0,Inf[ Enum: Ten cel akceptuje tylko następujące wartości: {{ value }}.'
+      system_attributes:
+        categories:
+          label: Kategorie
+        family:
+          label: Rodzina

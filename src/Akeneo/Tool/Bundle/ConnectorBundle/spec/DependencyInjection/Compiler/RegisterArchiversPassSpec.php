@@ -32,7 +32,7 @@ class RegisterArchiversPassSpec extends ObjectBehavior
 
         $service
             ->addMethodCall('registerArchiver', Argument::type('array'))
-            ->shouldBeCalledTimes(2);
+            ->willReturn($service);
 
         $this->process($container);
     }

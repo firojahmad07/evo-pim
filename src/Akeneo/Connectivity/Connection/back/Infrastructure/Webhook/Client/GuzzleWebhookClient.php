@@ -12,10 +12,12 @@ use Akeneo\Connectivity\Connection\Domain\Webhook\Event\EventsApiRequestFailedEv
 use Akeneo\Connectivity\Connection\Domain\Webhook\Event\EventsApiRequestSucceededEvent;
 use Akeneo\Connectivity\Connection\Domain\Webhook\Model\WebhookEvent;
 use Akeneo\Connectivity\Connection\Infrastructure\Webhook\RequestHeaders;
+use Akeneo\Platform\Bundle\PimVersionBundle\VersionProviderInterface;
+use Akeneo\Platform\Component\EventQueue\EventInterface;
+use Generator;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\TransferException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -29,50 +31,42 @@ use Symfony\Component\Serializer\Encoder\EncoderInterface;
  */
 class GuzzleWebhookClient implements WebhookClientInterface
 {
-    private ClientInterface $client;
-    private EncoderInterface $encoder;
-    private SendApiEventRequestLogger $sendApiEventRequestLogger;
-    private EventsApiRequestLoggerInterface $debugLogger;
-    private EventDispatcherInterface $eventDispatcher;
-
-    /** @var array{concurrency: ?int, timeout: ?float} */
-    private $config;
-
     /**
      * @param array{concurrency: ?int, timeout: ?float} $config
      */
     public function __construct(
-        ClientInterface $client,
-        EncoderInterface $encoder,
-        SendApiEventRequestLogger $sendApiEventRequestLogger,
-        EventsApiRequestLoggerInterface $debugLogger,
-        EventDispatcherInterface $eventDispatcher,
-        array $config
+        private readonly ClientInterface $client,
+        private readonly EncoderInterface $encoder,
+        private readonly SendApiEventRequestLogger $sendApiEventRequestLogger,
+        private readonly EventsApiRequestLoggerInterface $debugLogger,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly array $config,
+        private readonly VersionProviderInterface $versionProvider,
+        private readonly string | null $pfid,
     ) {
-        $this->client = $client;
-        $this->encoder = $encoder;
-        $this->sendApiEventRequestLogger = $sendApiEventRequestLogger;
-        $this->debugLogger = $debugLogger;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->config = $config;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function bulkSend(iterable $webhookRequests): void
     {
         $logs = [];
 
-        $guzzleRequests = function () use (&$webhookRequests, &$logs) {
+        $guzzleRequests = function () use (&$webhookRequests, &$logs): Generator {
             foreach ($webhookRequests as $webhookRequest) {
                 $body = $this->encoder->encode($webhookRequest->content(), 'json');
 
                 $timestamp = \time();
                 $signature = Signature::createSignature($webhookRequest->secret(), $timestamp, $body);
 
+                $userAgent = 'AkeneoPIM/' . $this->versionProvider->getVersion();
+                if (null !== $this->pfid) {
+                    $userAgent .= ' '.$this->pfid;
+                }
+
                 $headers = [
                     'Content-Type' => 'application/json',
                     RequestHeaders::HEADER_REQUEST_SIGNATURE => $signature,
                     RequestHeaders::HEADER_REQUEST_TIMESTAMP => $timestamp,
+                    RequestHeaders::HEADER_REQUEST_USERAGENT => $userAgent,
                 ];
 
                 $logs[] = new EventSubscriptionSendApiEventRequestLog($webhookRequest, $headers, \microtime(true));
@@ -92,7 +86,7 @@ class GuzzleWebhookClient implements WebhookClientInterface
                     'timeout' => $this->config['timeout'] ?? null,
                     'allow_redirects' => false,
                 ],
-                'fulfilled' => function (Response $response, int $index) use (&$logs) {
+                'fulfilled' => function (Response $response, int $index) use (&$logs): void {
                     /** @var EventSubscriptionSendApiEventRequestLog $webhookRequestLog */
                     $webhookRequestLog = $logs[$index];
                     $webhookRequestLog->setSuccess(true);
@@ -100,7 +94,7 @@ class GuzzleWebhookClient implements WebhookClientInterface
                     $webhookRequestLog->setResponse($response);
 
                     $pimEvents = \array_map(
-                        fn (WebhookEvent $apiEvent) => $apiEvent->getPimEvent(),
+                        static fn (WebhookEvent $apiEvent): EventInterface => $apiEvent->getPimEvent(),
                         $webhookRequestLog->getWebhookRequest()->apiEvents()
                     );
 
@@ -112,12 +106,12 @@ class GuzzleWebhookClient implements WebhookClientInterface
                     $this->debugLogger->logEventsApiRequestSucceed(
                         $webhookRequestLog->getWebhookRequest()->webhook()->connectionCode(),
                         $webhookRequestLog->getWebhookRequest()->apiEvents(),
-                        \strval($webhookRequestLog->getWebhookRequest()->url()),
+                        $webhookRequestLog->getWebhookRequest()->url(),
                         $response->getStatusCode(),
                         $response->getHeaders(),
                     );
                 },
-                'rejected' => function (RequestException|ConnectException $reason, int $index) use (&$logs) {
+                'rejected' => function (RequestException|ConnectException $reason, int $index) use (&$logs): void {
                     $this->eventDispatcher->dispatch(new EventsApiRequestFailedEvent());
 
                     /** @var EventSubscriptionSendApiEventRequestLog $webhookRequestLog */
@@ -139,11 +133,11 @@ class GuzzleWebhookClient implements WebhookClientInterface
                         $webhookRequestLog->getResponse()
                     );
 
-                    if ($reason instanceof RequestException) {
+                    if ($reason instanceof RequestException && $reason->hasResponse()) {
                         $this->debugLogger->logEventsApiRequestFailed(
                             $webhookRequestLog->getWebhookRequest()->webhook()->connectionCode(),
                             $webhookRequestLog->getWebhookRequest()->apiEvents(),
-                            \strval($reason->getRequest()->getUri()),
+                            (string) $reason->getRequest()->getUri(),
                             $reason->getResponse()->getStatusCode(),
                             $reason->getRequest()->getHeaders(),
                         );
@@ -151,7 +145,7 @@ class GuzzleWebhookClient implements WebhookClientInterface
                         $this->debugLogger->logEventsApiRequestTimedOut(
                             $webhookRequestLog->getWebhookRequest()->webhook()->connectionCode(),
                             $webhookRequestLog->getWebhookRequest()->apiEvents(),
-                            \strval($reason->getRequest()->getUri()),
+                            (string) $reason->getRequest()->getUri(),
                             $this->config['timeout']
                         );
                     }

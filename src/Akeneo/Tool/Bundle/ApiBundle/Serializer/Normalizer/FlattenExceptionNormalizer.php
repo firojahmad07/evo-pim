@@ -40,7 +40,7 @@ final class FlattenExceptionNormalizer implements NormalizerInterface
     public function normalize($exception, $format = null, array $context = [])
     {
         $contextException = $context['exception'] ?? null;
-        if ($this->normalizer->supportsNormalization($contextException, $format)) {
+        if (null !== $contextException && $this->normalizer->supportsNormalization($contextException, $format)) {
             return $this->normalizer->normalize($contextException, $format, $context);
         }
 

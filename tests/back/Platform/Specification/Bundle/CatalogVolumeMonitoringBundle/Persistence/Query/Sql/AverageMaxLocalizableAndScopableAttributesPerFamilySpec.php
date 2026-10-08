@@ -8,7 +8,7 @@ use Akeneo\Platform\Bundle\CatalogVolumeMonitoringBundle\Persistence\Query\Sql\A
 use Akeneo\Platform\Component\CatalogVolumeMonitoring\Volume\Query\AverageMaxQuery;
 use Akeneo\Platform\Component\CatalogVolumeMonitoring\Volume\ReadModel\AverageMaxVolumes;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Result;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -30,10 +30,12 @@ class AverageMaxLocalizableAndScopableAttributesPerFamilySpec extends ObjectBeha
         $this->shouldImplement(AverageMaxQuery::class);
     }
 
-    function it_gets_average_and_max_volume(Connection $connection, Result $statement)
+    function it_gets_average_and_max_volume(Connection $connection, \Doctrine\DBAL\Driver\Result $driverResult)
     {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(['average' => '5', 'max' => '10']);
+        $driverResult->fetchAssociative()->willReturn(['average' => '5', 'max' => '10']);
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
         $this->fetch()->shouldBeLike(
             new AverageMaxVolumes(10, 5, 'average_max_localizable_and_scopable_attributes_per_family')
         );

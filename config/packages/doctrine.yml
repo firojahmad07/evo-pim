@@ -26,6 +26,7 @@ doctrine:
             datetime: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\DBAL\Types\UTCDateTimeType
             datetime_immutable: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\DBAL\Types\UTCDateTimeImmutableType
             uuid_binary: Ramsey\Uuid\Doctrine\UuidBinaryType
+            json_array: Doctrine\DBAL\Types\JsonType
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         auto_mapping: true
@@ -40,15 +41,11 @@ doctrine:
 
 services:
     doctrine.result_cache_provider:
-        class: Symfony\Component\Cache\DoctrineProvider
+        class: Symfony\Component\Cache\Adapter\ArrayAdapter
         public: false
-        arguments:
-            - '@doctrine.result_cache_pool'
     doctrine.system_cache_provider:
-        class: Symfony\Component\Cache\DoctrineProvider
+        class: Symfony\Component\Cache\Adapter\FilesystemAdapter
         public: false
-        arguments:
-            - '@doctrine.system_cache_pool'
 
 framework:
     cache:

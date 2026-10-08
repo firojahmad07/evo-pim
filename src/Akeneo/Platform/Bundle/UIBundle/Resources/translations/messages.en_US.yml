@@ -93,6 +93,7 @@ pim_enrich:
         product:
             index: List products
             create: Create a product
+            view_attributes: View attributes of a product
             edit_attributes: Edit attributes of a product
             remove: Remove a product
             add_attribute: Add an attribute to a product
@@ -110,6 +111,7 @@ pim_enrich:
             convert_variant_to_simple: Convert a variant product to a simple product
         product_model:
             create: Create a product model
+            view_attributes: View attributes of a product model
             edit_attributes: Edit attributes of a product model
             categories_view: Consult the categories of a product model
             history: View product model history
@@ -135,6 +137,7 @@ pim_enrich:
             create: Create an attribute group
             edit: Edit an attribute group
             remove: Remove an attribute group
+            mass_delete: Bulk remove attribute groups
             sort: Sort attribute groups
             add_attribute: Add attribute to a group
             remove_attribute: Remove attribute from a group
@@ -144,6 +147,7 @@ pim_enrich:
             create: Create an attribute
             edit: Edit an attribute
             remove: Remove an attribute
+            mass_delete: Bulk delete attributes
             sort: Sort attributes inside attribute groups
             history: View attribute history
         group:
@@ -218,8 +222,10 @@ flash:
     entity:
         removed: Item was deleted
     attribute:
-        identifier_not_removable: Identifier attribute can not be removed
+        main_identifier_not_removable: The main identifier attribute can not be removed
         used_as_conversion_unit:  This attribute can not be removed because it is used as conversion unit in the channel(s) %channelCodes%.
+        cant_remove_attributes_used_as_label: Attributes used as labels in a family cannot be removed.
+        cant_remove_attribute_used_as_axis: Cannot remove this attribute used as a variant axis in a family variant
     category:
         removed: Category successfully removed
     tree:
@@ -480,6 +486,7 @@ pim_datagrid:
             label: Updated
         label_or_identifier:
             label: Label or identifier
+            label_with_uuid: Label, identifier or UUID
         parent:
             label: Parent
         identifier:
@@ -553,7 +560,6 @@ pim_mass_edit:
             error:   Mass delete <strong>%label%</strong> failed
             warning: Mass delete <strong>%label%</strong> finished with some warnings
             success: Mass delete <strong>%label%</strong> finished
-
 job_execution.summary:
     mass_edited: Mass edited
     skipped_products: Skipped products
@@ -588,4 +594,4 @@ pim_login:
     powered: Powered by
     powered_image_title: logo Akeneo
 
-pim_system.acl_group.developer_mode: Developer mode
+pim_system.acl_group.connect: Connect

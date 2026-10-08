@@ -19,7 +19,6 @@
     %}
 {% else %}
     {% set breadcrumbs = {
-        'entity':      form.vars.value,
         'indexPath':   '#%s'|format(path('pim_user_group_index')),
         'indexLabel': 'Groups'|trans,
         'entityTitle': title
@@ -94,6 +93,20 @@
                             $('.user-menu').append(form.el);
                             form.render();
                         }.bind(this));
+                    });
+                });
+            }
+        );
+    </script>
+    <script nonce="{{ js_nonce() }}">
+        require(
+            ['pim/sandbox-helper'],
+            function(SandboxHelper) {
+                $(function() {
+                    var sandboxHelper = new SandboxHelper({});
+                    sandboxHelper.configure().then(function () {
+                        sandboxHelper.render();
+                        $('*[data-drop-zone="helper"]').append(sandboxHelper.$el);
                     });
                 });
             }

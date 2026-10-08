@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Akeneo\Category\Infrastructure\Controller\InternalApi;
 
 use Akeneo\Category\Application\Query\GetAttribute;
-use Akeneo\Category\Application\Query\GetTemplate;
+use Akeneo\Category\Domain\Exception\TemplateNotFoundException;
+use Akeneo\Category\Domain\Query\GetTemplate;
 use Akeneo\Category\Domain\ValueObject\Template\TemplateUuid;
-use Akeneo\Category\Infrastructure\Storage\InMemory\GetAttributeInMemory;
-use Akeneo\Category\Infrastructure\Storage\InMemory\GetTemplateInMemory;
 use Oro\Bundle\SecurityBundle\SecurityFacade;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,8 +25,6 @@ class GetTemplateController
         private SecurityFacade $securityFacade,
         private GetTemplate $getTemplate,
         private GetAttribute $getAttribute,
-        private GetTemplateInMemory $getTemplateInMemory,
-        private GetAttributeInMemory $getAttributeInMemory,
     ) {
     }
 
@@ -39,31 +36,13 @@ class GetTemplateController
             throw new AccessDeniedException();
         }
 
-        $template = $this->getTemplate->byUuid(TemplateUuid::fromString($templateUuid));
-        if (null === $template) {
+        try {
+            $template = $this->getTemplate->byUuid(TemplateUuid::fromString($templateUuid));
+        } catch (TemplateNotFoundException $exception) {
             throw new NotFoundHttpException();
         }
 
         $attributeCollection = $this->getAttribute->byTemplateUuid(TemplateUuid::fromString($templateUuid));
-        $template->setAttributeCollection($attributeCollection);
-
-        return new JsonResponse($template->normalize(), Response::HTTP_OK);
-    }
-
-    public function byTemplateUuidInMemory(Request $request, string $templateUuid): JsonResponse
-    {
-        if ($this->securityFacade->isGranted('pim_enrich_product_category_edit') === false) {
-            // even if this is a read endpoint, the user must be granted edition rights
-            // as this should only be used for the purpose of updating a category from the UI
-            throw new AccessDeniedException();
-        }
-
-        $template = $this->getTemplateInMemory->byUuid(TemplateUuid::fromString($templateUuid));
-        if (null === $template) {
-            throw new NotFoundHttpException();
-        }
-
-        $attributeCollection = $this->getAttributeInMemory->byTemplateUuid(TemplateUuid::fromString($templateUuid));
         $template->setAttributeCollection($attributeCollection);
 
         return new JsonResponse($template->normalize(), Response::HTTP_OK);

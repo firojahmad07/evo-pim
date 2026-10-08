@@ -11,6 +11,9 @@ akeneo_pim_enrichment:
 akeneo_connectivity_connection:
     resource: "@AkeneoConnectivityConnectionBundle/Resources/config/routing.yml"
 
+akeneo_file_storage:
+    resource: "@AkeneoFileStorageBundle/Resources/config/routing.yml"
+
 akeneo_measure:
     resource: "@AkeneoMeasureBundle/Resources/config/routing.yml"
 
@@ -22,9 +25,6 @@ akeneo_communication_channel:
 
 akeneo_job:
     resource: "@AkeneoJobBundle/Resources/config/routing.yml"
-
-akeneo_catalogs:
-    resource: "@AkeneoCatalogsBundle/Resources/config/routing.yml"
 
 # PIM
 pim_analytics:
@@ -63,6 +63,9 @@ akeneo_category:
 
 identifier_generator:
     resource: "@AkeneoIdentifierGeneratorBundle/Resources/config/routing.yml"
+
+installer:
+    resource: "@AkeneoInstallerBundle/Resources/config/routing.yml"
 
 # Oro platform
 

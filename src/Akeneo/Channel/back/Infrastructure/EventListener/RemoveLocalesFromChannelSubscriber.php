@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 final class RemoveLocalesFromChannelSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private BulkSaverInterface $localeSaver,
+        private readonly BulkSaverInterface $localeSaver,
         private array $localesToSave = []
     ) {
     }

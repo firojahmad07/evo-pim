@@ -7,7 +7,7 @@ namespace AkeneoTest\Pim\Enrichment\Integration\Doctrine\Common\Saver;
 use Akeneo\Test\Integration\TestCase;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\Client;
 use AkeneoTest\Pim\Enrichment\Integration\Fixture\EntityBuilder;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -107,7 +107,7 @@ class RemovingProductModelFromIndexIntegration extends TestCase
     {
         try {
             $this->esProductAndProductModelClient->get('product_' . $productUuid->toString());
-        } catch (Missing404Exception $e) {
+        } catch (ClientResponseException $e) {
             return false;
         }
 
@@ -118,7 +118,7 @@ class RemovingProductModelFromIndexIntegration extends TestCase
     {
         try {
             $this->esProductAndProductModelClient->get('product_model_' . $productModelId);
-        } catch (Missing404Exception $e) {
+        } catch (ClientResponseException $e) {
             return false;
         }
 

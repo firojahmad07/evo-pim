@@ -3,8 +3,7 @@ import React from 'react';
 import {DependenciesProvider} from '@akeneo-pim-community/legacy-bridge';
 import {ThemeProvider} from 'styled-components';
 import {pimTheme} from 'akeneo-design-system';
-import {CategoryTree, CategoryTreeModel} from '@akeneo-pim-community/shared';
-import {CategoryResponse, parseResponse} from './CategoryTreeFetcher';
+import {CategoryTree, CategoryTreeModel, CategoryResponse, parseResponse} from '@akeneo-pim-community/shared';
 const Router = require('pim/router');
 
 class TreeAssociate {
@@ -75,6 +74,7 @@ class TreeAssociate {
           _format: 'json',
           context: 'associate',
           dataLocale: this.dataLocale,
+          selected: JSON.parse(this.selectedCategoryCodesByTreeIdInput.value)[treeId],
         };
         if (typeof this.productUuid !== 'undefined') {
           params.uuid = this.productUuid;
@@ -83,16 +83,9 @@ class TreeAssociate {
           params.id = this.productId;
         }
 
-        const body = {
-          selected: JSON.parse(this.selectedCategoryCodesByTreeIdInput.value)[treeId],
-        };
-
         const url = Router.generate(this.listCategoriesRoute, params);
 
-        const response = await fetch(url, {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
+        const response = await fetch(url);
         const json: CategoryResponse[] = await response.json();
 
         return parseResponse(json[0], {

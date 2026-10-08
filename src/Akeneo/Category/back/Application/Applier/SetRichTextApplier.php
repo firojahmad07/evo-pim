@@ -37,6 +37,9 @@ class SetRichTextApplier implements UserIntentApplier
         $category->setAttributes($attributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getSupportedUserIntents(): array
     {
         return [SetRichText::class];

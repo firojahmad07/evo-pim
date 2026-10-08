@@ -61,7 +61,7 @@ define([
       this.showLoadingMask();
       this.getRoot().trigger('pim_enrich:form:entity:pre_save');
 
-      analytics.track('product:form:saved', {
+      analytics.appcuesTrack('product:form:saved', {
         name: product.identifier,
       });
 
@@ -71,7 +71,7 @@ define([
           function (data) {
             if (data.meta?.identifier_generator_warnings) {
               const normalizedWarnings = data.meta.identifier_generator_warnings.map(warning => {
-                return `${warning.path}: ${warning.message} `;
+                return warning.path ? `${warning.path}: ${warning.message} ` : warning.message;
               });
 
               messenger.notify('warning', this.updateIdentifierWarningMessage, normalizedWarnings);

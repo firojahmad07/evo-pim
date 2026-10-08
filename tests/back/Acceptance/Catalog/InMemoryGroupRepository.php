@@ -31,7 +31,10 @@ class InMemoryGroupRepository implements GroupRepositoryInterface, SaverInterfac
         if (!$group instanceof GroupInterface) {
             throw new \InvalidArgumentException('Only group objects are supported.');
         }
-        $this->groups->set($group->getCode(), $group);
+        $code = $group->getCode();
+        if ($code !== null) {
+            $this->groups->set($code, $group);
+        }
     }
 
     /**

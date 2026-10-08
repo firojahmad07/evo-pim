@@ -4,7 +4,7 @@ namespace Akeneo\Tool\Bundle\ApiBundle\Security;
 
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\Authorization\Voter\CacheableVoterInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 /**
@@ -30,7 +30,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  * @copyright 2017 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  */
-class ActionAclVoter extends Voter implements VoterInterface
+class ActionAclVoter implements CacheableVoterInterface
 {
     const OID_IDENTIFIER = 'action';
 
@@ -53,22 +53,16 @@ class ActionAclVoter extends Voter implements VoterInterface
     /**
      * {@inheritdoc}
      */
-    public function supports($attribute, $subject)
-    {
-        return $this->oidType === $attribute;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function vote(TokenInterface $token, $object, array $attributes): int
     {
         foreach ($attributes as $attribute) {
-            if (!$this->supports($attribute, $object)) {
+            if (!$this->supportsAttribute($attribute)) {
                 continue;
             }
 
-            return $this->voteOnAttribute($attribute, $object, $token);
+            $oid = new ObjectIdentity(static::OID_IDENTIFIER, $attribute);
+
+            return $this->baseAclVoter->vote($token, $oid, ['EXECUTE']);
         }
 
         return self::ACCESS_ABSTAIN;
@@ -77,10 +71,16 @@ class ActionAclVoter extends Voter implements VoterInterface
     /**
      * {@inheritdoc}
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    public function supportsAttribute(string $attribute): bool
     {
-        $oid = new ObjectIdentity(static::OID_IDENTIFIER, $attribute);
+        return $this->oidType === $attribute;
+    }
 
-        return $this->baseAclVoter->vote($token, $oid, ['EXECUTE']);
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsType(string $subjectType): bool
+    {
+        return true;
     }
 }

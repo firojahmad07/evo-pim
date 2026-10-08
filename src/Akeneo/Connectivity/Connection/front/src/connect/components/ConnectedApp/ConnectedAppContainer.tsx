@@ -6,7 +6,7 @@ import {useRouter} from '../../../shared/router/use-router';
 import {ApplyButton, DropdownLink, PageContent, PageHeader, SecondaryActionsDropdownButton} from '../../../common';
 import {UserButtons} from '../../../shared/user';
 import {ConnectedAppSettings} from './ConnectedAppSettings';
-import {useSessionStorageState} from '@akeneo-pim-community/shared';
+import {useFeatureFlags, useSessionStorageState} from '@akeneo-pim-community/shared';
 import {ConnectedAppPermissions} from './ConnectedAppPermissions';
 import {NotificationLevel, useNotify} from '../../../shared/notify';
 import usePermissionsFormProviders from '../../hooks/use-permissions-form-providers';
@@ -15,7 +15,6 @@ import {useSaveConnectedAppMonitoringSettings} from '../../hooks/use-save-connec
 import {useFetchConnectedAppMonitoringSettings} from '../../hooks/use-fetch-connected-app-monitoring-settings';
 import {MonitoringSettings} from '../../../model/Apps/monitoring-settings';
 import {ConnectedAppErrorMonitoring} from './ErrorMonitoring/ConnectedAppErrorMonitoring';
-import {DeveloperModeTag} from '../DeveloperModeTag';
 import isGrantedOnProduct from '../../is-granted-on-product';
 import isGrantedOnCatalog from '../../is-granted-on-catalog';
 import {CatalogList} from '@akeneo-pim-community/catalogs';
@@ -49,6 +48,7 @@ export const ConnectedAppContainer: FC<Props> = ({connectedApp}) => {
     const [monitoringSettings, setMonitoringSettings] = useState<MonitoringSettings | null>(null);
     const [activeTab, setActiveTab] = useSessionStorageState(settingsTabName, 'pim_connectedApp_activeTab');
     const [isCurrent, switchTo] = useTabBar(activeTab);
+    const featureFlags = useFeatureFlags();
 
     useEffect(() => {
         fetchConnectedAppMonitoringSettings().then(setMonitoringSettings);
@@ -180,10 +180,11 @@ export const ConnectedAppContainer: FC<Props> = ({connectedApp}) => {
         history.push(catalogEditUrl);
     };
 
-    const tag = connectedApp.is_test_app ? <DeveloperModeTag /> : null;
-
     const isAtLeastGrantedToViewProducts = isGrantedOnProduct(connectedApp, 'view');
     const isAtLeastGrantedToViewCatalogs = isGrantedOnCatalog(connectedApp, 'view');
+    const supportsPermissions = true === featureFlags.isEnabled('connect_app_with_permissions');
+    const shouldDisplayPermissionsTab =
+        null !== providers && providers.length > 0 && isAtLeastGrantedToViewProducts && supportsPermissions;
 
     return (
         <>
@@ -206,12 +207,11 @@ export const ConnectedAppContainer: FC<Props> = ({connectedApp}) => {
                 state={<FormState />}
                 imageSrc={connectedApp.logo ?? undefined}
                 imageIllustration={connectedApp.logo ? undefined : <AppIllustration />}
-                tag={tag}
             >
                 {connectedApp.name}
             </PageHeader>
 
-            <PageContent>
+            <PageContent pageHeaderHeight={202}>
                 <TabBar moreButtonTitle='More'>
                     <TabBar.Tab
                         isActive={isCurrent(settingsTabName)}
@@ -222,7 +222,7 @@ export const ConnectedAppContainer: FC<Props> = ({connectedApp}) => {
                     >
                         {translate('akeneo_connectivity.connection.connect.connected_apps.edit.tabs.settings')}
                     </TabBar.Tab>
-                    {null !== providers && providers.length > 0 && isAtLeastGrantedToViewProducts && (
+                    {shouldDisplayPermissionsTab && (
                         <TabBar.Tab
                             isActive={isCurrent(permissionsTabName)}
                             onClick={() => {

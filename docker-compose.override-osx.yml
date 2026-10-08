@@ -1,6 +1,8 @@
 # Rename this file into docker-compose.override.yml:
 # mv docker-compose.override-osx.yml docker-compose.override.yml
 
+version: '3.7'
+
 services:
   php:
     environment:
@@ -8,7 +10,7 @@ services:
     volumes:
       - 'nfsmount:/srv/pim'
 
-  fpm:
+  httpd:
     environment:
       XDEBUG_CONFIG: 'client_host=docker.for.mac.localhost client_port=9003'
     volumes:
@@ -17,10 +19,6 @@ services:
   node:
     volumes:
       - 'nfsmount:/srv/pim'
-
-  httpd:
-    volumes:
-      - 'nfsmount:/srv/pim:ro'
 
 volumes:
   nfsmount:

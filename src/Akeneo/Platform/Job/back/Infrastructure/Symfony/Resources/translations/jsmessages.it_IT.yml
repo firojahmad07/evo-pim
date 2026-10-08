@@ -12,7 +12,11 @@ akeneo_job:
     ABANDONED: Abbandonato
     UNKNOWN: Sconosciuto
     IN_PROGRESS: In corso
+    PAUSING: Sospensione in corso
+    PAUSED: In pausa
 akeneo_job_process_tracker:
+  tooltip:
+    paused: Questa operazione è stata messa in pausa a causa della manutenzione interna sulla tua istanza. Al termine verrà ripresa automaticamente.
   last_operations:
     title: Ultime operazioni
     view_all: Mostra tutti
@@ -39,10 +43,12 @@ akeneo_job_process_tracker:
     export: Esporta
     mass_edit: Modifica di massa
     mass_delete: Eliminazione di massa prodotti
+    attribute_mass_delete: Elimina attributi in blocco
     compute_family_variant_structure_changes: Calcola le modifiche della struttura della famiglia variante
     compute_completeness_of_products_family: Calcola la completezza della famiglia di prodotti
     clean_removed_attribute_job: Pulizia valori attributo rimossi
     execute_rules: Esegui le regole
+    scheduled_job: Job pianificato
   user_filter:
     label: Utente
     all: Tutto
@@ -58,13 +64,15 @@ akeneo_job_process_tracker:
     stopping: In fase di interruzione
     unknown: Sconosciuto
     in_progress: In corso
+    pausing: Sospensione in corso
+    paused: In pausa
   automation_filter:
     all: Tutto
     yes: Yes
     no: No
     label: Automazione
   max_page_without_filter_helper:
-    - 
+    - Per consentirci di mostrarti i risultati più rilevanti, perfeziona la tua ricerca.
   tracking:
     completed: "Tempo speso: {{ duration }}"
     in_progress: "Tempo rimanente stimato per il passo corrente: {{ duration }}"

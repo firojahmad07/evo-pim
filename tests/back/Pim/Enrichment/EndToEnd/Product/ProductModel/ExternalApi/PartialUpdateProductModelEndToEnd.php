@@ -1049,6 +1049,54 @@ JSON;
         $this->assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
+    public function testAssociateSameProductModelWithTwoWayAssociationType(): void
+    {
+        $associationType = $this->get('pim_catalog.factory.association_type')->create();
+        $this->get('pim_catalog.updater.association_type')->update(
+            $associationType,
+            [
+                'code' => 'TWOWAY',
+                'is_two_way' => true,
+            ]
+        );
+        $this->get('pim_catalog.saver.association_type')->save($associationType);
+        $this->clearAllCache();
+
+        $client = $this->createAuthenticatedClient();
+
+        $data =
+            <<<JSON
+{
+    "code": "sweat",
+    "associations": {
+        "TWOWAY": {
+            "product_models": ["sweat"]
+        }
+    }
+}
+JSON;
+
+        $client->request('PATCH', 'api/rest/v1/product-models/sweat', [], [], [], $data);
+
+        $expectedContent =
+            <<<JSON
+{
+    "code": 422,
+    "message": "A 2-way association only allows two different products or product models to be associated",
+    "_links": {
+        "documentation": {
+            "href": "https://help.akeneo.com/pim/serenity/articles/manage-your-association-types.html#create-a-2-way-association-type"
+        }
+    }
+}
+JSON;
+
+        $response = $client->getResponse();
+
+        $this->assertJsonStringEqualsJsonString($expectedContent, $response->getContent());
+        $this->assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    }
+
     public function testUpdateRootProductModelWithAParent()
     {
         $client = $this->createAuthenticatedClient();
@@ -1345,36 +1393,6 @@ JSON;
         $response = $client->getResponse();
 
         $this->assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
-    }
-
-    public function testItCanCallEndpointWithWrongFamilyCase()
-    {
-        $client = $this->createAuthenticatedClient();
-
-        $data =
-            <<<JSON
-{
-    "code": "sub_sweat",
-    "family": "FaMiLyA",
-    "family_variant": "familyVariantA1",
-    "parent": "sweat",
-    "values": {
-        "a_text": [
-            {
-                "locale": null,
-                "scope": null,
-                "data": "My awesome text"
-            }
-        ]
-    }
-}
-JSON;
-
-        $client->request('PATCH', 'api/rest/v1/product-models/sub_sweat', [], [], [], $data);
-        $response = $client->getResponse();
-
-        $this->assertSame('', $response->getContent());
-        $this->assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     /**

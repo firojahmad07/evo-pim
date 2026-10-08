@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Akeneo\Channel\Infrastructure\EventListener;
 
 use Akeneo\Channel\Infrastructure\Component\Model\ChannelInterface;
-use Akeneo\Channel\Infrastructure\Component\Model\LocaleInterface;
 use Akeneo\Channel\Infrastructure\Component\Repository\LocaleRepositoryInterface;
 use Akeneo\Tool\Bundle\BatchBundle\Launcher\JobLauncherInterface;
 use Akeneo\Tool\Component\StorageUtils\Repository\IdentifiableObjectRepositoryInterface;
@@ -25,12 +24,12 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class ChannelLocaleSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private LocaleRepositoryInterface $repository,
-        private BulkSaverInterface $saver,
-        private TokenStorageInterface $tokenStorage,
-        private JobLauncherInterface $jobLauncher,
-        private IdentifiableObjectRepositoryInterface $jobInstanceRepository,
-        private string $jobName,
+        private readonly LocaleRepositoryInterface $repository,
+        private readonly BulkSaverInterface $saver,
+        private readonly TokenStorageInterface $tokenStorage,
+        private readonly JobLauncherInterface $jobLauncher,
+        private readonly IdentifiableObjectRepositoryInterface $jobInstanceRepository,
+        private readonly string $jobName,
         private array $updatedLocales = [],
         private array $localesRemovedFromChannel = [],
     ) {

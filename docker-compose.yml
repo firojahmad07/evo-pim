@@ -1,6 +1,11 @@
+version: '3.7'
+
+# LibrePIM - Long-Term Support Fork of Akeneo PIM Community Edition
+# Repository: https://github.com/libre-pim/librepim-dev
+
 services:
   php:
-    image: 'akeneo/pim-php-dev:8.3'
+    image: 'webkul/librepim-php-dev:8.3'
     environment:
       APP_ENV: '${APP_ENV:-prod}'
       COMPOSER_HOME: '/var/www/.composer'
@@ -15,13 +20,15 @@ services:
       - '${HOST_COMPOSER_HOME:-~/.composer}:/var/www/.composer'
     working_dir: '/srv/pim'
     command: 'php'
-    user: 'www-data'
+    user: '${HOST_UID}:${HOST_GID}'
     init: true
     networks:
       - 'pim'
 
-  fpm:
-    image: 'akeneo/pim-php-dev:8.3'
+  httpd:
+    image: 'webkul/librepim-php-dev:8.3'
+    env_file:
+      - .env
     environment:
       APP_ENV: '${APP_ENV:-prod}'
       BEHAT_TMPDIR: '/srv/pim/var/cache/tmp'
@@ -33,13 +40,16 @@ services:
       BLACKFIRE_CLIENT_TOKEN: '${BLACKFIRE_CLIENT_TOKEN:-client_token}'
     volumes:
       - './:/srv/pim'
+      - './docker/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro'
+      - './docker/akeneo.conf:/usr/local/apache2/conf/vhost.conf:ro'
     working_dir: '/srv/pim'
-    command: 'php-fpm -F'
+    ports:
+      - '${DOCKER_PORT_HTTP:-8080}:80'
     networks:
       - 'pim'
 
   node:
-    image: 'akeneo/node:18'
+    image: 'node:20-bookworm'
     environment:
       YARN_CACHE_FOLDER: '/home/node/.yarn'
       CYPRESS_CACHE_FOLDER: '/home/node/.cypress'
@@ -61,21 +71,6 @@ services:
     networks:
       - 'pim'
 
-  httpd:
-    image: 'httpd:2.4'
-    environment:
-      APP_ENV: '${APP_ENV:-prod}'
-    depends_on:
-      - 'fpm'
-    ports:
-      - '${DOCKER_PORT_HTTP:-8080}:80'
-    volumes:
-      - './:/srv/pim:ro'
-      - './docker/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro'
-      - './docker/akeneo.conf:/usr/local/apache2/conf/vhost.conf:ro'
-    networks:
-      - 'pim'
-
   mysql:
     image: 'mysql:8.4.9'
     command: '--log_bin_trust_function_creators=1'
@@ -92,11 +87,12 @@ services:
       - 'pim'
 
   elasticsearch:
-    image: 'elastic/elasticsearch:8.17.0'
+    image: 'opensearchproject/opensearch:2.19.1'
     environment:
-      ES_JAVA_OPTS: '${ES_JAVA_OPTS:--Xms1g -Xmx1g}'
+      OPENSEARCH_JAVA_OPTS: '${ES_JAVA_OPTS:--Xms1g -Xmx1g}'
       discovery.type: 'single-node'
-      xpack.security.enabled: 'false'
+      DISABLE_SECURITY_PLUGIN: 'true'
+      bootstrap.memory_lock: 'false'
       indices.id_field_data.enabled: 'true'
     ports:
       - '${DOCKER_PORT_ELASTICSEARCH:-9210}:9200'
@@ -104,13 +100,11 @@ services:
       - 'pim'
 
   object-storage:
-    image: 'minio/minio:RELEASE.2025-09-07T16-13-09Z'
-    entrypoint: >
-      /bin/sh -c "mkdir -p /data/asset /data/catalog /data/jobs /data/archive /data/category /data/catalogsmapping
-      && minio server --console-address :9091 /data"
+    image: 'minio/minio:RELEASE.2021-09-15T04-54-25Z'
+    entrypoint: '/bin/sh -c "mkdir -p /data/archive /data/catalog /data/jobs /data/category /data/catalogs_mapping && minio server --console-address :9091 /data"'
     environment:
-      MINIO_ROOT_USER: 'AKENEO_OBJECT_STORAGE_ACCESS_KEY'
-      MINIO_ROOT_PASSWORD: 'AKENEO_OBJECT_STORAGE_SECRET_KEY'
+      MINIO_ACCESS_KEY: 'AKENEO_OBJECT_STORAGE_ACCESS_KEY'
+      MINIO_SECRET_KEY: 'AKENEO_OBJECT_STORAGE_SECRET_KEY'
     ports:
       - '${DOCKER_PORT_OBJECT_STORAGE:-9090}:9000'
       - '${DOCKER_PORT_OBJECT_STORAGE_CONSOLE:-9091}:9091'
@@ -130,6 +124,18 @@ services:
     command: 'gcloud --user-output-enabled --log-http beta emulators pubsub start --host-port=0.0.0.0:8085'
     networks:
       - 'pim'
+
+  gcs-emulator:
+    image: 'fsouza/fake-gcs-server:1.45'
+    command: ["-scheme", "http", "-external-url", "http://localhost:4443"]
+    volumes:
+      - './docker/buckets:/data'
+    ports:
+      - '4443:4443'
+    networks:
+      - 'pim'
+    profiles:
+      - 'gcp'
 
 networks:
   pim:

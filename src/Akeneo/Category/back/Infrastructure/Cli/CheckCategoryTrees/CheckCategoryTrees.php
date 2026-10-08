@@ -31,6 +31,9 @@ class CheckCategoryTrees extends Command
         $this->connection = $connection;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function configure()
     {
         $this
@@ -62,6 +65,9 @@ class CheckCategoryTrees extends Command
             ->setDescription('Check all category trees against nested structure');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $inputOptionDumpCorruptions = (bool) $input->getOption('dump-corruptions');
@@ -129,7 +135,7 @@ SELECT id, parent_id, root, code, lvl, lft, rgt
 FROM pim_catalog_category
 ORDER BY lft
 SQL;
-        $rows = $this->connection->executeQuery($sql)->fetchAll();
+        $rows = $this->connection->executeQuery($sql)->fetchAllAssociative();
 
         return new CategoriesPool($rows);
     }

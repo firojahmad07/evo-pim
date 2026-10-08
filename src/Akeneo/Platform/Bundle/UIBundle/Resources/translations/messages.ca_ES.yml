@@ -89,6 +89,7 @@ pim_enrich:
     product:
       index: Llistar productes
       create: Crear un producte
+      view_attributes: Veure els atributs d'un producte
       edit_attributes: Edita els atributs d'un producte
       remove: Treure un producte
       add_attribute: Afegir un atribut a un producte
@@ -106,6 +107,7 @@ pim_enrich:
       convert_variant_to_simple: Convertir un producte variant en un producte simple
     product_model:
       create: Crear un model de producte
+      view_attributes: Veure els atributs d'un model de producte
       edit_attributes: Editar els atributs d'un model de producte
       categories_view: Consultar les categories d'un model de producte
       history: Veure l'històric del model de producte
@@ -131,6 +133,7 @@ pim_enrich:
       create: Crear un grup d'atributs
       edit: Editar un grup d'atributs
       remove: Suprimir un grup d'atributs
+      mass_delete: Eliminació massiva de grups d'atributs
       sort: Ordenar grups d'atribut
       add_attribute: Afegir l'atribut a un grup
       remove_attribute: Suprimir l'atribut d'un grup
@@ -140,6 +143,7 @@ pim_enrich:
       create: Crear un atribut
       edit: Editar un atribut
       remove: Eliminar un atribut
+      mass_delete: Supressió massiva d'atributs
       sort: Ordena els atributs dins els grups d'atributs
       history: Veure l'històric dels atributs
     group:
@@ -212,6 +216,8 @@ flash:
   attribute:
     identifier_not_removable: L'atribut identificador no es pot suprimir
     used_as_conversion_unit: Aquest atribut no es pot eliminar perquè s'utilitza com a unitat de conversió al canal(s) %channelCodes%.
+    cant_remove_attributes_used_as_label: Els atributs utilitzats com a etiquetes en una família no es poden eliminar.
+    cant_remove_attribute_used_as_axis: No podeu suprimir aquest atribut utilitzat com un eix variant en una variant familiar
   category:
     removed: Categoria suprimida correctament
   tree:
@@ -451,6 +457,7 @@ pim_datagrid:
       label: Actualitzat
     label_or_identifier:
       label: Etiqueta o identificador
+      label_with_uuid: Etiqueta, identificador o UUID
     parent:
       label: Pare
     identifier:
@@ -546,4 +553,4 @@ pim_login:
   footer:
     powered: Funciona amb
     powered_image_title: logotip Akeneo
-pim_system.acl_group.developer_mode: Mode desenvolupador
+pim_system.acl_group.connect: Connecta

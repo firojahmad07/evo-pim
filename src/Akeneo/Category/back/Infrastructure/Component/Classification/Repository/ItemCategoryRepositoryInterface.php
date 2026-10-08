@@ -31,6 +31,8 @@ interface ItemCategoryRepositoryInterface
 
     /**
      * Return categories linked to an item.
+     *
+     * @param mixed $item
      */
     public function findCategoriesItem($item): array;
 }

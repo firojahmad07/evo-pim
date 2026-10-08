@@ -26,6 +26,9 @@ class CategoryNormalizer implements NormalizerInterface, CacheableSupportsMethod
         $this->dateTimeNormalizer = $dateTimeNormalizer;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function normalize($category, $format = null, array $context = [])
     {
         return [
@@ -36,6 +39,9 @@ class CategoryNormalizer implements NormalizerInterface, CacheableSupportsMethod
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof CategoryInterface && 'standard' === $format;

@@ -25,9 +25,9 @@ class DeleteUniqueValueInDatabaseIntegration extends TestCase
 
         $isValueExistingInUniqueTable = $this
             ->get('database_connection')
-            ->fetchColumn('SELECT EXISTS(SELECT * FROM pim_catalog_product_unique_data WHERE attribute_id = :attribute_id)', [
+            ->fetchOne('SELECT EXISTS(SELECT * FROM pim_catalog_product_unique_data WHERE attribute_id = :attribute_id)', [
                 'attribute_id' => $attributeId
-            ], 0);
+            ]);
 
         Assert::assertTrue((bool) $isValueExistingInUniqueTable, 'Unique value should exist in database.');
 
@@ -35,9 +35,9 @@ class DeleteUniqueValueInDatabaseIntegration extends TestCase
 
         $isValueExistingInUniqueTable = $this
             ->get('database_connection')
-            ->fetchColumn('SELECT EXISTS(SELECT * FROM pim_catalog_product_unique_data where attribute_id = :attribute_id)', [
+            ->fetchOne('SELECT EXISTS(SELECT * FROM pim_catalog_product_unique_data where attribute_id = :attribute_id)', [
                 'attribute_id' => $attributeId
-            ], 0);
+            ]);
 
         Assert::assertFalse((bool) $isValueExistingInUniqueTable, 'Unique value is not deleted in pim_catalog_product_unique_data when deleting a product value.');
     }
@@ -95,20 +95,6 @@ class DeleteUniqueValueInDatabaseIntegration extends TestCase
     private function getAttributeBuilder(): EntityBuilder
     {
         return $this->get('akeneo_integration_tests.base.attribute.builder');
-    }
-
-    protected function getUserId(string $username): int
-    {
-        $query = <<<SQL
-            SELECT id FROM oro_user WHERE username = :username
-        SQL;
-        $stmt = $this->get('database_connection')->executeQuery($query, ['username' => $username]);
-        $id = $stmt->fetchOne();
-        if (null === $id) {
-            throw new \InvalidArgumentException(\sprintf('No user exists with username "%s"', $username));
-        }
-
-        return \intval($id);
     }
 
     protected function setUp(): void

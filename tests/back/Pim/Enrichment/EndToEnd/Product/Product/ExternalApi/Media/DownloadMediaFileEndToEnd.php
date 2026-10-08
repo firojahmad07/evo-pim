@@ -25,21 +25,13 @@ class DownloadMediaFileEndToEnd extends AbstractMediaFileTestCase
 
         $media = $this->get('pim_api.repository.media_file')->findOneBy(['originalFilename' => 'akeneo.jpg']);
 
-        $contentFile = '';
-        ob_start(function ($streamedFile) use (&$contentFile) {
-            $contentFile .= $streamedFile;
-
-            return '';
-        });
-
         $client->request('GET', '/api/rest/v1/media-files/' . $media->getKey() . '/download');
-        ob_end_clean();
 
         $response = $client->getResponse();
         $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('attachment; filename="akeneo.jpg"', $response->headers->get('content-disposition'));
         $this->assertSame('image/jpeg', $response->headers->get('content-type'));
-        $this->assertEquals($contentFile, file_get_contents($this->getFixturePath('akeneo.jpg')));
+        $this->assertEquals(file_get_contents($this->getFixturePath('akeneo.jpg')), $client->getInternalResponse()->getContent());
     }
 
     public function testMediaFileNotFound()

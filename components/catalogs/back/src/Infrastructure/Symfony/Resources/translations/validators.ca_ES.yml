@@ -37,6 +37,10 @@ akeneo_catalogs:
       locale:
         unknown: 'La configuració regional "{{ locale_name }}" s''ha desactivat. Comproveu la vostra configuració regional o elimineu aquest filtre.'
     product_mapping:
+      schema:
+        missing_targets: 'El mapatge és incomplet, falten els objectius següents: {{ targets }}.'
+        additional_targets: "El mapatge és incorrecte, els objectius següents no existeixen: {{ targets }}."
+        incorrect_type: 'El tipus d''origen seleccionat no compleix els requisits: s''esperava {{ expected_type }}.'
       source:
         invalid: 'Aquest atribut s''ha suprimit.'
         unknown: 'Valor font desconegut'
@@ -49,3 +53,10 @@ akeneo_catalogs:
           empty: 'Aquesta configuració regional no ha d''estar buida.'
           unknown: 'Aquesta configuració regional està desactivada o ja no existeix. Si us plau, comproveu els vostres canals i la configuració regional.'
           disabled: 'Aquesta configuració regional està desactivada. Si us plau, comproveu els vostres canals i la configuració regional o actualitzeu aquest valor.'
+        required: 'La font és necessària.'
+        currency:
+          disabled: 'Aquesta moneda no està activada. Comproveu els vostres canals i la configuració de la moneda o actualitzeu aquest valor.'
+        measurement:
+          unit:
+            not_exist: 'La unitat del camp "{{ field }}" no existeix.'
+            not_empty: 'La unitat no ha d''estar buida.'

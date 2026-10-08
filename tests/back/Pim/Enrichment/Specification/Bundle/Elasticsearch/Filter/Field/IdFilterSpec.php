@@ -70,8 +70,9 @@ class IdFilterSpec extends ObjectBehavior
             ]
         )->shouldBeCalled();
 
+        $dbalResult = new \Doctrine\DBAL\Result($result->getWrappedObject(), $connection->getWrappedObject());
         $connection->executeQuery(Argument::type('string'), ['ids' => ['2', '3']], ['ids' => Connection::PARAM_STR_ARRAY])
-            ->shouldBeCalledOnce()->willReturn($result);
+            ->shouldBeCalledOnce()->willReturn($dbalResult);
         $result->fetchFirstColumn()->willReturn(['70d6073b-beb5-4913-a171-1fab0f52de27', 'fa5cb34f-1070-4a89-a465-71f4b01bf601']);
 
         $this->setQueryBuilder($sqb);

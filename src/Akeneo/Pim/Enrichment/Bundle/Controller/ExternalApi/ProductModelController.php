@@ -13,6 +13,7 @@ use Akeneo\Pim\Enrichment\Component\Product\Connector\UseCase\ListProductModelsQ
 use Akeneo\Pim\Enrichment\Component\Product\Connector\UseCase\ListProductModelsQueryHandler;
 use Akeneo\Pim\Enrichment\Component\Product\Connector\UseCase\Validator\ListProductModelsQueryValidator;
 use Akeneo\Pim\Enrichment\Component\Product\Exception\ObjectNotFoundException;
+use Akeneo\Pim\Enrichment\Component\Product\Exception\TwoWayAssociationWithTheSameProductException;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Normalizer\ExternalApi\ConnectorProductModelNormalizer;
 use Akeneo\Pim\Enrichment\Component\Product\ProductModel\Filter\AttributeFilterInterface;
@@ -32,8 +33,8 @@ use Akeneo\Tool\Component\StorageUtils\Repository\IdentifiableObjectRepositoryIn
 use Akeneo\Tool\Component\StorageUtils\Saver\SaverInterface;
 use Akeneo\Tool\Component\StorageUtils\Updater\ObjectUpdaterInterface;
 use Akeneo\UserManagement\Component\Model\UserInterface;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
-use Elasticsearch\Common\Exceptions\ServerErrorResponseException;
+use OpenSearch\Common\Exceptions\OpenSearchException;
+use OpenSearch\Common\Exceptions\ServerErrorResponseException;
 use Oro\Bundle\SecurityBundle\SecurityFacade;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -326,17 +327,19 @@ class ProductModelController
                 throw new NotFoundHttpException($e->getMessage(), $e);
             }
             throw new UnprocessableEntityHttpException($e->getMessage(), $e);
-        } catch (BadRequest400Exception $e) {
-            $message = json_decode($e->getMessage(), true);
+        } catch (OpenSearchException $e) {
+            if ($e->getCode() === 400) {
+                $message = json_decode($e->getMessage(), true);
 
-            if (null !== $message && isset($message['error']['root_cause'][0]['type'])
-                && 'illegal_argument_exception' === $message['error']['root_cause'][0]['type']
-                && 0 === strpos($message['error']['root_cause'][0]['reason'], 'Result window is too large, from + size must be less than or equal to:')) {
-                throw new DocumentedHttpException(
-                    Documentation::URL_DOCUMENTATION . 'pagination.html#the-search-after-method',
-                    'You have reached the maximum number of pages you can retrieve with the "page" pagination type. Please use the search after pagination type instead',
-                    $e
-                );
+                if (null !== $message && isset($message['error']['root_cause'][0]['type'])
+                    && 'illegal_argument_exception' === $message['error']['root_cause'][0]['type']
+                    && 0 === strpos($message['error']['root_cause'][0]['reason'], 'Result window is too large, from + size must be less than or equal to:')) {
+                    throw new DocumentedHttpException(
+                        Documentation::URL_DOCUMENTATION . 'pagination.html#the-search-after-method',
+                        'You have reached the maximum number of pages you can retrieve with the "page" pagination type. Please use the search after pagination type instead',
+                        $e
+                    );
+                }
             }
 
             throw new ServerErrorResponseException($e->getMessage(), $e->getCode(), $e);
@@ -481,6 +484,12 @@ class ProductModelController
             throw new DocumentedHttpException(
                 Documentation::URL . $anchor,
                 sprintf('%s Check the expected format on the API documentation.', $exception->getMessage()),
+                $exception
+            );
+        } catch (TwoWayAssociationWithTheSameProductException $exception) {
+            throw new DocumentedHttpException(
+                TwoWayAssociationWithTheSameProductException::TWO_WAY_ASSOCIATIONS_HELP_URL,
+                TwoWayAssociationWithTheSameProductException::TWO_WAY_ASSOCIATIONS_ERROR_MESSAGE,
                 $exception
             );
         } catch (InvalidArgumentException $exception) {

@@ -13,6 +13,7 @@ use Akeneo\Connectivity\Connection\Infrastructure\Apps\Persistence\FindOneConnec
 use Akeneo\Connectivity\Connection\Tests\CatalogBuilder\ConnectedAppLoader;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
+use Akeneo\UserManagement\Component\Model\UserInterface;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -140,7 +141,7 @@ class UpdateConnectedAppScopesWithAuthorizationHandlerIntegration extends TestCa
     /**
      * @dataProvider throwExceptionDataProvider
      */
-    public function test_it_throws_when_the_command_is_not_valid(string $clientId, $expectedMessage)
+    public function test_it_throws_when_the_command_is_not_valid(string $clientId, string $expectedMessage): void
     {
         $appId = '0dfce574-2238-4b13-b8cc-8d257ce7645b';
 
@@ -188,7 +189,8 @@ class UpdateConnectedAppScopesWithAuthorizationHandlerIntegration extends TestCa
 
     private function assertRoleIsUpdatedWithAcls(string $role, array $acls): void
     {
-        $token = new UsernamePasswordToken('username', 'main', [$role]);
+        $user = $this->getTestUser();
+        $token = new UsernamePasswordToken($user, 'main', [$role]);
 
         foreach ($acls as $acl => $expectedValue) {
             \assert(\is_bool($expectedValue));
@@ -196,5 +198,14 @@ class UpdateConnectedAppScopesWithAuthorizationHandlerIntegration extends TestCa
             $isAllowed = $this->accessDecisionManager->decide($token, ['EXECUTE'], new ObjectIdentity('action', $acl));
             $this->assertEquals($expectedValue, $isAllowed, "$acl differs from expected value: $isAllowed");
         }
+    }
+
+    private function getTestUser(): UserInterface
+    {
+        $user = $this->get('pim_user.factory.user')->create();
+        $user->setUsername('username');
+        $user->setEmail('username@example.com');
+
+        return $user;
     }
 }

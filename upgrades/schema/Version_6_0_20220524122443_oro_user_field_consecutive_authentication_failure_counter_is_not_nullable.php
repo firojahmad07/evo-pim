@@ -16,11 +16,10 @@ final class Version_6_0_20220524122443_oro_user_field_consecutive_authentication
 
     public function up(Schema $schema): void
     {
-        if ($this->isMigrationAlreadyApplied($schema)) {
-            $this->write('Column oro_user.consecutive_authentication_failure_counter is already INT UNSIGNED NOT NULL DEFAULT 0');
-
-            return;
-        }
+        $this->skipIf(
+            $this->isMigrationAlreadyApplied($schema),
+            'Column oro_user.consecutive_authentication_failure_counter is already INT UNSIGNED NOT NULL DEFAULT 0'
+        );
 
         // should not be any null in this column, but have to be 100% sure
         $this->addSql(<<<SQL

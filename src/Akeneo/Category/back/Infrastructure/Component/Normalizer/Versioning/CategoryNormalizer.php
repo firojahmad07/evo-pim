@@ -33,6 +33,8 @@ class CategoryNormalizer implements NormalizerInterface, CacheableSupportsMethod
     }
 
     /**
+     * {@inheritdoc}
+     *
      * @param CategoryInterface $category
      *
      * @return array
@@ -48,6 +50,9 @@ class CategoryNormalizer implements NormalizerInterface, CacheableSupportsMethod
         return $flatCategory;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof CategoryInterface && in_array($format, $this->supportedFormats);

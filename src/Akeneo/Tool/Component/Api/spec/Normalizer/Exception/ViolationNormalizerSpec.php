@@ -62,7 +62,7 @@ class ViolationNormalizerSpec extends ObjectBehavior
         $violation->getRoot()->willReturn($product);
         $violation->getMessage()->willReturn('Not Blank');
         $violation->getPropertyPath()->willReturn('values[sku].text');
-        $violation->getMessageTemplate()->willReturn(null);
+        $violation->getMessageTemplate()->willReturn('');
 
         $constraintViolations->getIterator()->willReturn($iterator);
         $iterator->rewind()->shouldBeCalled();
@@ -178,13 +178,13 @@ class ViolationNormalizerSpec extends ObjectBehavior
         $violationIdentifier->getMessage()->willReturn('This value is not valid.');
         $violationIdentifier->getPropertyPath()->willReturn('identifier');
         $violationIdentifier->getConstraint()->willReturn($regexpConstraint);
-        $violationIdentifier->getMessageTemplate()->willReturn(null);
+        $violationIdentifier->getMessageTemplate()->willReturn('');
 
         $violationProductValue->getRoot()->willReturn($product);
         $violationProductValue->getMessage()->willReturn('This value is not valid.');
         $violationProductValue->getPropertyPath()->willReturn('values[sku].text');
         $violationProductValue->getConstraint()->willReturn($regexpConstraint);
-        $violationProductValue->getMessageTemplate()->willReturn(null);
+        $violationProductValue->getMessageTemplate()->willReturn('');
 
         $constraintViolations->getIterator()->willReturn($iterator);
         $iterator->rewind()->shouldBeCalled();
@@ -240,7 +240,7 @@ class ViolationNormalizerSpec extends ObjectBehavior
         $violation->getRoot()->willReturn($product);
         $violation->getMessage()->willReturn('Not Blank');
         $violation->getPropertyPath()->willReturn('values[description-en_US-ecommerce].textarea');
-        $violation->getMessageTemplate()->willReturn(null);
+        $violation->getMessageTemplate()->willReturn('');
 
         $constraintViolations->getIterator()->willReturn($iterator);
         $iterator->rewind()->shouldBeCalled();
@@ -284,7 +284,7 @@ class ViolationNormalizerSpec extends ObjectBehavior
         $violation->getRoot()->willReturn($attribute);
         $violation->getMessage()->willReturn('The locale "ab_CD" does not exist.');
         $violation->getPropertyPath()->willReturn('translations[0].locale');
-        $violation->getMessageTemplate()->willReturn(null);
+        $violation->getMessageTemplate()->willReturn('');
 
         $constraintViolations->getIterator()->willReturn($iterator);
         $iterator->rewind()->shouldBeCalled();

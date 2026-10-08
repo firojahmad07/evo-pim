@@ -8,12 +8,12 @@ use Akeneo\Tool\Bundle\ElasticsearchBundle\Exception\MissingIdentifierException;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration\IndexConfiguration;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration\Loader;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\Refresh;
-use Elasticsearch\Client as NativeClient;
-use Elasticsearch\ClientBuilder;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
-use Elasticsearch\Namespaces\IndicesNamespace;
+use OpenSearch\ClientBuilder;
+use OpenSearch\Common\Exceptions\BadRequest400Exception;
+use OpenSearch\Namespaces\IndicesNamespace;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use ReflectionClass;
 
 class ClientSpec extends ObjectBehavior
 {
@@ -22,11 +22,26 @@ class ClientSpec extends ObjectBehavior
         $this->shouldHaveType(Client::class);
     }
 
-    function let(NativeClient $client, ClientBuilder $clientBuilder, Loader $indexConfigurationLoader)
-    {
-        $this->beConstructedWith($clientBuilder, $indexConfigurationLoader, ['localhost:9200'], 'an_index_name');
+    function let(
+        MockElasticClientInterface $client,
+        ClientBuilder $clientBuilder,
+        Loader $indexConfigurationLoader
+    ) {
+        // A real client object satisfies the return type of ClientBuilder::build();
+        // it is immediately replaced below by the mocked client.
+        $realClient = (new ClientBuilder())->setHosts(['localhost:9200'])->build();
+
         $clientBuilder->setHosts(Argument::any())->willReturn($clientBuilder);
-        $clientBuilder->build()->willReturn($client);
+        $clientBuilder->build()->willReturn($realClient);
+
+        $this->beConstructedWith($clientBuilder, $indexConfigurationLoader, ['localhost:9200'], 'an_index_name');
+
+        // Force instantiation and replace the client property with our mock
+        $wrappedObject = $this->getWrappedObject();
+        $reflection = new ReflectionClass($wrappedObject);
+        $property = $reflection->getProperty('client');
+        $property->setAccessible(true);
+        $property->setValue($wrappedObject, $client->getWrappedObject());
     }
 
     public function it_indexes_a_document($client)
@@ -314,11 +329,16 @@ class ClientSpec extends ObjectBehavior
     }
 
     function it_split_bulk_index_when_size_is_more_than_max_batch_size(
-        NativeClient $client,
+        MockElasticClientInterface $client,
         ClientBuilder $clientBuilder,
         Loader $indexConfigurationLoader
     ) {
-        $this->beConstructedWith($clientBuilder, $indexConfigurationLoader, ['localhost:9200'], 'an_index_name', '', 200);
+        // Use Reflection to set maxChunkSize instead of re-constructing
+        $wrappedObject = $this->getWrappedObject();
+        $reflection = new ReflectionClass($wrappedObject);
+        $property = $reflection->getProperty('maxChunkSize');
+        $property->setAccessible(true);
+        $property->setValue($wrappedObject, 200);
 
         $client->bulk([
             'body' => [
@@ -389,7 +409,7 @@ class ClientSpec extends ObjectBehavior
         ]);
     }
 
-    function it_retries_bulk_index_request_when_an_error_occurred(NativeClient $client)
+    function it_retries_bulk_index_request_when_an_error_occurred(MockElasticClientInterface $client)
     {
         $isFirstCall = true;
         $client->bulk([
@@ -403,7 +423,8 @@ class ClientSpec extends ObjectBehavior
         ->will(function () use (&$isFirstCall) {
             if ($isFirstCall) {
                 $isFirstCall = false;
-                throw new BadRequest400Exception();
+
+                throw new BadRequest400Exception('error body', 400);
             }
 
             return ['took' => 1, 'errors' => false, 'items' => [['item_value1']]];
@@ -420,8 +441,10 @@ class ClientSpec extends ObjectBehavior
         ]);
     }
 
-    function it_retries_bulk_index_request_by_splitting_body_when_an_error_occurred(NativeClient $client)
+    function it_retries_bulk_index_request_by_splitting_body_when_an_error_occurred(MockElasticClientInterface $client)
     {
+        $exception = new BadRequest400Exception('error body', 400);
+
         $client->bulk([
             'body' => [
                 ['index' => ['_index' => 'an_index_name', '_id' => 'value1']],
@@ -432,7 +455,7 @@ class ClientSpec extends ObjectBehavior
                 ['identifier' => 'value3', 'name' => 'name3'],
             ],
             'refresh' => 'wait_for',
-        ])->willThrow(BadRequest400Exception::class);
+        ])->willThrow($exception);
 
         $client->bulk([
             'body' => [
@@ -531,4 +554,23 @@ class ClientSpec extends ObjectBehavior
         $this->shouldThrow(new MissingIdentifierException('Missing "identifier" key in document'))
             ->during('bulkIndexes', [$documents, 'identifier', Refresh::waitFor()]);
     }
+}
+
+/**
+ * Engine-agnostic test double of the native search client. It declares only
+ * the methods LibrePIM's Client wrapper calls, so it works regardless of the
+ * configured search engine (OpenSearch or the Elasticsearch adapter).
+ */
+interface MockElasticClientInterface
+{
+    public function index(array $params);
+    public function bulk(array $params);
+    public function get(array $params);
+    public function search(array $params);
+    public function msearch(array $params);
+    public function count(array $params);
+    public function delete(array $params);
+    public function deleteByQuery(array $params);
+    public function updateByQuery(array $params);
+    public function indices();
 }

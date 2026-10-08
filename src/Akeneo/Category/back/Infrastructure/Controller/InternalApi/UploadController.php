@@ -2,7 +2,8 @@
 
 namespace Akeneo\Category\Infrastructure\Controller\InternalApi;
 
-use Akeneo\Category\Application\Handler\StoreUploadedFile;
+use Akeneo\Category\Domain\ImageFile\Storage;
+use Akeneo\Tool\Component\FileStorage\File\FileStorer;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,9 +20,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UploadController
 {
     public function __construct(
-        private ValidatorInterface $validator,
-        private NormalizerInterface $normalizer,
-        private StoreUploadedFile $storeUploadedFile,
+        private readonly ValidatorInterface $validator,
+        private readonly NormalizerInterface $normalizer,
+        private readonly FileStorer $fileStorer,
+        private readonly ?array $supportedMimeTypes = [],
     ) {
     }
 
@@ -39,14 +41,14 @@ class UploadController
 
         $violations = $this->validator->validate($uploadedFile, [
             new Assert\Valid(),
-            new Assert\File(),
+            new Assert\File(mimeTypes: $this->supportedMimeTypes),
         ]);
 
         if (count($violations) > 0) {
             return new JsonResponse($this->normalizer->normalize($violations), 400);
         }
 
-        $file = ($this->storeUploadedFile)($uploadedFile);
+        $file = $this->fileStorer->store($uploadedFile, Storage::CATEGORY_STORAGE_ALIAS);
 
         return new JsonResponse([
             'originalFilename' => $uploadedFile->getClientOriginalName(),

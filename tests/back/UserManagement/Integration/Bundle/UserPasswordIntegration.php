@@ -162,7 +162,17 @@ JSON;
     public function test_it_can_still_login_existing_users_with_short_password(): void
     {
         $this->createUser('Short_User', '2short');
+
+        $session = $this->get('session');
+        $session->start();
+        $request = new Request();
+        $request->setSession($session);
+        $this->get('request_stack')->push($request);
+
         $csrfToken = $this->get('security.csrf.token_manager')->getToken('authenticate')->getValue();
+
+        $session->save();
+        $this->client->getCookieJar()->set(new \Symfony\Component\BrowserKit\Cookie($session->getName(), $session->getId()));
 
         $response = $this->callRoute(
             'pim_user_security_check',
@@ -178,10 +188,10 @@ JSON;
             ]
         );
 
-        $expectedRoute = $this->router->generate('oro_default', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $expectedRoute = $this->router->generate('oro_default');
 
         $this->assertStatusCode($response, Response::HTTP_FOUND);
-        $this->assertEquals($expectedRoute, $response->getTargetUrl());
+        $this->assertEquals($expectedRoute, parse_url($response->getTargetUrl(), PHP_URL_PATH));
     }
 
     /**

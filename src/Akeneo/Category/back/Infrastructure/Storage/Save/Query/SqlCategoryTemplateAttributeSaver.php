@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Akeneo\Category\Infrastructure\Storage\Save\Query;
 
+use Akeneo\Category\Application\Query\IsTemplateDeactivated;
 use Akeneo\Category\Application\Storage\Save\Saver\CategoryTemplateAttributeSaver;
 use Akeneo\Category\Domain\Model\Attribute\Attribute;
 use Akeneo\Category\Domain\ValueObject\Attribute\AttributeCollection;
@@ -19,18 +20,45 @@ use Doctrine\DBAL\Types\Types;
 class SqlCategoryTemplateAttributeSaver implements CategoryTemplateAttributeSaver
 {
     public function __construct(
-        private Connection $connection,
+        private readonly Connection $connection,
+        private readonly IsTemplateDeactivated $isTemplateDeactivated,
     ) {
     }
 
     public function insert(TemplateUuid $templateUuid, AttributeCollection $attributeCollection): void
     {
+        if (($this->isTemplateDeactivated)($templateUuid)) {
+            return;
+        }
+
         $this->insertAttributes($attributeCollection->getAttributes());
     }
 
-    public function update(TemplateUuid $templateUuid, AttributeCollection $attributeCollection): void
+    public function update(Attribute $attribute): void
     {
-        // TODO: Implement update() method.
+        if (($this->isTemplateDeactivated)($attribute->getTemplateUuid())) {
+            return;
+        }
+
+        $query = <<<SQL
+            UPDATE pim_catalog_category_attribute
+            SET attribute_type = :type, labels = :labels
+            WHERE uuid = UUID_TO_BIN(:uuid);
+        SQL;
+
+        $this->connection->executeQuery(
+            $query,
+            [
+                'type' => (string) $attribute->getType(),
+                'labels' => $attribute->getLabelCollection()->normalize(),
+                'uuid' => $attribute->getUuid()->getValue(),
+            ],
+            [
+                'type' => \PDO::PARAM_STR,
+                'labels' => Types::JSON,
+                'uuid' => \PDO::PARAM_STR,
+            ],
+        );
     }
 
     /**

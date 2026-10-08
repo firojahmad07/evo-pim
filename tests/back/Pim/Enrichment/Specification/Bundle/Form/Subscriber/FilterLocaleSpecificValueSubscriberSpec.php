@@ -47,7 +47,7 @@ class FilterLocaleSpecificValueSubscriberSpec extends ObjectBehavior
         $fr->setCode('fr_FR');
         $taxAttribute->isLocaleSpecific()->willReturn(true);
         $taxAttribute->getAvailableLocaleCodes()->willReturn(['fr_FR']);
-        $form->remove('tax')->shouldBeCalled();
+        $form->remove('tax')->willReturn($form);
 
         $this->preSetData($event);
     }

@@ -8,6 +8,7 @@ use Akeneo\Connectivity\Connection\Infrastructure\Apps\AppRoleWithScopesFactory;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
 use Akeneo\UserManagement\Component\Model\RoleInterface;
+use Akeneo\UserManagement\Component\Model\UserInterface;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
@@ -38,7 +39,7 @@ class AppRoleWithScopesFactoryIntegration extends TestCase
         return $this->catalog->useMinimalCatalog();
     }
 
-    public function test_it_creates_a_role_with_permissions_derived_from_the_scopes()
+    public function test_it_creates_a_role_with_permissions_derived_from_the_scopes(): void
     {
         $role = $this->factory->createRole('foo', [
             'read_products',
@@ -80,7 +81,8 @@ SQL;
 
     private function assertRoleAcls(string $role, array $acls): void
     {
-        $token = new UsernamePasswordToken('username', 'main', [$role]);
+        $user = $this->getTestUser();
+        $token = new UsernamePasswordToken($user, 'main', [$role]);
 
         foreach ($acls as $acl => $expectedValue) {
             \assert(\is_bool($expectedValue));
@@ -88,5 +90,14 @@ SQL;
             $isAllowed = $this->accessDecisionManager->decide($token, ['EXECUTE'], new ObjectIdentity('action', $acl));
             $this->assertEquals($expectedValue, $isAllowed);
         }
+    }
+
+    private function getTestUser(): UserInterface
+    {
+        $user = $this->get('pim_user.factory.user')->create();
+        $user->setUsername('username');
+        $user->setEmail('username@example.com');
+
+        return $user;
     }
 }

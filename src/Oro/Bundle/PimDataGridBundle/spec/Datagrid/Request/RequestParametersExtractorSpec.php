@@ -24,7 +24,7 @@ class RequestParametersExtractorSpec extends ObjectBehavior
     function it_extracts_the_parameter_from_the_symfony_request(Request $request, $requestParams, $requestStack)
     {
         $requestStack->getCurrentRequest()->willReturn($request);
-        $requestParams->get('dataLocale', null)->shouldBeCalled();
+        $requestParams->get('dataLocale', null)->shouldBeCalled()->willReturn(null);
         $request->get('dataLocale', null)->shouldBeCalled()->willReturn('en_US');
         $this->getParameter('dataLocale');
     }
@@ -32,8 +32,8 @@ class RequestParametersExtractorSpec extends ObjectBehavior
     function it_trows_a_logic_exception_when_the_parameter_is_not_present(Request $request, $requestParams, $requestStack)
     {
         $requestStack->getCurrentRequest()->willReturn($request);
-        $requestParams->get('dataLocale', null)->shouldBeCalled();
-        $request->get('dataLocale', null)->shouldBeCalled();
+        $requestParams->get('dataLocale', null)->shouldBeCalled()->willReturn(null);
+        $request->get('dataLocale', null)->shouldBeCalled()->willReturn(null);
         $this->shouldThrow(new \LogicException('Parameter "dataLocale" is expected'))->duringGetParameter('dataLocale');
     }
 }

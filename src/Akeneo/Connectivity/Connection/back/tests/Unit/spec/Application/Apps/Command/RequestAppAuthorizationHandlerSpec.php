@@ -12,6 +12,7 @@ use Akeneo\Connectivity\Connection\Infrastructure\Apps\Security\ScopeMapperInter
 use Akeneo\Connectivity\Connection\Infrastructure\Apps\Security\ScopeMapperRegistry;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class RequestAppAuthorizationHandlerSpec extends ObjectBehavior
@@ -45,7 +46,7 @@ class RequestAppAuthorizationHandlerSpec extends ObjectBehavior
             'read_channel_localization',
             'http://url.test',
         );
-        $validator->validate($command)->willReturn([]);
+        $validator->validate($command)->willReturn(new ConstraintViolationList());
 
         $session->initialize(Argument::type(AppAuthorization::class))
             ->shouldBeCalledOnce();

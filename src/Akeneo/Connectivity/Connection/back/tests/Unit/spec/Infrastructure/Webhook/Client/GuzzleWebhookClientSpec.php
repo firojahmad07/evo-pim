@@ -15,6 +15,7 @@ use Akeneo\Connectivity\Connection\Domain\Webhook\Model\WebhookEvent;
 use Akeneo\Connectivity\Connection\Infrastructure\Webhook\Client\GuzzleWebhookClient;
 use Akeneo\Connectivity\Connection\Infrastructure\Webhook\Client\Signature;
 use Akeneo\Connectivity\Connection\Infrastructure\Webhook\RequestHeaders;
+use Akeneo\Platform\Bundle\PimVersionBundle\VersionProviderInterface;
 use Akeneo\Platform\Component\EventQueue\Author;
 use Akeneo\Platform\Component\EventQueue\Event;
 use Akeneo\Platform\Component\EventQueue\EventInterface;
@@ -22,7 +23,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response;
 use PhpSpec\ObjectBehavior;
 use PHPUnit\Framework\Assert;
@@ -40,7 +42,8 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
     public function let(
         SendApiEventRequestLogger $sendApiEventRequestLogger,
         EventsApiRequestLoggerInterface $eventsApiRequestLogger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        VersionProviderInterface $versionProvider,
     ): void {
         $eventDispatcher->dispatch(Argument::any())->willReturn(Argument::type('object'));
         $this->beConstructedWith(
@@ -49,7 +52,9 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
             $sendApiEventRequestLogger,
             $eventsApiRequestLogger,
             $eventDispatcher,
-            ['timeout' => 0.5, 'concurrency' => 1]
+            ['timeout' => 0.5, 'concurrency' => 1],
+            $versionProvider,
+            \getenv('PFID'),
         );
     }
 
@@ -62,9 +67,12 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
     public function it_sends_webhook_requests_in_bulk(
         SendApiEventRequestLogger $sendApiEventRequestLogger,
         EventsApiRequestLoggerInterface $eventsApiRequestLogger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        VersionProviderInterface $versionProvider,
     ): void {
         $eventDispatcher->dispatch(Argument::any())->willReturn(Argument::type('object'));
+        $versionProvider->getVersion()->willReturn('v20210526040645');
+
         $mock = new MockHandler(
             [
                 new Response(200, ['Content-Length' => 0]),
@@ -83,7 +91,9 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
             $sendApiEventRequestLogger,
             $eventsApiRequestLogger,
             $eventDispatcher,
-            ['timeout' => 0.5, 'concurrency' => 1]
+            ['timeout' => 0.5, 'concurrency' => 1],
+            $versionProvider,
+            \getenv('PFID'),
         );
 
         $author = Author::fromNameAndType('julia', Author::TYPE_UI);
@@ -136,10 +146,17 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
         $signature = Signature::createSignature('a_secret', $timestamp, $body);
         Assert::assertEquals($signature, $request->getHeader(RequestHeaders::HEADER_REQUEST_SIGNATURE)[0]);
 
+        $userAgent = 'AkeneoPIM/v20210526040645';
+        if (false !== \getenv('PFID')) {
+            $userAgent .= ' '.\getenv('PFID');
+        }
+
+        Assert::assertSame($userAgent, $request->getHeader(RequestHeaders::HEADER_REQUEST_USERAGENT)[0]);
+
         $eventDispatcher
             ->dispatch(Argument::allOf(
                 Argument::type(EventsApiRequestSucceededEvent::class),
-                Argument::that(function (EventsApiRequestSucceededEvent $event) use ($Request1pimEvent) {
+                Argument::that(function (EventsApiRequestSucceededEvent $event) use ($Request1pimEvent): bool {
                     if ('ecommerce' !== $event->getConnectionCode() || $Request1pimEvent !== $event->getEvents()[0]) {
                         return false;
                     }
@@ -174,7 +191,7 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
         $eventDispatcher
             ->dispatch(Argument::allOf(
                 Argument::type(EventsApiRequestSucceededEvent::class),
-                Argument::that(function (EventsApiRequestSucceededEvent $event) use ($Request2pimEvent) {
+                Argument::that(function (EventsApiRequestSucceededEvent $event) use ($Request2pimEvent): bool {
                     if ('erp' !== $event->getConnectionCode() || $Request2pimEvent !== $event->getEvents()[0]) {
                         return false;
                     }
@@ -198,8 +215,11 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
     public function it_logs_a_failed_events_api_request(
         SendApiEventRequestLogger $sendApiEventRequestLogger,
         EventsApiRequestLoggerInterface $eventsApiRequestLogger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        VersionProviderInterface $versionProvider,
     ): void {
+        $versionProvider->getVersion()->willReturn('v20210526040645');
+
         $mock = new MockHandler(
             [
                 new Response(500, ['Content-Length' => 0]),
@@ -217,7 +237,9 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
             $sendApiEventRequestLogger,
             $eventsApiRequestLogger,
             $eventDispatcher,
-            ['timeout' => 0.5, 'concurrency' => 1]
+            ['timeout' => 0.5, 'concurrency' => 1],
+            $versionProvider,
+            \getenv('PFID'),
         );
 
         $author = Author::fromNameAndType('julia', Author::TYPE_UI);
@@ -255,12 +277,22 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
     public function it_does_not_send_webhook_request_because_of_timeout(
         SendApiEventRequestLogger $sendApiEventRequestLogger,
         EventsApiRequestLoggerInterface $debugLogger,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        VersionProviderInterface $versionProvider,
     ): void {
+        $versionProvider->getVersion()->willReturn('v20210526040645');
+
+        $mock = new MockHandler([
+            new ConnectException(
+                'Connection timed out',
+                new GuzzleRequest('POST', 'http://localhost/webhook')
+            ),
+        ]);
+
         $container = [];
         $history = Middleware::history($container);
 
-        $handlerStack = HandlerStack::create();
+        $handlerStack = HandlerStack::create($mock);
         $handlerStack->push($history);
 
         $this->beConstructedWith(
@@ -269,7 +301,9 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
             $sendApiEventRequestLogger,
             $debugLogger,
             $eventDispatcher,
-            ['timeout' => 0.5, 'concurrency' => 1]
+            ['timeout' => 0.5, 'concurrency' => 1],
+            $versionProvider,
+            \getenv('PFID'),
         );
 
         $author = Author::fromNameAndType('julia', Author::TYPE_UI);
@@ -297,23 +331,14 @@ class GuzzleWebhookClientSpec extends ObjectBehavior
             0.5
         )->shouldBeCalled();
 
-        $eventDispatcher->dispatch(Argument::type(EventsApiRequestFailedEvent::class))->shouldBeCalled();
+        $eventDispatcher->dispatch(
+            Argument::type(EventsApiRequestFailedEvent::class)
+        )->shouldBeCalled();
 
         Assert::assertCount(1, $container);
-
-        $request = $this->findRequest($container, 'http://localhost/webhook');
-
-        Assert::assertNotNull($request);
-
-        $body = '{"events":[{"action":"product.created","event_id":"7abae2fe-759a-4fce-aa43-f413980671b3","event_datetime":"2020-01-01T00:00:00+00:00","author":"julia","author_type":"ui","pim_source":"staging.akeneo.com","data":["data_1"]}]}';
-        Assert::assertEquals($body, (string)$request->getBody());
-
-        $timestamp = (int)$request->getHeader(RequestHeaders::HEADER_REQUEST_TIMESTAMP)[0];
-        $signature = Signature::createSignature('a_secret', $timestamp, $body);
-        Assert::assertEquals($signature, $request->getHeader(RequestHeaders::HEADER_REQUEST_SIGNATURE)[0]);
     }
 
-    private function findRequest(array $container, string $url): ?Request
+    private function findRequest(array $container, string $url): ?GuzzleRequest
     {
         foreach ($container as $transaction) {
             if ($url === (string)$transaction['request']->getUri()) {

@@ -53,12 +53,13 @@ class AttributeGroupNormalizer implements NormalizerInterface, CacheableSupports
         $flatAttributeGroup['attributes'] = implode(self::ITEM_SEPARATOR, $standardAttributeGroup['attributes']);
 
         unset($flatAttributeGroup['labels']);
-
-        return \array_merge($flatAttributeGroup, $this->translationNormalizer->normalize(
+        $flatAttributeGroup += $this->translationNormalizer->normalize(
             $standardAttributeGroup['labels'],
             'flat',
             $context
-        ));
+        );
+
+        return $flatAttributeGroup;
     }
 
     /**

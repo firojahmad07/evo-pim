@@ -123,10 +123,10 @@ final class ConnectorProductModel
         return !empty($associatedProductModels) ? array_unique(array_merge(...$associatedProductModels)) : [];
     }
 
-    public function associatedWithQuantityProductUuids()
+    public function associatedWithQuantityProductIdentifiers()
     {
         $associatedWithQuantityProducts = array_map(function ($quantifiedAssociations) {
-            return array_column($quantifiedAssociations['products'], 'uuid');
+            return array_column($quantifiedAssociations['products'], 'identifier');
         }, array_values($this->quantifiedAssociations));
 
         if (empty($associatedWithQuantityProducts)) {
@@ -295,14 +295,14 @@ final class ConnectorProductModel
         );
     }
 
-    public function filterAssociatedWithQuantityProductsByProductUuids(array $productUuidsToFilter): ConnectorProductModel
+    public function filterAssociatedWithQuantityProductsByProductIdentifiers(array $productIdentifiersToFilter): ConnectorProductModel
     {
         $filteredQuantifiedAssociations = [];
         foreach ($this->quantifiedAssociations as $associationType => $quantifiedAssociation) {
             $filteredProductQuantifiedAssociations = array_filter(
                 $quantifiedAssociation['products'],
-                function ($quantifiedLink) use ($productUuidsToFilter) {
-                    return in_array($quantifiedLink['uuid'], $productUuidsToFilter);
+                function ($quantifiedLink) use ($productIdentifiersToFilter) {
+                    return in_array($quantifiedLink['identifier'], $productIdentifiersToFilter);
                 }
             );
 

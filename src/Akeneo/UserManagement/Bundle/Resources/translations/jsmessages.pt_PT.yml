@@ -3,15 +3,8 @@ pim_title:
   pim_user_role_index: Funções
   pim_user_group_index: Grupos de utilizadores
   oro_config_configuration_system: Configuração
-  pim_user_edit: 'Utilizador {{ username }} | Editar'
-  pim_user_create: 'Utilizadores | Criar'
-  pim_user_role_update: 'Função {{ role }} | Editar'
-  pim_user_role_create: 'Função | Criar'
   pim_user_security_login: Início de sessão
-  pim_user_reset_reset: Redefinição da palavra-passe
   pim_user_reset_request: Esqueci-me da Password
-  pim_user_group_create: 'Grupos | Criar'
-  pim_user_group_update: 'Grupo {{ group }} | Editar'
 confirmation:
   remove:
     user: Tem a certeza que deseja eliminar este utilizador?
@@ -19,72 +12,34 @@ confirmation:
 pim_enrich:
   entity:
     user:
-      flash:
-        delete:
-          fail: O utilizador não pode ser eliminado
-          success: O utilizador foi eliminado
       module:
         delete:
           confirm: Tem a certeza que deseja eliminar este utilizador?
 pim_user.profile:
-  caption: Em primeiro lugar, diga-nos qual é a sua principal missão, para que o possamos ajudar com o conteúdo mais relevante.
-  why_is_it_needed: Porque é que precisamos desta informação?
   save_button: Guardar e ir para a App Store
-  selector:
-    placeholder: Escolha uma opção
-    not_found: Nenhum resultado encontrado
-  product_manager: Faço a gestão de catálogos de produtos.
-  redactor: Enriqueço os dados dos produtos.
-  pim_integrator: Integro o Akeneo PIM no nosso ecossistema informático.
-  pim_administrator: Eu administro o Akeneo PIM.
-  asset_manager: Faço a gestão dos ativos no PIM.
-  translator: Traduzo dados de produtos, ativos e/ou entidades de referência.
-  third_party_developer: Desenvolvo soluções ligadas ao Akeneo PIM.
 pim_user_management:
   entity:
     user:
-      label: utilizador
-      flash:
-        update:
-          success: Utilizador atualizado com sucesso.
-          fail: Não foi possível atualizar o utilizador.
-          fields_not_ready: "O utilizador não pode ser guardado neste momento. Os seguintes campos não estão prontos: {{ fields }}"
-        create:
-          success: Utilizador criado com sucesso.
-      page_title:
-        index: "]-Inf, 1] {{ count }} utilizador|]1, Inf [{{ count }} utilizadores"
       properties:
         username: Nome do Utilizador
-        profile: Qual é a vossa principal missão?
         name_prefix: Prefixo do nome
         first_name: Primeiro nome
         middle_name: Nome do meio
         last_name: Último nome
         name_suffix: Sufixo do nome
-        phone: Telefone
         avatar: Avatar
         email: Email
         catalog_locale: Linguagem do catálogo
         catalog_scope: Âmbito do catálogo
         default_tree: Árvore padrão
-        default_asset_tree: Árvore de ativos por defeito
         product_grid_filters: Filtros da grelha de produtos
         current_password: Senha atual
         new_password: Nova senha
         new_password_repeat: Nova senha (repetir)
         password: Senha
-        password_repeat: Palavra-passe (repetir)
-        last_logged_in: Última sessão iniciada
-        login_count: Contagem de registos
         ui_locale: Linguagem do UI
         timezone: Fuso horário
         default_product_grid_view: Vista da grelha de produtos por defeito
-        default_published_product_grid_view: Vista predefinida da grade de produtos publicados #EE Only
-        proposals_to_review_notification: Quando nova proposta a analisar #EE Only
-        proposals_state_notifications: Quando a proposta é aceite ou rejeitada #EE Only
-      meta:
-        created: Criado
-        updated: Atualizado
       module:
         create:
           button: Criar utilizador
@@ -92,14 +47,11 @@ pim_user_management:
           confirm: Tem a certeza que deseja eliminar este utilizador?
         update:
           additional: Adicional
-          groups_and_roles: Grupo e funções
           password: Senha
           interfaces: Interfaces
           notifications: Notificações #TODO EE Only
     role:
       plural_label: Funções
-      page_title:
-        index: "]-Inf, 1] {{ count }} função|]1, Inf [{{ count }} funções"
       module:
         create:
           button: Criar função
@@ -107,18 +59,6 @@ pim_user_management:
           confirm: Tem certeza que deseja eliminar esta função?
     group:
       plural_label: Grupos de utilizadores
-      page_title:
-        index: "]-Inf, 1] {{ count }} grupo|]1, Inf [{{ count }} grupos"
       module:
         create:
           button: Criar grupo
-  form:
-    error:
-      required: Este campo é obrigatório.
-      should_not_contain_space: O nome de utilizador não deve conter um carácter de espaço.
-      too_short_value: "Este valor é demasiado curto. Deve ter {{ count }} caracteres ou mais."
-    duplication:
-      title: 'Utilizador "{{ username }}" duplicado'
-      notification:
-        success: O utilizador é duplicado com sucesso
-        failure: Falha na duplicação de utilizadores

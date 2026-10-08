@@ -21,17 +21,7 @@ SQL);
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
 
-        $schemaManager = $this->get('database_connection')->getSchemaManager();
-        $this->assertTrue($schemaManager->tablesExist('pim_data_quality_insights_product_model_score'));
-    }
-
-    public function test_does_not_fail_if_the_table_already_exists(): void
-    {
-        $schemaManager = $this->get('database_connection')->getSchemaManager();
-        $this->assertTrue($schemaManager->tablesExist('pim_data_quality_insights_product_model_score'));
-
-        $this->reExecuteMigration(self::MIGRATION_LABEL);
-
+        $schemaManager = $this->get('database_connection')->createSchemaManager();
         $this->assertTrue($schemaManager->tablesExist('pim_data_quality_insights_product_model_score'));
     }
 

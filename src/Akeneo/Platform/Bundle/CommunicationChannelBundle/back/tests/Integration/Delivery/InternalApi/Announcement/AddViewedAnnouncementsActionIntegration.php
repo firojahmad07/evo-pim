@@ -27,9 +27,10 @@ class AddViewedAnnouncementsActionIntegration extends WebTestCase
         $this->client->request(
             'POST',
             '/rest/viewed_announcements/add',
-            [
-                'viewed_announcement_ids' => $viewedAnnouncementIds
-            ]
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['viewed_announcement_ids' => $viewedAnnouncementIds])
         );
 
         Assert::assertSame(Response::HTTP_NO_CONTENT, $this->client->getResponse()->getStatusCode());

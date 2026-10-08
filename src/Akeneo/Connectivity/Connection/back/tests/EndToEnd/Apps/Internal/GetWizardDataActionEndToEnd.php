@@ -88,7 +88,8 @@ class GetWizardDataActionEndToEnd extends WebTestCase
             'oldScopeMessages' => null,
             'authenticationScopes' => ['email', 'profile'],
             'oldAuthenticationScopes' => null,
-        ], \json_decode($response->getContent(), true));
+            'displayCheckboxConsent' => true,
+        ], \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function test_it_throws_an_exception_when_app_not_found_into_session(): void
@@ -179,7 +180,8 @@ class GetWizardDataActionEndToEnd extends WebTestCase
             'oldScopeMessages' => null,
             'authenticationScopes' => [],
             'oldAuthenticationScopes' => null,
-        ], \json_decode($response->getContent(), true));
+            'displayCheckboxConsent' => true,
+        ], \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
     }
 
     public function test_authorization_scopes_are_empty(): void
@@ -218,10 +220,11 @@ class GetWizardDataActionEndToEnd extends WebTestCase
             'oldScopeMessages' => null,
             'authenticationScopes' => [],
             'oldAuthenticationScopes' => null,
-        ], \json_decode($response->getContent(), true));
+            'displayCheckboxConsent' => true,
+        ], \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
     }
 
-    public function test_old_scope_messages_are_not_empty()
+    public function test_old_scope_messages_are_not_empty(): void
     {
         $this->authenticateAsAdmin();
         $this->addAclToRole('ROLE_ADMINISTRATOR', 'akeneo_connectivity_connection_open_apps');
@@ -299,10 +302,11 @@ class GetWizardDataActionEndToEnd extends WebTestCase
             ],
             'authenticationScopes' => ['email', 'profile'],
             'oldAuthenticationScopes' => null,
-        ], \json_decode($response->getContent(), true));
+            'displayCheckboxConsent' => false,
+        ], \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
     }
 
-    public function test_old_authentication_scopes_are_not_empty()
+    public function test_old_authentication_scopes_are_not_empty(): void
     {
         $user = $this->authenticateAsAdmin();
         $this->addAclToRole('ROLE_ADMINISTRATOR', 'akeneo_connectivity_connection_open_apps');
@@ -388,7 +392,8 @@ class GetWizardDataActionEndToEnd extends WebTestCase
             ],
             'authenticationScopes' => ['profile'],
             'oldAuthenticationScopes' => ['email'],
-        ], \json_decode($response->getContent(), true));
+            'displayCheckboxConsent' => false,
+        ], \json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR));
     }
 
     protected function setUp(): void

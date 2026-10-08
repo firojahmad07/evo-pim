@@ -37,22 +37,22 @@ class RegisterComparatorsPassSpec extends ObjectBehavior
         $container->getDefinition('comparator.baz')->willReturn($bazDefinition);
         $container->getDefinition('comparator.tifo')->willReturn($tifoDefinition);
 
-        $barDefinition->setPublic(false)->shouldBeCalled();
-        $fooDefinition->setPublic(false)->shouldBeCalled();
-        $bazDefinition->setPublic(false)->shouldBeCalled();
-        $tifoDefinition->setPublic(false)->shouldBeCalled();
+        $barDefinition->setPublic(false)->shouldBeCalled()->willReturn($barDefinition);
+        $fooDefinition->setPublic(false)->shouldBeCalled()->willReturn($fooDefinition);
+        $bazDefinition->setPublic(false)->shouldBeCalled()->willReturn($bazDefinition);
+        $tifoDefinition->setPublic(false)->shouldBeCalled()->willReturn($tifoDefinition);
         $comparator
             ->addMethodCall('addAttributeComparator', $this->isAnArrayContainingAReferenceAndAPriority('comparator.bar', -10))
-            ->shouldBeCalled();
+            ->willReturn($comparator);
         $comparator
             ->addMethodCall('addAttributeComparator', $this->isAnArrayContainingAReferenceAndAPriority('comparator.foo', 10))
-            ->shouldBeCalled();
+            ->willReturn($comparator);
         $comparator
             ->addMethodCall('addAttributeComparator', $this->isAnArrayContainingAReferenceAndAPriority('comparator.baz', 0))
-            ->shouldBeCalled();
+            ->willReturn($comparator);
         $comparator
             ->addMethodCall('addFieldComparator', $this->isAnArrayContainingAReferenceAndAPriority('comparator.tifo', 0))
-            ->shouldBeCalled();
+            ->willReturn($comparator);
 
         $this->process($container);
     }

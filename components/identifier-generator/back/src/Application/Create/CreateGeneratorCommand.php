@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Akeneo\Pim\Automation\IdentifierGenerator\Application\Create;
 
 use Akeneo\Pim\Automation\IdentifierGenerator\Application\CommandInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * @copyright 2022 Akeneo SAS (https://www.akeneo.com)
@@ -14,45 +13,18 @@ use Webmozart\Assert\Assert;
 final class CreateGeneratorCommand implements CommandInterface
 {
     /**
-     * @param string $code
      * @param list<array<string, mixed>> $conditions
      * @param list<array<string, mixed>> $structure
      * @param array<string, string> $labels
-     * @param string $target
-     * @param string|null $delimiter
      */
     public function __construct(
-        public string $code,
-        public array $conditions,
-        public array $structure,
-        public array $labels,
-        public string $target,
-        public ?string $delimiter,
+        public readonly string $code,
+        public readonly array $conditions,
+        public readonly array $structure,
+        public readonly array $labels,
+        public readonly string $target,
+        public readonly ?string $delimiter,
+        public readonly string $textTransformation,
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $normalizedGenerator
-     */
-    public static function fromNormalized(array $normalizedGenerator): self
-    {
-        foreach (['code', 'conditions', 'structure', 'labels', 'target', 'delimiter'] as $key) {
-            Assert::keyExists($normalizedGenerator, $key);
-        }
-        Assert::string($normalizedGenerator['code']);
-        Assert::isList($normalizedGenerator['conditions']);
-        Assert::isList($normalizedGenerator['structure']);
-        Assert::isArray($normalizedGenerator['labels']);
-        Assert::string($normalizedGenerator['target']);
-        Assert::nullOrString($normalizedGenerator['delimiter']);
-
-        return new self(
-            $normalizedGenerator['code'],
-            $normalizedGenerator['conditions'],
-            $normalizedGenerator['structure'],
-            $normalizedGenerator['labels'],
-            $normalizedGenerator['target'],
-            $normalizedGenerator['delimiter']
-        );
     }
 }

@@ -116,6 +116,11 @@ oro_config:
           fields:
             enabler:
               label: Aktiviert
+        environment:
+          title: Umgebungseinstellungen
+          fields:
+            sandbox_banner:
+              label: Sandbox-Alarm-Banner anzeigen
         loading_message:
           title: Angepasste Lademeldungen
           helper: Unterhalten Sie Ihre Benutzer mit angepassten Ladebildschirm-Meldungen.
@@ -194,6 +199,8 @@ pim_common:
   label: Bezeichnung
   label_translations: Feldbezeichner-Übersetzungen
   Label or identifier: Label oder Identifikator
+  Label or main identifier: Etikett oder Hauptidentifikator
+  code_or_label: code oder label
   less_than: Weniger als
   loading: Lädt...
   media_upload: Upload per Drag & Drop oder hier klicken
@@ -261,6 +268,7 @@ pim_common:
   product_models: Produktmodelle
   more: Mehr
   public_view: Öffentliche Ansicht
+  view: Ansehen
 error:
   exception: Ein {{ status_code }} Fehler ist aufgetreten...
   forbidden: Sie haben keine Berechtigung, diese Seite anzuzeigen
@@ -297,9 +305,10 @@ pim_enrich.entity.job_execution:
     create:
       upload: Upload {{ type }}-Datei per Drag & Drop oder hier klicken
     download:
+      dropdown_title: "]-Inf, 1]generierte Dateien herunterladen|]1, Inf[generierte Dateien herunterladen"
       archive: Generiertes Archiv herunterladen
       output: Generierte Datei herunterladen
-      input: Eingelesene Datei herunterladen
+      input: Hinweisdatei herunterladen
       invalid_xlsx: Ungültige Daten herunterladen
       invalid_csv: Ungültige Daten herunterladen
 pim_title:
@@ -342,6 +351,7 @@ pim_title:
   pim_settings_index: Einstellungen
   pim_system_index: System
 pim_menu:
+  tag.new: Neu
   tab:
     activity: Übersicht
     imports: Importe
@@ -351,6 +361,10 @@ pim_menu:
     help:
       title: Hilfe
       helper: Akeneo Help-Center
+      new: NEU
+      news: Was ist neu?
+      help_center: Hilfe-Zentrum
+      akademy_training: Akademie Ausbildung
   item:
     association_type: Verbindungstypen
     attribute_group: Attributgruppen
@@ -381,6 +395,7 @@ pim_menu:
       product: Artikel Einstellungen
       catalog: Katalogeinstellungen
       collapsed_label: Navigation Einstellung
+      automation: Automatisierung
     product: Navigation Produkte
     product_infos: Produktinformationen
   user:
@@ -396,6 +411,7 @@ pim_settings:
   settings_menu: Konfigurationsmenü
   catalog_settings: Katalogeinstellungen
   product_settings: Artikel Einstellungen
+  automation_settings: Automatisierung
   count:
     category_trees: '{0}Du hast 0 Bäume |{1}Du hast 1 Baum |]1, Inf[Du hast {{ count }} Bäume '
     categories: '{0}und 0 Kategorien|{1}und 1 Kategorie|]1, Inf[und {{ count }} Kategorien'
@@ -410,6 +426,7 @@ pim_settings:
     group_types: '{0}Sie haben 0 Gruppentypen|{1}Sie haben 1 Gruppentyp|]1, Inf[Sie haben {{ count }} Gruppentypen'
     groups: '{0}Sie haben 0 Gruppen|{1}Sie haben 1 Gruppe|]1, Inf[Sie haben {{ count }} Gruppen'
     rules: '{0}Sie haben 0 Regeln aktiviert|{1}Sie haben 1 aktivierte Regel|]1, Inf[Sie haben {{ count }} aktivierte Regeln'
+    identifier_generators: '{0}Sie haben 0 Identifikatorengeneratoren{1}[Sie haben 1 Identifikatorgenerator]1, Inf[Sie haben {{ count }} Identifikatorgeneratoren]'
 pim_system:
   system_menu: Systemmenü
   system_navigation: Navigation System
@@ -423,6 +440,37 @@ pim_system:
     enabled: SSO aktiviert
     disabled: SSO deaktiviert
     title: SAML-basiertes Single Sign-On
+  reset_pim:
+    modal:
+      summary:
+        name: Zusammenfassung
+        title: 'Warnung: Das Zurücksetzen Ihres PIM kann nicht rückgängig gemacht werden'
+        text: 'Es wird zur Löschung aller Elemente führen, außer folgendes:'
+        users:
+          name: Benutzer
+          tooltip: Benutzer sind Personen, die Sie erlauben in Ihrem PIM zu arbeiten.
+        user_groups:
+          name: Benutzergruppen
+          tooltip: Benutzergruppen definieren Teams, die unterschiedliche Aktionen innerhalb Ihrer PIM durchführen.
+        roles:
+          name: Rollen
+          tooltip: Rollen definieren Zugriffe und Aktionen, die Benutzer und Benutzergruppen innerhalb Ihrer PIM durchführen können.
+      confirm:
+        name: Bestätigen
+        title: Bestätigen Sie das Zurücksetzen Ihres PIM
+        helper:
+          emphasis: Sobald Sie Ihre PIM zurückgesetzt haben, gibt es kein Zurück mehr.
+          text: Durch Anklicken des Reset-Buttons werden Sie abgemeldet und zur Login-Seite zurückgebracht.
+      confirmation_phrase: Bitte geben Sie "{{ confirmation_word }}" ein
+      confirmation_word: zurücksetzen
+    button:
+      label: Zurücksetzen der Instanz
+      confirm: Zurücksetzen und Ausloggen
+    error_notification: Beim Zurücksetzen der Instanz ist ein Fehler aufgetreten. Bitte kontaktieren Sie Ihren Systemadministrator.
+    jobs_running: Sie können Ihre Instanz im Moment nicht zurücksetzen, da einige Prozesse noch in der Warteschlange stehen oder laufen.
+  sandbox:
+    helper:
+      text: Dies ist eine Sandbox-Umgebung, Ihre Änderungen wird Ihre Produktionsumgebung nicht beeinflussen.
 pim_datagrid:
   mass_action:
     default:

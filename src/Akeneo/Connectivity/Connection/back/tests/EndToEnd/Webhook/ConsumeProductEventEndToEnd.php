@@ -13,6 +13,10 @@ use Akeneo\Pim\Enrichment\Component\Product\Message\ProductCreated;
 use Akeneo\Pim\Enrichment\Component\Product\Message\ProductRemoved;
 use Akeneo\Pim\Enrichment\Component\Product\Message\ProductUpdated;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetCategories;
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetEnabled;
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetFamily;
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetTextValue;
 use Akeneo\Platform\Component\EventQueue\Author;
 use Akeneo\Platform\Component\EventQueue\BulkEvent;
 use Akeneo\Test\Integration\Configuration;
@@ -60,43 +64,27 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
         $this->productLoader = static::getContainer()->get(
             'akeneo_connectivity.connection.fixtures.enrichment.product'
         );
-        $this->historyContainer = $this->get('Akeneo\Connectivity\Connection\Tests\EndToEnd\GuzzleJsonHistoryContainer');
+        $this->historyContainer = $this->get(GuzzleJsonHistoryContainer::class);
 
-        $this->tshirtProduct = $this->productLoader->create(
-            'blue-t-shirt',
-            [
-                'family' => 'tshirt',
-                'enabled' => true,
-                'categories' => ['sea'],
-                'groups' => [],
-                'values' => [
-                    'another_text_attribute' => [
-                        ['data' => 'text attribute', 'locale' => null, 'scope' => null],
-                    ],
-                ],
-            ]
-        );
-        $this->pantProduct = $this->productLoader->create(
-            'red-pant',
-            [
-                'family' => 'pant',
-                'enabled' => true,
-                'categories' => ['fiesta'],
-                'groups' => [],
-                'values' => [
-                    'another_text_attribute' => [
-                        ['data' => 'text attribute', 'locale' => null, 'scope' => null],
-                    ],
-                ],
-            ]
-        );
+        $this->tshirtProduct = $this->productLoader->create('blue-t-shirt', [
+            new SetFamily('tshirt'),
+            new SetEnabled(true),
+            new SetCategories(['sea']),
+            new SetTextValue('another_text_attribute', null, null, 'text attribute')
+        ]);
+        $this->pantProduct = $this->productLoader->create('red-pant', [
+            new SetFamily('pant'),
+            new SetEnabled(true),
+            new SetCategories(['fiesta']),
+            new SetTextValue('another_text_attribute', null, null, 'text attribute')
+        ]);
 
         $connection = $this->loadConnection();
 
         $this->get('akeneo_connectivity.connection.fixtures.webhook_loader')->initWebhook($connection->code());
     }
 
-    public function test_it_sends_a_product_created_webhook_event()
+    public function test_it_sends_a_product_created_webhook_event(): void
     {
         $message = new BulkEvent(
             [
@@ -130,14 +118,14 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
         /** @var Request $requestObject */
         $request = $this->historyContainer[0]['request'];
         $requestObject = Message::parseRequest($request);
-        $requestContent = \json_decode($requestObject->getBody()->getContents(), true)['events'][0];
+        $requestContent = \json_decode($requestObject->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['events'][0];
         $requestContent = $this->cleanRequestContent($requestContent);
 
         Assert::assertEquals(2, (int)$this->getEventCount('ecommerce'));
         $this->assertEquals($this->expectedProductCreatedPayload($this->tshirtProduct), $requestContent);
     }
 
-    public function test_it_sends_a_product_updated_webhook_event()
+    public function test_it_sends_a_product_updated_webhook_event(): void
     {
         $message = new BulkEvent(
             [
@@ -161,14 +149,14 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
 
         $request = $this->historyContainer[0]['request'];
         $requestObject = Message::parseRequest($request);
-        $requestContent = \json_decode($requestObject->getBody()->getContents(), true)['events'][0];
+        $requestContent = \json_decode($requestObject->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['events'][0];
         $requestContent = $this->cleanRequestContent($requestContent);
 
         Assert::assertEquals(1, (int)$this->getEventCount('ecommerce'));
         $this->assertEquals($this->expectedProductUpdatedPayload($this->tshirtProduct), $requestContent);
     }
 
-    public function test_it_sends_a_product_removed_webhook_event()
+    public function test_it_sends_a_product_removed_webhook_event(): void
     {
         $message = new BulkEvent(
             [
@@ -192,7 +180,7 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
         $this->assertCount(1, $this->historyContainer);
 
         $request = Message::parseRequest($this->historyContainer[0]['request']);
-        $requestContent = \json_decode($request->getBody()->getContents(), true)['events'][0];
+        $requestContent = \json_decode($request->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['events'][0];
 
         Assert::assertEquals(1, (int)$this->getEventCount('ecommerce'));
         $this->assertEquals($this->expectedProductRemovedPayload($this->tshirtProduct), $requestContent);
@@ -280,7 +268,7 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
     {
         return [
             'resource' => [
-                'uuid' => $product->getUuid(),
+                'uuid' => $product->getUuid()->toString(),
                 'identifier' => $product->getIdentifier(),
                 'enabled' => true,
                 'family' => $product->getFamily()->getCode(),
@@ -291,6 +279,13 @@ class ConsumeProductEventEndToEnd extends ApiTestCase
                     'another_text_attribute' => [
                         [
                             'data' => 'text attribute',
+                            'locale' => null,
+                            'scope' => null,
+                        ],
+                    ],
+                    'sku' => [
+                        [
+                            'data' => $product->getIdentifier(),
                             'locale' => null,
                             'scope' => null,
                         ],

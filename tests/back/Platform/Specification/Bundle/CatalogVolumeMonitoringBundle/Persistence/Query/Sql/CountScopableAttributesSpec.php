@@ -29,10 +29,12 @@ class CountScopableAttributesSpec extends ObjectBehavior
         $this->shouldImplement(CountQuery::class);
     }
 
-    function it_gets_count_volume(Connection $connection, Result $statement)
+    function it_gets_count_volume(Connection $connection, \Doctrine\DBAL\Driver\Result $driverResult)
     {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(['count' => '4']);
+        $driverResult->fetchAssociative()->willReturn(['count' => '4']);
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
         $this->fetch()->shouldBeLike(new CountVolume(4, 'count_scopable_attributes'));
     }
 }

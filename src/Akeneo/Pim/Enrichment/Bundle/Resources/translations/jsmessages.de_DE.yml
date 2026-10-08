@@ -2,6 +2,7 @@ pim_notification:
   types:
     settings: Einstellungen
     mass_delete: Löschung
+    attribute_mass_delete: Löschung
 flash:
   comment:
     create:
@@ -70,6 +71,7 @@ pim_enrich.entity.product:
       modified: Bearbeitet
       old_value: Alter Wert
       new_value: Neuer Wert
+      limit: 'Nur die letzten {{ limit }} Versionen werden angezeigt.'
     meta:
       updated: Letzte Aktualisierung
       groups: Gruppen
@@ -114,7 +116,7 @@ pim_enrich.entity.product:
         quantity: Quantität
         unlinked: Nicht verknüpft
       search:
-        placeholder: In Label oder ID suchen
+        placeholder: Suche nach Label, Bezeichner oder UUID
       no_data: Es gibt keine verbundenen Produkte
       remove: Verbindung entfernen
       edit: Produkt bearbeiten
@@ -244,6 +246,9 @@ pim_enrich.entity.category:
     success: Der Baum "{{ tree }}" wurde erfolgreich gelöscht
     error: Der Baum "{{ tree }}" konnte nicht gelöscht werden
     confirmation: Sind Sie sicher, dass Sie den {{ name }} Baum löschen möchten? Alle Kategorien in diesem Baum werden gelöscht und die Produkte werden aus all diesen Kategorien entfernt.
+    confirmation_question: Möchten Sie {{name}} wirklich löschen?
+    warning_categories_number: Die zugehörigen {{ categoriesNumber }} Kategorien werden gelöscht und die Produkte werden aus all diesen Kategorien entfernt.
+    warning_products: Alle zugehörigen Produkte werden aus {{ name }} entfernt
     products_limit_exceeded:
       title: Dieser Baum kann nicht gelöscht werden
       message: Der Baum "{{ tree }}" enthält mehr als {{ limit }} Produkte und kann daher nicht gelöscht werden.
@@ -251,6 +256,7 @@ pim_enrich.entity.category:
     success: Die Kategorie "{{ name }}" wurde erfolgreich gelöscht
     error: Die Kategorie "{{ name }}" konnte nicht gelöscht werden
     confirmation: Sind Sie sicher, dass Sie die Kategorie {{ name }} löschen möchten? Produkte in dieser Kategorie werden nicht gelöscht.
+    confirmation_question: Möchten Sie {{name}} wirklich löschen?
     products_limit_exceeded:
       title: Diese Kategorie kann nicht gelöscht werden
       message: Die "{{ name }}" Kategorie enthält mehr als {{ limit }} Produkte und kann daher nicht gelöscht werden.
@@ -320,8 +326,6 @@ pim_enrich.export.product:
     string:
       operators:
         ALL: Alle
-    price-collection:
-      operators:
     select:
       operators:
         IN: In Liste
@@ -454,6 +458,7 @@ pim_datagrid:
     mass_delete: Mehrauswahl löschen
     selected:
       family: "]-Inf, 1]{{ count }} Familie ausgewählt|]1, Inf[{{ count }} Familien ausgewählt"
+      attribute: "]-Inf, 1]{{ count }} Attribut ausgewählt|]1, Inf[{{ count }} Attribute ausgewählt"
       product: "]-Inf, 1]{{ count }} Ergebnis ausgewählt|]1, Inf[{{ count }} Ergebnisse ausgewählt"
   view_selector:
     view: Ansichten
@@ -496,6 +501,7 @@ pim_datagrid:
       label: Aktualisiert am
     label_or_identifier:
       label: Label oder Identifikator
+      label_with_uuid: Label, Bezeichner oder UUID
     parent:
       label: Eltern
     identifier:

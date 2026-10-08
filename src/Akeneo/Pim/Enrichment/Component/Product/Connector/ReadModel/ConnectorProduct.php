@@ -240,9 +240,9 @@ final class ConnectorProduct
     public function buildLinkedData(array $optionLabels): ConnectorProduct
     {
         $values = $this->values->map(function (ValueInterface $value) use ($optionLabels) {
+            $optionCodes = \array_keys($optionLabels[$value->getAttributeCode()] ?? []);
             if ($value instanceof OptionValue) {
-                $optionCodes = \array_keys($optionLabels[$value->getAttributeCode()] ?? []);
-                $index = \array_search(\strtolower($value->getData()), \array_map('strtolower', $optionCodes));
+                $index = \array_search(\strtolower($value->getData()), \array_map('strtolower', $optionCodes), true);
                 $optionCodeWithRightCase = false !== $index ? $optionCodes[$index] : $value->getData();
 
                 return new OptionValueWithLinkedData(
@@ -258,9 +258,8 @@ final class ConnectorProduct
                 );
             } elseif ($value instanceof OptionsValue) {
                 $linkedData = [];
-                $optionCodes = \array_keys($optionLabels[$value->getAttributeCode()] ?? []);
                 foreach ($value->getData() as $optionCode) {
-                    $index = \array_search(\strtolower($optionCode), \array_map('strtolower', $optionCodes));
+                    $index = \array_search(\strtolower($optionCode), \array_map('strtolower', $optionCodes), true);
                     $optionCodeWithRightCase = false !== $index ? $optionCodes[$index] : $optionCode;
 
                     $linkedData[$optionCode] = [
@@ -374,12 +373,11 @@ final class ConnectorProduct
         return !empty($associatedProductModels) ? array_unique(array_merge(...$associatedProductModels)) : [];
     }
 
-    public function associatedWithQuantityProductUuids(): array
+    public function associatedWithQuantityProductIdentifiers()
     {
-        $associatedWithQuantityProducts = \array_map(
-            static fn (array $quantifiedAssociations): array => \array_column($quantifiedAssociations['products'], 'uuid'),
-            array_values($this->quantifiedAssociations)
-        );
+        $associatedWithQuantityProducts = array_map(function ($quantifiedAssociations) {
+            return array_column($quantifiedAssociations['products'], 'identifier');
+        }, array_values($this->quantifiedAssociations));
 
         if (empty($associatedWithQuantityProducts)) {
             return [];
@@ -388,7 +386,7 @@ final class ConnectorProduct
         return array_values(array_unique(array_merge(...$associatedWithQuantityProducts)));
     }
 
-    public function associatedWithQuantityProductModelCodes(): array
+    public function associatedWithQuantityProductModelCodes()
     {
         $associatedWithQuantityProductModels = array_map(function ($quantifiedAssociations) {
             return array_column($quantifiedAssociations['product_models'], 'identifier');
@@ -466,13 +464,15 @@ final class ConnectorProduct
         );
     }
 
-    public function filterAssociatedWithQuantityProductsByProductUuids(array $productUuidsToFilter): ConnectorProduct
+    public function filterAssociatedWithQuantityProductsByProductIdentifiers(array $productIdentifiersToFilter): ConnectorProduct
     {
         $filteredQuantifiedAssociations = [];
         foreach ($this->quantifiedAssociations as $associationType => $quantifiedAssociation) {
             $filteredProductQuantifiedAssociations = array_filter(
                 $quantifiedAssociation['products'],
-                static fn (array $quantifiedLink): bool => in_array($quantifiedLink['uuid'], $productUuidsToFilter),
+                function ($quantifiedLink) use ($productIdentifiersToFilter) {
+                    return in_array($quantifiedLink['identifier'], $productIdentifiersToFilter);
+                }
             );
 
             $filteredQuantifiedAssociations[$associationType]['products'] = array_values($filteredProductQuantifiedAssociations);
@@ -491,6 +491,37 @@ final class ConnectorProduct
             $this->parentProductModelCode,
             $this->associations,
             $filteredQuantifiedAssociations,
+            $this->metadata,
+            $this->values,
+            $this->qualityScores,
+            $this->completenesses
+        );
+    }
+
+    public function filterAssociatedProductsByProductIdentifiers(array $productIdentifiersToFilter): ConnectorProduct
+    {
+        $filteredAssociations = [];
+        foreach ($this->associations as $associationType => $association) {
+            $filteredAssociations[$associationType]['products'] = array_values(array_filter(
+                $association['products'],
+                fn (array $associatedProduct): bool => in_array($associatedProduct['identifier'], $productIdentifiersToFilter)
+            ));
+            $filteredAssociations[$associationType]['product_models'] = $association['product_models'];
+            $filteredAssociations[$associationType]['groups'] = $association['groups'];
+        }
+
+        return new self(
+            $this->uuid,
+            $this->identifier,
+            $this->createdDate,
+            $this->updatedDate,
+            $this->enabled,
+            $this->familyCode,
+            $this->categoryCodes,
+            $this->groupCodes,
+            $this->parentProductModelCode,
+            $filteredAssociations,
+            $this->quantifiedAssociations,
             $this->metadata,
             $this->values,
             $this->qualityScores,

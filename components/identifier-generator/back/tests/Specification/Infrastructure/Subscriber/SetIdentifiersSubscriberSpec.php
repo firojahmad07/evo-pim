@@ -6,6 +6,8 @@ namespace Specification\Akeneo\Pim\Automation\IdentifierGenerator\Infrastructure
 
 use Akeneo\Pim\Automation\IdentifierGenerator\Application\Generate\GenerateIdentifierHandler;
 use Akeneo\Pim\Automation\IdentifierGenerator\Application\Generate\Property\GenerateFreeTextHandler;
+use Akeneo\Pim\Automation\IdentifierGenerator\Application\Match\Condition\MatchEmptyIdentifierHandler;
+use Akeneo\Pim\Automation\IdentifierGenerator\Application\Match\MatchIdentifierGeneratorHandler;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Condition\Conditions;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Delimiter;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGenerator;
@@ -15,15 +17,19 @@ use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\LabelCollection;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Property\FreeText;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Structure;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Target;
+use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\TextTransformation;
 use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Repository\IdentifierGeneratorRepository;
 use Akeneo\Pim\Automation\IdentifierGenerator\Infrastructure\Subscriber\SetIdentifiersSubscriber;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
-use Akeneo\Pim\Enrichment\Component\Product\Validator\Constraints\Product\UniqueProductEntity;
-use Akeneo\Pim\Enrichment\Component\Product\Value\ScalarValue;
+use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
+use Akeneo\Pim\Enrichment\Component\Product\Value\IdentifierValue;
+use Akeneo\Pim\Structure\Component\Model\AttributeInterface;
+use Akeneo\Pim\Structure\Component\Repository\AttributeRepositoryInterface;
 use Akeneo\Tool\Component\StorageUtils\StorageEvents;
 use PhpSpec\ObjectBehavior;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -42,6 +48,8 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         ValidatorInterface $validator,
         MetadataFactoryInterface $metadataFactory,
         EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger,
+        AttributeRepositoryInterface $attributeRepository,
     ): void {
         $this->beConstructedWith(
             $identifierGeneratorRepository,
@@ -50,7 +58,12 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
             ])),
             $validator,
             $metadataFactory,
-            $eventDispatcher
+            $eventDispatcher,
+            new MatchIdentifierGeneratorHandler(new \ArrayIterator([
+                new MatchEmptyIdentifierHandler(),
+            ])),
+            $logger,
+            $attributeRepository
         );
     }
 
@@ -72,24 +85,24 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         ValidatorInterface $validator,
         MetadataFactoryInterface $metadataFactory,
         EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger,
         ProductInterface $product,
         ClassMetadataInterface $valueMetadata,
         PropertyMetadataInterface $valuePropertyMetadata,
-        ClassMetadataInterface $productMetadata,
-        PropertyMetadataInterface $productPropertyMetadata,
+        AttributeRepositoryInterface $attributeRepository,
+        AttributeInterface $attribute,
     ): void {
-        $product->getValue('sku')->shouldBeCalled()->willReturn(null);
         $identifierGeneratorRepository->getAll()->shouldBeCalled()->willReturn([$this->getIdentifierGenerator()]);
-        $value = ScalarValue::value('sku', 'AKN');
+        $value = IdentifierValue::value('sku', true, 'AKN');
         $product->addValue($value)->shouldBeCalled();
-        $product->setIdentifier('AKN')->shouldBeCalled();
+        $attribute->isMainIdentifier()->willReturn(true);
+        $attributeRepository->findOneByIdentifier('sku')->shouldBeCalled()->willReturn($attribute);
         $product->isEnabled()->shouldBeCalled()->willReturn(true);
+        $product->getFamily()->shouldBeCalled()->willReturn(null);
+        $product->getCategoryCodes()->shouldBeCalled()->willReturn([]);
+        $product->getValues()->shouldBeCalled()->willReturn(new WriteValueCollection([]));
 
-        $unique = new UniqueProductEntity();
-        $metadataFactory->getMetadataFor($product)->shouldBeCalled()->willReturn($productMetadata);
-        $productMetadata->getPropertyMetadata('identifier')->shouldBeCalled()->willReturn([$productPropertyMetadata]);
-        $productPropertyMetadata->getConstraints()->shouldBeCalled()->willReturn([]);
-        $validator->validate($product, [$unique])
+        $validator->validate($product, null, ['identifiers'])
             ->shouldBeCalled()
             ->willReturn(new ConstraintViolationList([]));
 
@@ -97,8 +110,12 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         $valueMetadata->getPropertyMetadata('data')->shouldBeCalled()->willReturn([$valuePropertyMetadata]);
         $constraint = new Length(null, 10);
         $valuePropertyMetadata->getConstraints()->shouldBeCalled()->willReturn([$constraint]);
-        $validator->validate($value, [$constraint])->shouldBeCalled()->shouldBeCalled()->willReturn(new ConstraintViolationList([]));
+        $validator->validate($value, [$constraint])->shouldBeCalled()->willReturn(new ConstraintViolationList([]));
 
+        $logger->notice(
+            '[akeneo.pim.identifier_generator] Successfully generated an identifier for the sku attribute',
+            ['identifier_attribute_code' => 'sku']
+        )->shouldBeCalled();
         $eventDispatcher->dispatch(Argument::cetera())->shouldNotBeCalled();
 
         $this->setIdentifier(new GenericEvent($product->getWrappedObject()));
@@ -108,25 +125,25 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         IdentifierGeneratorRepository $identifierGeneratorRepository,
         ValidatorInterface $validator,
         EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger,
         ProductInterface $product,
         MetadataFactoryInterface $metadataFactory,
-        ClassMetadataInterface $productMetadata,
-        PropertyMetadataInterface $productPropertyMetadata,
         ClassMetadataInterface $valueMetadata,
         PropertyMetadataInterface $valuePropertyMetadata,
+        AttributeRepositoryInterface $attributeRepository,
+        AttributeInterface $attribute,
     ): void {
-        $product->getValue('sku')->shouldBeCalled()->willReturn(null);
+        $attribute->isMainIdentifier()->shouldBeCalled()->willReturn(true);
+        $attributeRepository->findOneByIdentifier('sku')->shouldBeCalled()->willReturn($attribute);
         $identifierGeneratorRepository->getAll()->shouldBeCalled()->willReturn([$this->getIdentifierGenerator()]);
-        $value = ScalarValue::value('sku', 'AKN');
+        $value = IdentifierValue::value('sku', true, 'AKN');
         $product->addValue($value)->shouldBeCalled();
-        $product->setIdentifier('AKN')->shouldBeCalled();
         $product->isEnabled()->shouldBeCalled()->willReturn(true);
+        $product->getFamily()->shouldBeCalled()->willReturn(null);
+        $product->getCategoryCodes()->shouldBeCalled()->willReturn([]);
+        $product->getValues()->shouldBeCalled()->willReturn(new WriteValueCollection([]));
 
-        $unique = new UniqueProductEntity();
-        $metadataFactory->getMetadataFor($product)->shouldBeCalled()->willReturn($productMetadata);
-        $productMetadata->getPropertyMetadata('identifier')->shouldBeCalled()->willReturn([$productPropertyMetadata]);
-        $productPropertyMetadata->getConstraints()->shouldBeCalled()->willReturn([]);
-        $validator->validate($product, [$unique])
+        $validator->validate($product, null, ['identifiers'])
             ->shouldBeCalled()
             ->willReturn(new ConstraintViolationList([
                 new ConstraintViolation('', '', [], '', '', ''),
@@ -138,9 +155,9 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         $validator->validate($value, [])->shouldBeCalled()->willReturn(new ConstraintViolationList([]));
 
         $product->removeValue($value)->shouldBeCalled();
-        $product->setIdentifier(null)->shouldBeCalled();
 
         $eventDispatcher->dispatch(Argument::cetera())->shouldBeCalled();
+        $logger->notice(Argument::cetera())->shouldNotBeCalled();
 
         $this->setIdentifier(new GenericEvent($product->getWrappedObject()));
     }
@@ -149,25 +166,25 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         IdentifierGeneratorRepository $identifierGeneratorRepository,
         ValidatorInterface $validator,
         EventDispatcherInterface $eventDispatcher,
+        LoggerInterface $logger,
         ProductInterface $product,
         MetadataFactoryInterface $metadataFactory,
         ClassMetadataInterface $valueMetadata,
         PropertyMetadataInterface $valuePropertyMetadata,
-        ClassMetadataInterface $productMetadata,
-        PropertyMetadataInterface $productPropertyMetadata,
+        AttributeRepositoryInterface $attributeRepository,
+        AttributeInterface $attribute,
     ): void {
-        $product->getValue('sku')->shouldBeCalled()->willReturn(null);
+        $attribute->isMainIdentifier()->shouldBeCalled()->willReturn(true);
+        $attributeRepository->findOneByIdentifier('sku')->shouldBeCalled()->willReturn($attribute);
         $identifierGeneratorRepository->getAll()->shouldBeCalled()->willReturn([$this->getIdentifierGenerator()]);
-        $value = ScalarValue::value('sku', 'AKN');
+        $value = IdentifierValue::value('sku', true, 'AKN');
         $product->addValue($value)->shouldBeCalled();
-        $product->setIdentifier('AKN')->shouldBeCalled();
         $product->isEnabled()->shouldBeCalled()->willReturn(true);
+        $product->getFamily()->shouldBeCalled()->willReturn(null);
+        $product->getCategoryCodes()->shouldBeCalled()->willReturn([]);
+        $product->getValues()->shouldBeCalled()->willReturn(new WriteValueCollection([]));
 
-        $unique = new UniqueProductEntity();
-        $metadataFactory->getMetadataFor($product)->shouldBeCalled()->willReturn($productMetadata);
-        $productMetadata->getPropertyMetadata('identifier')->shouldBeCalled()->willReturn([$productPropertyMetadata]);
-        $productPropertyMetadata->getConstraints()->shouldBeCalled()->willReturn([]);
-        $validator->validate($product, [$unique])
+        $validator->validate($product, null, ['identifiers'])
             ->shouldBeCalled()
             ->willReturn(new ConstraintViolationList([]));
 
@@ -179,9 +196,10 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
         ]));
 
         $product->removeValue($value)->shouldBeCalled();
-        $product->setIdentifier(null)->shouldBeCalled();
+        $product->removeValue($value)->shouldBeCalled();
 
         $eventDispatcher->dispatch(Argument::cetera())->shouldBeCalled();
+        $logger->notice(Argument::cetera())->shouldNotBeCalled();
 
         $this->setIdentifier(new GenericEvent($product->getWrappedObject()));
     }
@@ -203,6 +221,7 @@ class SetIdentifiersSubscriberSpec extends ObjectBehavior
             LabelCollection::fromNormalized(['fr' => 'Mon générateur']),
             Target::fromString('sku'),
             Delimiter::fromString('-'),
+            TextTransformation::fromString('no'),
         );
     }
 }

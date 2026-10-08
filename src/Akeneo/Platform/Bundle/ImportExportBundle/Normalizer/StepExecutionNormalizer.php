@@ -29,6 +29,9 @@ class StepExecutionNormalizer implements NormalizerInterface, CacheableSupportsM
         $this->presenter = $presenter;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function normalize($stepExecution, $format = null, array $context = [])
     {
         $normalizedWarnings = $this->normalizeWarnings($stepExecution->getWarnings(), $context);
@@ -41,6 +44,7 @@ class StepExecutionNormalizer implements NormalizerInterface, CacheableSupportsM
             'label' => $stepExecution->getStepName(),
             'job' => $stepExecution->getJobExecution()->getJobInstance()->getJobName(),
             'status' => $this->normalizeStatus($stepExecution->getStatus()->getValue()),
+            'status_code' => (string) $stepExecution->getStatus(),
             'summary' => $this->normalizeSummary($stepExecution->getSummary()),
             'startedAt' => $this->presenter->present($stepExecution->getStartTime(), $context),
             'endedAt' => $this->presenter->present($stepExecution->getEndTime(), $context),
@@ -55,6 +59,9 @@ class StepExecutionNormalizer implements NormalizerInterface, CacheableSupportsM
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof StepExecution;

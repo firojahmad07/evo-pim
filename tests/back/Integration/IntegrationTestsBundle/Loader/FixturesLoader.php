@@ -8,9 +8,9 @@ use Akeneo\Connectivity\Connection\Application\Apps\Command\GenerateAsymmetricKe
 use Akeneo\Connectivity\Connection\Application\Apps\Command\GenerateAsymmetricKeysHandler;
 use Akeneo\Pim\Enrichment\Component\Product\Storage\Indexer\ProductIndexerInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Storage\Indexer\ProductModelIndexerInterface;
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvent;
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvents;
-use Akeneo\Platform\Bundle\InstallerBundle\FixtureLoader\FixtureJobLoader;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvent;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvents;
+use Akeneo\Platform\Installer\Infrastructure\FixtureLoader\FixtureJobLoader;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\IntegrationTestsBundle\Helper\ExperimentalTransactionHelper;
 use Akeneo\Test\IntegrationTestsBundle\Launcher\JobLauncher;
@@ -20,11 +20,12 @@ use Akeneo\Tool\Bundle\ElasticsearchBundle\Client;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\ClientRegistry;
 use Akeneo\Tool\Bundle\MeasureBundle\Installer\MeasurementInstaller;
 use Doctrine\DBAL\Connection;
-use Elasticsearch\ClientBuilder;
+use Akeneo\Tool\Bundle\ElasticsearchBundle\SearchEngine\SearchEngineClientBuilderFactory;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
 use Oro\Bundle\SecurityBundle\Acl\Persistence\AclManager;
+use ProxyManager\Proxy\LazyLoadingInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -60,7 +61,8 @@ class FixturesLoader implements FixturesLoaderInterface
     private string $databaseUser;
     private string $databasePassword;
     private string $sqlDumpDirectory;
-    private \Elasticsearch\Client $nativeElasticsearchClient;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $nativeElasticsearchClient;
     private MeasurementInstaller $measurementInstaller;
     private TransportInterface $transport;
     private EventDispatcherInterface $eventDispatcher;
@@ -114,7 +116,7 @@ class FixturesLoader implements FixturesLoaderInterface
         $this->databaseUser = $databaseUser;
         $this->databasePassword = $databasePassword;
         $this->sqlDumpDirectory = $sqlDumpDirectory;
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts([$elasticsearchHost]);
         $this->nativeElasticsearchClient = $clientBuilder->build();
         $this->measurementInstaller = $measurementInstaller;
@@ -129,10 +131,21 @@ class FixturesLoader implements FixturesLoaderInterface
     {
         // close the connection created specifically for this repository
         // TODO: to remove when TIP-385 will be done
-        $this->doctrineJobRepository->getJobManager()->getConnection()->close();
+        // Note: if the service hasn't been booted yet this is still a proxy (because declared as lazy)
+        // In that case, calling getJobManager() causes the actual service to be instantiated at this moment
+        // It causes a connection leak because:
+        // - dbal 3 has a side effect in a getter, so just instantiating the service causes an actual DB connection to be opened
+        // - Under some circumstances PDO doesn't close correctly connections opened from a destructor, so this new connection is never closed
+        // That's why we must only try to close the connection if the service was instantiated
+        if (
+            !$this->doctrineJobRepository instanceof LazyLoadingInterface
+            || $this->doctrineJobRepository->isProxyInitialized()
+        ) {
+            $this->doctrineJobRepository->getJobManager()->getConnection()->close();
+        }
     }
 
-    public function load(Configuration $configuration): void
+    public function load(Configuration $configuration, ?string $directory = 'src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/minimal'): void
     {
         $this->deleteAllDocumentsInElasticsearch();
 
@@ -151,7 +164,7 @@ class FixturesLoader implements FixturesLoaderInterface
         } else {
             $this->experimentalTransactionHelper->abortTransactions();
             $this->databaseSchemaHandler->reset();
-            $this->loadData($configuration);
+            $this->loadData($configuration, $directory);
             $this->dumpDatabase($dumpFile);
             $this->purgeMessengerEvents();
         }
@@ -183,16 +196,15 @@ class FixturesLoader implements FixturesLoaderInterface
         }
     }
 
-    protected function loadData(Configuration $configuration): void
+    protected function loadData(Configuration $configuration, string $directory): void
     {
         $files = $this->getFilesToLoad($configuration->getCatalogDirectories());
         $filesByType = $this->getFilesToLoadByType($files);
 
         $this->generateAsymmetricKeysHandler->handle(new GenerateAsymmetricKeysCommand());
         $this->measurementInstaller->createMeasurementTableAndStandardMeasurementFamilies();
-        $this->eventDispatcher->dispatch(new InstallerEvent(), InstallerEvents::PRE_LOAD_FIXTURES);
         $this->loadSqlFiles($filesByType['sql']);
-        $this->loadImportFiles($filesByType['import']);
+        $this->loadImportFiles($filesByType['import'], $directory);
         $this->loadReferenceData();
     }
 
@@ -230,7 +242,7 @@ class FixturesLoader implements FixturesLoaderInterface
      *
      * @throws \RuntimeException
      */
-    protected function loadImportFiles(array $files): void
+    protected function loadImportFiles(array $files, string $directory): void
     {
         // prepare replace paths to use catalog paths and not the minimal fixtures path, please note that we can
         // have several files per job in case of Enterprise Catalog, for instance,
@@ -250,7 +262,7 @@ class FixturesLoader implements FixturesLoaderInterface
         }
 
         // configure and load job instances in database
-        $this->fixtureJobLoader->loadJobInstances('src/Akeneo/Platform/Bundle/InstallerBundle/Resources/fixtures/minimal', $replacePaths);
+        $this->fixtureJobLoader->loadJobInstances($directory, $replacePaths);
 
         // install the catalog via the job instances
         $jobInstances = $this->fixtureJobLoader->getLoadedJobInstances();
@@ -456,7 +468,7 @@ class FixturesLoader implements FixturesLoaderInterface
         $query = 'SELECT BIN_TO_UUID(uuid) AS uuid FROM pim_catalog_product';
         $productUuids = array_map(
             fn (string $uuid): UuidInterface => Uuid::fromString($uuid),
-            $this->dbConnection->executeQuery($query)->fetchAll(\PDO::FETCH_COLUMN, 0)
+            $this->dbConnection->executeQuery($query)->fetchFirstColumn()
         );
         $this->productIndexer->indexFromProductUuids($productUuids);
     }
@@ -467,7 +479,7 @@ class FixturesLoader implements FixturesLoaderInterface
     protected function indexProductModels(): void
     {
         $query = 'SELECT code FROM pim_catalog_product_model';
-        $productModelCodes = $this->dbConnection->executeQuery($query)->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $productModelCodes = $this->dbConnection->executeQuery($query)->fetchFirstColumn();
         $this->productModelIndexer->indexFromProductModelCodes($productModelCodes);
     }
 

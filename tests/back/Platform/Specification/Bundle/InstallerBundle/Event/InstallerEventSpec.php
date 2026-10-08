@@ -1,8 +1,8 @@
 <?php
 
-namespace Specification\Akeneo\Platform\Bundle\InstallerBundle\Event;
+namespace Specification\Akeneo\Platform\Installer\Infrastructure\Event;
 
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvent;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvent;
 use Akeneo\Tool\Component\Console\CommandExecutor;
 use PhpSpec\ObjectBehavior;
 use Symfony\Component\EventDispatcher\GenericEvent;

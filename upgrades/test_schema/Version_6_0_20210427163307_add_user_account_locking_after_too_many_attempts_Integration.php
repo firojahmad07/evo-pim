@@ -43,7 +43,7 @@ final class Version_6_0_20210427163307_add_user_account_locking_after_too_many_a
         Assert::assertEquals(false, $this->columnExists());
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         Assert::assertEquals(true, $this->columnExists());
     }
@@ -60,7 +60,7 @@ final class Version_6_0_20210427163307_add_user_account_locking_after_too_many_a
 
     private function columnExists(): bool
     {
-        $columns = $this->connection->getSchemaManager()->listTableColumns('oro_user');
+        $columns = $this->connection->createSchemaManager()->listTableColumns('oro_user');
 
         return isset($columns['consecutive_authentication_failure_counter'], $columns['authentication_failure_reset_date']);
     }

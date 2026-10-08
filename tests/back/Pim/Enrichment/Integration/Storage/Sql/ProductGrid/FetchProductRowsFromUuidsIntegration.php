@@ -7,8 +7,8 @@ namespace AkeneoTest\Pim\Enrichment\Integration\Storage\Sql\ProductGrid;
 use Akeneo\Pim\Enrichment\Bundle\Storage\Sql\ProductGrid\FetchProductRowsFromUuids;
 use Akeneo\Pim\Enrichment\Component\Product\Grid\ReadModel\Row;
 use Akeneo\Pim\Enrichment\Component\Product\Model\WriteValueCollection;
+use Akeneo\Pim\Enrichment\Component\Product\Value\IdentifierValue;
 use Akeneo\Pim\Enrichment\Component\Product\Value\MediaValue;
-use Akeneo\Pim\Enrichment\Component\Product\Value\ScalarValue;
 use Akeneo\Pim\Enrichment\Product\API\Command\UpsertProductCommand;
 use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\ChangeParent;
 use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetSimpleSelectValue;
@@ -32,10 +32,15 @@ class FetchProductRowsFromUuidsIntegration extends TestCase
 
         $fixturesLoader = $this->get('akeneo_integration_tests.loader.product_grid_fixtures_loader');
         $imagePath = $this->getFileInfoKey($this->getFixturePath('akeneo.jpg'));
-        [$product1, $product2] = $fixturesLoader->createProductAndProductModels($imagePath)['products'];
+        [$product1, $product2, $product3] = $fixturesLoader->createProductAndProductModels($imagePath)['products'];
 
         $query = $this->getFetchProductRowsFromUuids();
-        $rows = $query([$product1->getUuid()->toString(), $product2->getUuid()->toString()], ['sku', 'a_localizable_image', 'a_scopable_image'], 'ecommerce', 'en_US', $userId);
+        $rows = $query(
+            [$product1->getUuid()->toString(), $product2->getUuid()->toString(), $product3->getUuid()->toString()],
+            ['sku', 'a_localizable_image', 'a_scopable_image'],
+            'ecommerce',
+            'en_US'
+        );
 
         $akeneoImage = current($this
             ->get('akeneo_file_storage.repository.file_info')
@@ -55,7 +60,7 @@ class FetchProductRowsFromUuidsIntegration extends TestCase
                 $product1->getUuid()->toString(),
                 'sub_product_model',
                 new WriteValueCollection([
-                    ScalarValue::value('sku', 'foo'),
+                    IdentifierValue::value('sku', false, 'foo'),
                     MediaValue::value('an_image', $akeneoImage)
                 ])
             ),
@@ -66,16 +71,30 @@ class FetchProductRowsFromUuidsIntegration extends TestCase
                 true,
                 $product2->getCreated(),
                 $product2->getUpdated(),
-                "[baz]",
+                "baz",
                 null,
                 null,
                 $product2->getUuid()->toString(),
                 null,
                 new WriteValueCollection([
-                    ScalarValue::value('sku', 'baz'),
+                    IdentifierValue::value('sku', false, 'baz'),
                     MediaValue::localizableValue('a_localizable_image', $akeneoImage, 'en_US'),
                     MediaValue::scopableValue('a_scopable_image', $akeneoImage, 'ecommerce'),
                 ])
+            ),
+            Row::fromProduct(
+                null,
+                null,
+                [],
+                true,
+                $product3->getCreated(),
+                $product3->getUpdated(),
+                '[2c29af3c-625b-4ee0-9ba4-c2783c300b92]',
+                null,
+                null,
+                '2c29af3c-625b-4ee0-9ba4-c2783c300b92',
+                null,
+                new WriteValueCollection([])
             ),
         ];
 
@@ -110,86 +129,6 @@ class FetchProductRowsFromUuidsIntegration extends TestCase
             $skuValue->getData(),
             $simpleSelectValue->getData()
         ]);
-    }
-
-    public function test_it_does_not_return_localized_data_not_bound_to_channel()
-    {
-        $userId = $this
-            ->get('database_connection')
-            ->fetchColumn('SELECT id FROM oro_user WHERE username = "admin"', [], 0);
-
-        $fixturesLoader = $this->get('akeneo_integration_tests.loader.product_grid_fixtures_loader');
-        $imagePath = $this->getFileInfoKey($this->getFixturePath('akeneo.jpg'));
-        $product2 = $fixturesLoader->createProductAndProductModels($imagePath)['products'][1];
-
-        $query = $this->getFetchProductRowsFromUuids();
-        $rows = $query([$product2->getUuid()->toString()], ['sku', 'a_localizable_image', 'a_scopable_image'], 'ecommerce', 'zh_CN', $userId);
-
-        $akeneoImage = current($this
-            ->get('akeneo_file_storage.repository.file_info')
-            ->findAll($this->getFixturePath('akeneo.jpg')));
-
-        $expectedRows = [
-            Row::fromProduct(
-                'baz',
-                null,
-                [],
-                true,
-                $product2->getCreated(),
-                $product2->getUpdated(),
-                '[baz]',
-                null,
-                null,
-                $product2->getUuid()->toString(),
-                null,
-                new WriteValueCollection([
-                    ScalarValue::value('sku', 'baz'),
-                    MediaValue::scopableValue('a_scopable_image', $akeneoImage, 'ecommerce'),
-                ])
-            ),
-        ];
-
-        AssertRows::sameButOrderNotGuaranteed($expectedRows, $rows);
-    }
-
-    public function test_it_returns_localized_data_bound_to_channel()
-    {
-        $userId = $this
-            ->get('database_connection')
-            ->fetchColumn('SELECT id FROM oro_user WHERE username = "admin"', [], 0);
-
-        $fixturesLoader = $this->get('akeneo_integration_tests.loader.product_grid_fixtures_loader');
-        $imagePath = $this->getFileInfoKey($this->getFixturePath('akeneo.jpg'));
-        $product2 = $fixturesLoader->createProductAndProductModels($imagePath)['products'][1];
-
-        $query = $this->getFetchProductRowsFromUuids();
-        $rows = $query([$product2->getUuid()->toString()], ['sku', 'a_localizable_image', 'a_scopable_image'], 'ecommerce_china', 'zh_CN', $userId);
-
-        $akeneoImage = current($this
-            ->get('akeneo_file_storage.repository.file_info')
-            ->findAll($this->getFixturePath('akeneo.jpg')));
-
-        $expectedRows = [
-            Row::fromProduct(
-                'baz',
-                null,
-                [],
-                true,
-                $product2->getCreated(),
-                $product2->getUpdated(),
-                '[baz]',
-                null,
-                null,
-                $product2->getUuid()->toString(),
-                null,
-                new WriteValueCollection([
-                    ScalarValue::value('sku', 'baz'),
-                    MediaValue::localizableValue('a_localizable_image', $akeneoImage, 'zh_CN'),
-                ])
-            ),
-        ];
-
-        AssertRows::sameButOrderNotGuaranteed($expectedRows, $rows);
     }
 
     /**
@@ -265,19 +204,5 @@ class FetchProductRowsFromUuidsIntegration extends TestCase
             ]
         );
         $this->get('pim_enrich.product.message_bus')->dispatch($command);
-    }
-
-    protected function getUserId(string $username): int
-    {
-        $query = <<<SQL
-            SELECT id FROM oro_user WHERE username = :username
-        SQL;
-        $stmt = $this->get('database_connection')->executeQuery($query, ['username' => $username]);
-        $id = $stmt->fetchOne();
-        if (null === $id) {
-            throw new \InvalidArgumentException(\sprintf('No user exists with username "%s"', $username));
-        }
-
-        return \intval($id);
     }
 }

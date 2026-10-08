@@ -229,7 +229,7 @@ class UserContextSpec extends ObjectBehavior
     }
 }
 
-class User
+abstract class User implements UserInterface
 {
     function getCatalogLocale()
     {

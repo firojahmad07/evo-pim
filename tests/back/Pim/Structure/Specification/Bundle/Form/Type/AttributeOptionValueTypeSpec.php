@@ -28,17 +28,19 @@ class AttributeOptionValueTypeSpec extends ObjectBehavior
 
     function it_builds_form(FormBuilderInterface $builder)
     {
-        $builder->add('id', HiddenType::class)->shouldBeCalled();
+        $builder->add('id', HiddenType::class)->willReturn($builder);
 
-        $builder->add('locale', HiddenType::class)->shouldBeCalled();
+        $builder->add('locale', HiddenType::class)->willReturn($builder);
 
-        $builder->add('value', null, ['required' => false])->shouldBeCalled();
+        $builder->add('value', null, ['required' => false])->willReturn($builder);
 
         $this->buildForm($builder, []);
     }
 
     function it_sets_default_option(OptionsResolver $resolver)
     {
+        $resolver->setDefaults(['data_class' => AttributeOptionValue::class])->willReturn($resolver);
+
         $this->configureOptions($resolver);
 
         $resolver->setDefaults(

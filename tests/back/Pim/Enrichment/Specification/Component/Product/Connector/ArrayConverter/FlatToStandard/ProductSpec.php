@@ -390,7 +390,7 @@ class ProductSpec extends ObjectBehavior
                         ['identifier' => 'sku-C', 'quantity' => '14'],
                     ]
                 ]
-            ],
+                    ],
             'values'       => [
                 'sku'          => [
                     [

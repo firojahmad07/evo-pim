@@ -6,6 +6,7 @@ use Akeneo\Pim\Structure\Component\Model\GroupTypeInterface;
 use Akeneo\Tool\Component\Localization\Model\TranslationInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\GroupSequence;
 
 /**
  * Group entity
@@ -27,6 +28,9 @@ class Group implements GroupInterface
     /** @var GroupTypeInterface */
     protected $type;
 
+    /**  @var ArrayCollection */
+    protected $products;
+
     /**
      * Used locale to override Translation listener's locale
      * this is not a mapped field of entity metadata, just a simple property
@@ -43,6 +47,7 @@ class Group implements GroupInterface
      */
     public function __construct()
     {
+        $this->products = new ArrayCollection();
         $this->translations = new ArrayCollection();
     }
 
@@ -113,12 +118,12 @@ class Group implements GroupInterface
      */
     public function getTranslation(?string $locale = null): ?GroupTranslationInterface
     {
-        $locale = ($locale) ? $locale : $this->locale;
+        $locale = $locale ?: $this->locale;
         if (null === $locale) {
             return null;
         }
         foreach ($this->getTranslations() as $translation) {
-            if ($translation->getLocale() === $locale) {
+            if (\strtolower($translation->getLocale()) === \strtolower($locale)) {
                 return $translation;
             }
         }
@@ -187,7 +192,7 @@ class Group implements GroupInterface
       *
       * @return string[]
       */
-    public function getGroupSequence()
+    public function getGroupSequence(): array|GroupSequence
     {
         return ['Group', strtolower($this->getType()->getCode())];
     }

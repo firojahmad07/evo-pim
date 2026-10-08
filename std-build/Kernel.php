@@ -12,7 +12,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
  * PIM Kernel
@@ -25,7 +25,7 @@ class Kernel extends BaseKernel
 
     public function registerBundles(): iterable
     {
-        $bundles = require $this->getProjectDir() . '/vendor/akeneo/pim-community-dev/config/bundles.php';
+        $bundles = require $this->getProjectDir() . '/vendor/librepim/librepim-dev/config/bundles.php';
         $bundles += require $this->getProjectDir() . '/config/bundles.php';
         foreach ($bundles as $class => $envs) {
             if ($envs[$this->environment] ?? $envs['all'] ?? false) {
@@ -44,7 +44,7 @@ class Kernel extends BaseKernel
         $container->addResource(new FileResource($this->getProjectDir() . '/config/bundles.php'));
         $container->setParameter('container.dumper.inline_class_loader', true);
 
-        $ceConfDir = $this->getProjectDir() . '/vendor/akeneo/pim-community-dev/config';
+        $ceConfDir = $this->getProjectDir() . '/vendor/librepim/librepim-dev/config';
         $projectConfDir = $this->getProjectDir() . '/config';
 
         $this->loadPackagesConfigurationExceptSecurity($loader, $ceConfDir, $this->environment);
@@ -54,9 +54,9 @@ class Kernel extends BaseKernel
         $this->loadContainerConfiguration($loader, $projectConfDir, $this->environment);
     }
 
-    protected function configureRoutes(RouteCollectionBuilder $routes): void
+    protected function configureRoutes(RoutingConfigurator $routes): void
     {
-        $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/vendor/akeneo/pim-community-dev/config', $this->environment);
+        $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/vendor/librepim/librepim-dev/config', $this->environment);
         $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/config', $this->environment);
     }
 
@@ -76,10 +76,10 @@ class Kernel extends BaseKernel
         return $this->getProjectDir() . '/var/logs';
     }
 
-    private function loadRoutesConfiguration(RouteCollectionBuilder $routes, string $confDir, string $environment): void
+    private function loadRoutesConfiguration(RoutingConfigurator $routes, string $confDir, string $environment): void
     {
-        $routes->import($confDir . '/{routes}/' . $environment . '/**/*.yml', '/', 'glob');
-        $routes->import($confDir . '/{routes}/*.yml', '/', 'glob');
+        $routes->import($confDir.'/{routes}/'.$this->environment.'/**/*.yml', 'glob');
+        $routes->import($confDir.'/{routes}/*.yml', 'glob');
     }
 
     private function loadPackagesConfiguration(LoaderInterface $loader, string $confDir, string $environment): void

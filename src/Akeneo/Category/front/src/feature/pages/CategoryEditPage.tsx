@@ -30,12 +30,13 @@ import {EnrichCategory} from '../models';
 import {HistoryPimView, View} from './HistoryPimView';
 import {DeleteCategoryModal} from '../components/datagrids/DeleteCategoryModal';
 import {
+  CategoryPageContent,
   EditAttributesForm,
   EditPermissionsForm,
   EditPropertiesForm,
   TemplateTitle,
-  CategoryPageContent,
 } from '../components';
+import {NoTemplateAttribute} from '../components/templates';
 
 type Params = {
   categoryId: string;
@@ -55,8 +56,11 @@ const CategoryEditPage: FC = () => {
   const userContext = useUserContext();
 
   // locales
-  const uiLocale = userContext.get('uiLocale');
-  const [catalogLocale] = useState(userContext.get('catalogLocale'));
+  const [catalogLocale, setCatalogLocale] = useState<string | null>(null);
+  const handleLocaleChanges = (locale: string) => {
+    setCatalogLocale(locale);
+    setLabels(locale);
+  };
 
   // features
   const featureFlags = useFeatureFlags();
@@ -133,27 +137,31 @@ const CategoryEditPage: FC = () => {
       setTree(null);
       return;
     }
-
     const catalogLocale = userContext.get('catalogLocale');
-
-    setCategoryLabel(getLabel(category.properties.labels, catalogLocale, category.properties.code));
-
-    let {root} = category;
-    if (category.isRoot) {
-      root = category;
-    }
-    if (root) {
-      const {
-        properties: {code, labels},
-      } = root;
-      setTreeLabel(getLabel(labels, catalogLocale, code));
-      setTree(root);
-      sessionStorage.setItem(
-        'lastSelectedCategory',
-        JSON.stringify({treeId: root.id.toString(), categoryId: category.id})
-      );
-    }
+    setLabels(catalogLocale);
   }, [category, userContext]);
+
+  const setLabels = (locale: string) => {
+    if (category) {
+      setCategoryLabel(getLabel(category.properties.labels, locale, category.properties.code));
+
+      let {root} = category;
+      if (category.isRoot) {
+        root = category;
+      }
+      if (root) {
+        const {
+          properties: {code, labels},
+        } = root;
+        setTreeLabel(getLabel(labels, locale, code));
+        setTree(root);
+        sessionStorage.setItem(
+          'lastSelectedCategory',
+          JSON.stringify({treeId: root.id.toString(), categoryId: category.id})
+        );
+      }
+    }
+  };
 
   useEffect(() => {
     if (category === null) return;
@@ -175,6 +183,9 @@ const CategoryEditPage: FC = () => {
       />
     );
   }
+  const templateHasAttribute = () => {
+    return template?.attributes.length !== 0;
+  };
 
   return (
     <>
@@ -225,13 +236,12 @@ const CategoryEditPage: FC = () => {
                       onClick={() => {
                         countProductsBeforeDeleteCategory((nbProducts: number) => {
                           const identifier = parseInt(categoryId);
-                          if (
-                            category &&
-                            isCategoryDeletionPossible(category.properties.labels[uiLocale], nbProducts)
-                          ) {
+                          if (category && isCategoryDeletionPossible(categoryLabel, nbProducts)) {
                             setCategoryToDelete({
                               identifier,
-                              label: category.properties.labels[uiLocale],
+                              label: categoryLabel,
+                              code: category.properties.code,
+                              numberOfProducts: nbProducts,
                               onDelete: followCategoryTree,
                             });
                             openDeleteCategoryModal();
@@ -283,11 +293,18 @@ const CategoryEditPage: FC = () => {
         {isGranted('pim_enrich_product_category_edit_attributes') &&
           isCurrent(Tabs.ATTRIBUTE) &&
           category &&
-          template && (
+          template &&
+          !templateHasAttribute() && <NoTemplateAttribute />}
+        {isGranted('pim_enrich_product_category_edit_attributes') &&
+          isCurrent(Tabs.ATTRIBUTE) &&
+          category &&
+          template &&
+          templateHasAttribute() && (
             <EditAttributesForm
               attributeValues={category.attributes}
               template={template}
               onAttributeValueChange={onChangeAttribute}
+              onLocaleChange={handleLocaleChanges}
             />
           )}
         {isCurrent(Tabs.PROPERTY) && category && (
@@ -317,7 +334,9 @@ const CategoryEditPage: FC = () => {
             await handleDeleteCategory(categoryToDelete);
             handleCloseDeleteCategoryModal();
           }}
-          message={'pim_enrich.entity.category.category_deletion.confirmation'}
+          message={'pim_enrich.entity.category.category_deletion.confirmation_question'}
+          categoryId={categoryToDelete.identifier}
+          numberOfProducts={categoryToDelete.numberOfProducts}
         />
       )}
     </>

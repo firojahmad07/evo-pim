@@ -3,8 +3,6 @@
 namespace Akeneo\Platform\Bundle\FrameworkBundle\Command;
 
 use Akeneo\Tool\Bundle\ElasticsearchBundle\ClientRegistry;
-use Elasticsearch\Client;
-use Elasticsearch\ClientBuilder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,12 +13,14 @@ use Symfony\Requirements\RequirementCollection;
 class CheckUpdateRequirementsCommand extends Command
 {
     protected static $defaultName = 'pim:update:check-requirements';
-    private Client $client;
+    /** @var object OpenSearch\Client or ElasticsearchClientAdapter */
+    private $client;
 
     public function __construct(
         private ClientRegistry $clientRegistry,
-        ClientBuilder $clientBuilder,
-        private array $elasticsearchHosts
+        $clientBuilder,
+        private array $elasticsearchHosts,
+        private string $searchEngine = 'opensearch'
     ) {
         parent::__construct();
 
@@ -59,14 +59,26 @@ class CheckUpdateRequirementsCommand extends Command
                 $aliasName = array_keys($indexConfiguration['aliases'])[0];
             }
 
-            $versionCreated = $indexConfiguration['settings']['index']["version"]["created"];
+            // Under Elasticsearch, indexes must have been created with ES 7 or 8.
+            // Under OpenSearch, any OpenSearch-created index is accepted.
+            $versionCreated = (string) ($indexConfiguration['settings']['index']['version']['created'] ?? '');
+            $isCompliant = 'elasticsearch' === $this->searchEngine
+                ? (str_starts_with($versionCreated, '7') || str_starts_with($versionCreated, '8'))
+                : '' !== $versionCreated;
+
+            $helpText = !in_array($aliasName, $registeredAlias)
+                ? "The index $indexName seems to not be used by the PIM, please check if you use it. If you didn't use it delete it: curl --location --request DELETE 'http://$firstElasticsearchHost/$indexName'."
+                : "The index $indexName is managed by the PIM.";
+
+            if (!$isCompliant && in_array($aliasName, $registeredAlias)) {
+                $helpText = "The index $indexName should be re-indexed in order to be created with a supported engine version, run: bin/console akeneo:elasticsearch:update-index-version $aliasName";
+            }
+
             $requirements->add(
                 new Requirement(
-                    str_starts_with($versionCreated, '7') || str_starts_with($versionCreated, '8'),
+                    $isCompliant,
                     "Index $indexName creation version",
-                    !in_array($aliasName, $registeredAlias) ?
-                        "The index $indexName seems to not be used by the PIM, please check if you use it. If you didn't use it delete it: curl --location --request DELETE 'http://$firstElasticsearchHost/$indexName'. If you want to keep it, reindex it with ElasticSearch 7: bin/console akeneo:elasticsearch:update-index-version $aliasName"
-                        : "The index $indexName should be re-indexed in order to be created with Elasticsearch 7, run: bin/console akeneo:elasticsearch:update-index-version $aliasName"
+                    $helpText
                 )
             );
         }

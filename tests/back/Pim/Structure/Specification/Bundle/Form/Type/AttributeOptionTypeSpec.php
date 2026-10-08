@@ -32,7 +32,7 @@ class AttributeOptionTypeSpec extends ObjectBehavior
 
     function it_builds_form(FormBuilderInterface $builder)
     {
-        $builder->add('id', HiddenType::class)->shouldBeCalled();
+        $builder->add('id', HiddenType::class)->willReturn($builder);
 
         $builder->add(
             'optionValues',
@@ -45,22 +45,22 @@ class AttributeOptionTypeSpec extends ObjectBehavior
                     ($arg['by_reference'] ?? null) === false &&
                     \is_callable($arg['delete_empty'] ?? null)
             )
-        )->shouldBeCalled();
+        )->willReturn($builder);
 
-        $builder->add('code', TextType::class, ['required' => true])->shouldBeCalled();
+        $builder->add('code', TextType::class, ['required' => true])->willReturn($builder);
 
         $this->buildForm($builder, []);
     }
 
     function it_sets_default_option(OptionsResolver $resolver)
     {
-        $this->configureOptions($resolver);
-
         $resolver->setDefaults(
             [
                 'data_class'      => AttributeOption::class,
                 'csrf_protection' => false
             ]
-        )->shouldHaveBeenCalled();
+        )->shouldBeCalled()->willReturn($resolver);
+
+        $this->configureOptions($resolver);
     }
 }

@@ -54,10 +54,8 @@ class GenerateZipArchiveEndToEnd extends InternalApiTestCase
 
         // get the content of the generated zip file
         $this->client->followMetaRefresh(true);
-        \ob_start();
         $this->client->request('GET', \sprintf('job/%s/download/zip', $jobExecutionId));
-        $binaryContent = \ob_get_contents();
-        \ob_end_clean();
+        $binaryContent = $this->client->getInternalResponse()->getContent();
 
         Assert::assertTrue($this->client->getResponse()->isOk());
         Assert::assertNotEmpty($binaryContent);
@@ -94,10 +92,7 @@ class GenerateZipArchiveEndToEnd extends InternalApiTestCase
             \mkdir(\dirname($this->tmpFile), 0777, true);
         }
         $this->get('akeneo_integration_tests.helper.authenticator')->logIn('admin');
-        $this->adminId = (int)$this->get('database_connection')->fetchOne(
-            'SELECT id FROM oro_user WHERE username = :username',
-            ['username' => 'admin']
-        );
+        $this->adminId = $this->getUserId('admin');
 
         $this->createProduct('4168a79a-65b7-418f-b713-ac25b0291131', [
             new SetIdentifierValue('sku', 'sku1'),

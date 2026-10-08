@@ -2,17 +2,17 @@
 
 namespace Akeneo\Pim\Enrichment\Bundle\Controller\Ui;
 
+use Akeneo\Category\Application\Command\DeleteCategoryCommand\DeleteCategoryCommand;
 use Akeneo\Category\Domain\Model\Classification\CategoryTree;
 use Akeneo\Category\Domain\Query\GetCategoryInterface;
 use Akeneo\Category\Domain\Query\GetCategoryTreesInterface;
+use Akeneo\Category\Infrastructure\Bus\CommandBus;
+use Akeneo\Category\Infrastructure\Component\CategoryItemsCounterInterface;
 use Akeneo\Category\Infrastructure\Component\Classification\Model\CategoryInterface;
 use Akeneo\Category\Infrastructure\Component\Classification\Repository\CategoryRepositoryInterface;
 use Akeneo\Category\Infrastructure\Symfony\Form\CategoryFormViewNormalizerInterface;
-use Akeneo\Pim\Enrichment\Bundle\Doctrine\ORM\Counter\CategoryItemsCounterInterface;
 use Akeneo\Pim\Enrichment\Component\Category\Query\CountTreesChildrenInterface;
-use Akeneo\Platform\Bundle\FeatureFlagBundle\FeatureFlags;
 use Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactoryInterface;
-use Akeneo\Tool\Component\StorageUtils\Remover\RemoverInterface;
 use Akeneo\Tool\Component\StorageUtils\Saver\SaverInterface;
 use Akeneo\Tool\Component\StorageUtils\Updater\ObjectUpdaterInterface;
 use Akeneo\UserManagement\Bundle\Context\UserContext;
@@ -29,6 +29,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Twig\Environment;
 
 /**
  * Category Tree Controller
@@ -44,7 +45,6 @@ class CategoryTreeController extends AbstractController
     public function __construct(
         private UserContext $userContext,
         private SaverInterface $categorySaver,
-        private RemoverInterface $categoryRemover,
         private SimpleFactoryInterface $categoryFactory,
         private CategoryRepositoryInterface $categoryRepository,
         private SecurityFacade $securityFacade,
@@ -57,7 +57,8 @@ class CategoryTreeController extends AbstractController
         private CategoryFormViewNormalizerInterface $categoryFormViewNormalizer,
         private GetCategoryInterface $getCategory,
         private GetCategoryTreesInterface $getCategoryTrees,
-        private FeatureFlags $featureFlags,
+        private CommandBus $commandBus,
+        private Environment $twig,
         array $rawConfiguration,
     ) {
         $resolver = new OptionsResolver();
@@ -103,6 +104,7 @@ class CategoryTreeController extends AbstractController
                 'label' => $tree->getLabel($this->userContext->getCurrentLocaleCode()),
                 'templateUuid' => (string) $tree->getCategoryTreeTemplate()?->getTemplateUuid(),
                 'templateLabel' => $tree->getCategoryTreeTemplate()?->getTemplateLabel($this->userContext->getCurrentLocaleCode()),
+                'templateCode' => (string) $tree->getCategoryTreeTemplate()?->getTemplateCode(),
                 'selected' => $tree->getId()?->getValue() === $selectedTreeId ? 'true' : 'false'
             ];
         }, $trees);
@@ -125,8 +127,7 @@ class CategoryTreeController extends AbstractController
             return new RedirectResponse('/');
         }
 
-        $aclName = $this->featureFlags->isEnabled("enriched_category") ? 'category_order_trees' : 'category_edit';
-        if (!$this->securityFacade->isGranted($this->buildAclName($aclName))) {
+        if (!$this->securityFacade->isGranted($this->buildAclName('category_order_trees'))) {
             throw new AccessDeniedException();
         }
 
@@ -202,7 +203,7 @@ class CategoryTreeController extends AbstractController
         $includeParent = (bool)$request->get('include_parent', false);
         $includeSub = (bool)$request->get('include_sub', false);
 
-        return $this->render(
+        $content = $this->twig->render(
             $view,
             [
                 'categories' => $categories,
@@ -214,6 +215,11 @@ class CategoryTreeController extends AbstractController
             ],
             new JsonResponse()
         );
+
+        $response = new Response();
+        $response->setContent($content);
+
+        return $response;
     }
 
     /**
@@ -317,10 +323,8 @@ class CategoryTreeController extends AbstractController
             throw new AccessDeniedException();
         }
 
-        $category = $this->findCategory($id);
-
         try {
-            $this->categoryRemover->remove($category);
+            $this->commandBus->dispatch(new DeleteCategoryCommand($id));
         } catch (ConflictHttpException $exception) {
             return new JsonResponse(
                 [

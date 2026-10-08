@@ -29,25 +29,29 @@ class AggregatedAverageMaxProductAndProductModelValuesSpec extends ObjectBehavio
         $this->shouldImplement(AverageMaxQuery::class);
     }
 
-    function it_fetches_an_average_max_volume(Connection $connection, Result $statement)
+    function it_fetches_an_average_max_volume(Connection $connection, \Doctrine\DBAL\Driver\Result $driverResult)
     {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(
+        $driverResult->fetchAssociative()->willReturn(
             [
                 'max' => 12,
                 'average' => 7,
             ]
         );
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
 
         $this->fetch()->shouldBeLike(new AverageMaxVolumes(12, 7, 'average_max_product_and_product_model_values'));
     }
 
     function it_fetches_an_average_max_with_empty_values_if_no_aggregated_volume_has_been_found(
         Connection $connection,
-        Result $statement
+        \Doctrine\DBAL\Driver\Result $driverResult
     ) {
-        $connection->executeQuery(Argument::type('string'))->willReturn($statement);
-        $statement->fetchAssociative()->willReturn(null);
+        $driverResult->fetchAssociative()->willReturn(null);
+        $result = new Result($driverResult->getWrappedObject(), $connection->getWrappedObject());
+
+        $connection->executeQuery(Argument::type('string'))->willReturn($result);
 
         $this->fetch()->shouldBeLike(new AverageMaxVolumes(0, 0, 'average_max_product_and_product_model_values'));
     }

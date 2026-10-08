@@ -28,7 +28,7 @@ class RegisterAttributeTypePassSpec extends ObjectBehavior
         $container->findTaggedServiceIds(RegisterAttributeTypePass::ATTRIBUTE_TYPE_TAG)
             ->willReturn(['attTypeId' => [['alias' => 'my_type']]]);
 
-        $registryDefinition->addMethodCall('register', Argument::any())->shouldBeCalled();
+        $registryDefinition->addMethodCall('register', Argument::any())->willReturn($registryDefinition);
 
         $this->process($container);
     }
@@ -36,6 +36,9 @@ class RegisterAttributeTypePassSpec extends ObjectBehavior
     function it_throws_exception_when_registry_is_not_configured(
         ContainerBuilder $container
     ) {
+        $container->hasDefinition(RegisterAttributeTypePass::ATTRIBUTE_TYPE_REGISTRY)
+            ->willReturn(false);
+
         $this->shouldThrow('\LogicException')->during('process', [$container]);
     }
 }

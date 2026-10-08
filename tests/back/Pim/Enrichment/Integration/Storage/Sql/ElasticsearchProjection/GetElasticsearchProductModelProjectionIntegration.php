@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace AkeneoTest\Pim\Enrichment\Integration\Storage\Sql\ElasticsearchProjection;
 
 use Akeneo\Pim\Enrichment\Bundle\Elasticsearch\GetElasticsearchProductModelProjectionInterface;
-use Akeneo\Pim\Enrichment\Bundle\Elasticsearch\Model\ElasticsearchProductModelProjection;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductModelInterface;
 use Akeneo\Test\Integration\Configuration;
@@ -220,21 +219,21 @@ class GetElasticsearchProductModelProjectionIntegration extends TestCase
         ];
 
         Assert::assertSame(
+            $expectedAllComplete,
             $this->getProductModelProjectionArray('sub_product_model_code')['all_complete'],
-            $expectedAllComplete
         );
         Assert::assertSame(
+            $expectedAllComplete,
             $this->getProductModelProjectionArray('root_product_model_code')['all_complete'],
-            $expectedAllComplete
         );
 
         Assert::assertSame(
+            $expectedAllIncomplete,
             $this->getProductModelProjectionArray('sub_product_model_code')['all_incomplete'],
-            $expectedAllIncomplete
         );
         Assert::assertSame(
+            $expectedAllIncomplete,
             $this->getProductModelProjectionArray('root_product_model_code')['all_incomplete'],
-            $expectedAllIncomplete
         );
     }
 

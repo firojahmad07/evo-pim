@@ -2,6 +2,7 @@ pim_notification:
   types:
     settings: Impostazioni
     mass_delete: Eliminazione
+    attribute_mass_delete: Eliminazione
 flash:
   comment:
     create:
@@ -70,6 +71,7 @@ pim_enrich.entity.product:
       modified: Modificato
       old_value: Vecchio valore
       new_value: Nuovo valore
+      limit: 'Vengono visualizzate solamente le ultime {{ limit }} versioni.'
     meta:
       updated: Ultimo aggiornamento
       groups: Gruppi
@@ -114,7 +116,7 @@ pim_enrich.entity.product:
         quantity: Quantità
         unlinked: Scollegato
       search:
-        placeholder: Cerca su etichetta o identificatore
+        placeholder: Ricerca per etichetta, identificatore o uuid
       no_data: Non ci sono prodotti associati
       remove: Rimuovi associazione
       edit: Modificare il prodotto
@@ -244,6 +246,9 @@ pim_enrich.entity.category:
     success: L'albero "{{ tree }}" è stato eliminato con successo
     error: Impossibile eliminare l'albero "{{ tree }}"
     confirmation: Sei sicuro di voler eliminare l'albero {{ name }}? Tutte le categorie in quell'albero saranno eliminate, e i prodotti saranno rimossi da tutte quelle categorie.
+    confirmation_question: Confermi di voler eliminare {{ name }} ?
+    warning_categories_number: Le {{ categoriesNumber }} categorie associate verranno eliminate, e i prodotti verranno rimossi da ciascuna di queste categorie.
+    warning_products: Tutti i prodotti associati verranno rimossi da {{ name }}
     products_limit_exceeded:
       title: Impossibile eliminare l'albero
       message: L'albero "{{ tree }}" contiene più di {{ limit }} prodotti, pertanto non può essere eliminato.
@@ -251,6 +256,7 @@ pim_enrich.entity.category:
     success: La categoria "{{ name }}" è stata eliminata con successo
     error: Impossibile eliminare la categoria "{{ name }}"
     confirmation: Sei sicuro di voler eliminare la categoria {{ name }}? I prodotti in questa categoria non saranno eliminati.
+    confirmation_question: Confermi di voler eliminare {{ name }} ?
     products_limit_exceeded:
       title: Impossibile eliminare questa categoria
       message: La categoria "{{ name }}" contiene più di {{ limit }} prodotti, pertanto non può essere eliminata.
@@ -320,8 +326,6 @@ pim_enrich.export.product:
     string:
       operators:
         ALL: Tutto
-    price-collection:
-      operators:
     select:
       operators:
         IN: In elenco
@@ -454,6 +458,7 @@ pim_datagrid:
     mass_delete: Eliminazione di massa
     selected:
       family: "]-Inf, 1]{{ count }} famiglia selezionata|]1, Inf[{{ count }} famiglie selezionate"
+      attribute: "]-Inf, 1]{{ count }} attributo selezionato|]1, Inf[{{ count }} attributi selezionati"
       product: "]-Inf, 1]{{ count }} risultato selezionato|]1, Inf[{{ count }} risultati selezionati"
   view_selector:
     view: Visualizzazione
@@ -496,12 +501,15 @@ pim_datagrid:
       label: Aggiornato al
     label_or_identifier:
       label: Etichetta o identificatore
+      label_with_uuid: Etichetta, identificatore o UUID
     parent:
       label: Parente
     identifier:
       label: Identificatore
     uuid:
       label: Uuid
+    code_or_label:
+      label: Codice o etichetta
   search: Cerca per {{ label }}
 batch_jobs:
   add_association:

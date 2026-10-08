@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Akeneo\Pim\Enrichment\Bundle\Controller\InternalApi;
 
 use Akeneo\Pim\Enrichment\Bundle\Resolver\FQCNResolver;
 use Akeneo\Tool\Bundle\VersioningBundle\Repository\VersionRepositoryInterface;
-use Akeneo\UserManagement\Bundle\Context\UserContext;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -18,34 +19,13 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
  */
 class VersioningController
 {
-    /** @var VersionRepositoryInterface */
-    protected $versionRepository;
+    private const MAX_VERSION_COUNT = 200;
 
-    /** @var FQCNResolver */
-    protected $FQCNResolver;
-
-    /** @var NormalizerInterface */
-    protected $normalizer;
-
-    /** @var UserContext */
-    protected $userContext;
-
-    /**
-     * @param VersionRepositoryInterface $versionRepository
-     * @param FQCNResolver               $FQCNResolver
-     * @param NormalizerInterface        $normalizer
-     * @param UserContext                $userContext
-     */
     public function __construct(
-        VersionRepositoryInterface $versionRepository,
-        FQCNResolver $FQCNResolver,
-        NormalizerInterface $normalizer,
-        UserContext $userContext
+        private readonly VersionRepositoryInterface $versionRepository,
+        private readonly FQCNResolver $FQCNResolver,
+        private readonly NormalizerInterface $normalizer,
     ) {
-        $this->versionRepository = $versionRepository;
-        $this->FQCNResolver = $FQCNResolver;
-        $this->normalizer = $normalizer;
-        $this->userContext = $userContext;
     }
 
     /**
@@ -67,7 +47,7 @@ class VersioningController
 
         return new JsonResponse(
             $this->normalizer->normalize(
-                $this->versionRepository->getLogEntries($this->FQCNResolver->getFQCN($entityType), $entityId, $entityUuid),
+                $this->versionRepository->getLogEntries($this->FQCNResolver->getFQCN($entityType), $entityId, $entityUuid, self::MAX_VERSION_COUNT),
                 'internal_api'
             )
         );

@@ -106,9 +106,18 @@ class FieldFilterHelper
         }
 
         $dateTime = \DateTimeImmutable::createFromFormat($format, $value);
-        $errors = $dateTime !== false ? $dateTime->getLastErrors() : false;
 
-        if (false === $dateTime || (false !== $errors && 0 < $errors['warning_count'])) {
+        if (false === $dateTime) {
+            throw InvalidPropertyException::dateExpected(
+                $field,
+                $dateMessageFormat,
+                $className,
+                $value
+            );
+        }
+
+        $errors = $dateTime->getLastErrors();
+        if (false !== $errors && isset($errors['warning_count']) && 0 < $errors['warning_count']) {
             throw InvalidPropertyException::dateExpected(
                 $field,
                 $dateMessageFormat,

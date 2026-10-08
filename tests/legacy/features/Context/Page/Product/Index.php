@@ -6,7 +6,7 @@ use Akeneo\Category\Infrastructure\Component\Model\Category;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Context\Page\Base\Grid;
-use Pim\Behat\Decorator\ContextSwitcherDecorator;
+use Pim\Behat\Decorator\ReactContextSwitcherDecorator;
 use Pim\Behat\Decorator\Tree\TreeDecorator;
 
 /**
@@ -36,7 +36,9 @@ class Index extends Grid
                 'Categories tree'         => ['css' => '#tree'],
                 'Main context selector'   => [
                     'css'        => '.AknColumn-innerTop',
-                    'decorators' => [ContextSwitcherDecorator::class],
+                    'decorators' => [
+                        ReactContextSwitcherDecorator::class
+                    ],
                 ],
                 'Tree select'             => ['css' => '#tree [aria-haspopup="listbox"] button'],
                 'Locales dropdown'        => ['css' => '#locale-switcher'],

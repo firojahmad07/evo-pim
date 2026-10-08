@@ -16,36 +16,16 @@ use Akeneo\Platform\Bundle\ImportExportBundle\Infrastructure\StorageClient\FileS
 use Akeneo\Platform\Bundle\ImportExportBundle\Infrastructure\StorageClient\StorageClientProviderInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
-use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 
 final class LocalStorageClientProvider implements StorageClientProviderInterface
 {
-    private const FILE_PERMISSIONS = 0655;
-    private const DIRECTORY_PERMISSIONS = 0755;
-
     public function getFromStorage(StorageInterface $storage): StorageClientInterface
     {
         if (!$storage instanceof LocalStorage) {
             throw new \InvalidArgumentException('The provider only support LocalStorage');
         }
 
-        $dirname = dirname($storage->getFilePath());
-
-        $visibility = PortableVisibilityConverter::fromArray([
-            'file' => [
-                'public' => self::FILE_PERMISSIONS,
-                'private' => self::FILE_PERMISSIONS,
-            ],
-            'dir' => [
-                'public' => self::DIRECTORY_PERMISSIONS,
-                'private' => self::DIRECTORY_PERMISSIONS,
-            ],
-        ]);
-
-        return new FileSystemStorageClient(new Filesystem(new LocalFilesystemAdapter(
-            $dirname,
-            $visibility,
-        )));
+        return new FileSystemStorageClient(new Filesystem(new LocalFilesystemAdapter('/')));
     }
 
     public function supports(StorageInterface $storage): bool

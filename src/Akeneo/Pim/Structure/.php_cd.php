@@ -15,15 +15,20 @@ $rules = [
         'Webmozart\Assert\Assert',
         'Akeneo\Tool',
         'Akeneo\Pim\Structure\Component',
+        'Akeneo\Platform\Bundle\FeatureFlagBundle\FeatureFlags',
         'Oro\Bundle\SecurityBundle\Annotation\AclAncestor',
         'Oro\Bundle\SecurityBundle\SecurityFacade',
-        'FOS\RestBundle\View',
         'Oro\Bundle\DataGridBundle\Event\BuildBefore',
         'Oro\Bundle\FilterBundle\Grid\Extension\Configuration',
         'Oro\Bundle\FilterBundle\Datasource\FilterDatasourceAdapterInterface',
         'Oro\Bundle\FilterBundle\Filter\ChoiceFilter',
+        'Oro\Bundle\FilterBundle\Filter\AbstractFilter',
+        'Oro\Bundle\FilterBundle\Form\Type\Filter\TextFilterType',
         'Oro\Bundle\PimFilterBundle\Datasource\FilterDatasourceAdapterInterface',
         'Psr\Log\LoggerInterface',
+        'Akeneo\Platform\Bundle\FrameworkBundle\Security\SecurityFacadeInterface',
+        'Akeneo\Channel\API',
+        'Akeneo\Pim\Automation\DataQualityInsights\PublicApi',
 
         // TIP-906: Functional problem to query products before removing AttributeOption
         'Akeneo\Pim\Enrichment\Bundle\Elasticsearch\ProductAndProductModelQueryBuilderFactory',
@@ -48,7 +53,7 @@ $rules = [
         'Akeneo\Pim\Enrichment\Bundle\Filter\ObjectFilterInterface',
 
         // I don't think we should add install subscriber in platform instead of structure (discussed with Arnaud L.)
-        'Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvents',
+        'Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvents',
     ])->in('Akeneo\Pim\Structure\Bundle'),
     $builder->only([
         'Symfony\Component',

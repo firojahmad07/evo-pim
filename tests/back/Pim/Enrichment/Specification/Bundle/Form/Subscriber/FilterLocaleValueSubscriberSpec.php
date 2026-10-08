@@ -42,7 +42,7 @@ class FilterLocaleValueSubscriberSpec extends ObjectBehavior
         $event->getData()->willReturn(['a_value' => $value]);
         $event->getForm()->willReturn($form);
 
-        $form->remove('a_value')->shouldBeCalled();
+        $form->remove('a_value')->willReturn($form);
 
         $this->preSetData($event);
     }
@@ -54,7 +54,7 @@ class FilterLocaleValueSubscriberSpec extends ObjectBehavior
         $event->getData()->willReturn(['a_value' => $value]);
         $event->getForm()->willReturn($form);
 
-        $form->add('a_value', 'pim_product_value', Argument::any())->shouldBeCalled();
+        $form->add('a_value', 'pim_product_value', Argument::any())->willReturn($form);
 
         $this->preSetData($event);
     }

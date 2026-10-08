@@ -12,8 +12,8 @@ use PHPUnit\Framework\Assert;
 final class LocaleContext implements Context
 {
     public function __construct(
-        private InMemoryLocaleRepository $localeRepository,
-        private EntityBuilder $localeBuilder
+        private readonly InMemoryLocaleRepository $localeRepository,
+        private readonly EntityBuilder $localeBuilder
     ) {
     }
 

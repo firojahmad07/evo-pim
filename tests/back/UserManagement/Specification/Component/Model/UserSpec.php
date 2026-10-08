@@ -55,7 +55,7 @@ class UserSpec extends ObjectBehavior
     function it_can_be_duplicated()
     {
         $duplicated = $this->duplicate();
-        $duplicated->getUsername()->shouldBeNull();
+        $duplicated->getUsername()->shouldReturn('');
         $duplicated->isEnabled()->shouldBe(true);
 
         $role = new Role('ROLE_USER');
@@ -104,7 +104,7 @@ class UserSpec extends ObjectBehavior
 
         $duplicated = $this->duplicate();
         $duplicated->getId()->shouldBeNull();
-        $duplicated->getUsername()->shouldBeNull();
+        $duplicated->getUsername()->shouldReturn('');
         $duplicated->isEnabled()->shouldBe(false);
         $duplicated->getFirstName()->shouldBeNull();
         $duplicated->getLastName()->shouldBeNull();

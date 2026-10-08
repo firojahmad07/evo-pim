@@ -7,12 +7,12 @@ import {
   CategoryAttributes,
   CategoryAttributeValueData,
   CategoryImageAttributeValueData,
-  CategoryPermissions,
   CategoryProperties,
   EnrichCategory,
   File,
   Template,
 } from '../models';
+import {CategoryPermission, CategoryPermissions} from '../models/CategoryPermission';
 
 function labelsAreEqual(l1: LabelCollection, l2: LabelCollection): boolean {
   // maybe too strict of simplistic, to adjust
@@ -21,8 +21,10 @@ function labelsAreEqual(l1: LabelCollection, l2: LabelCollection): boolean {
 
 const sort = sortBy<number>(identity);
 
-function isEqualUnordered(a1: number[], a2: number[]): boolean {
-  return isEqual(sort(a1), sort(a2));
+function isEqualUnordered(permissions1: CategoryPermission[], peremissions2: CategoryPermission[]): boolean {
+  const permissions1Ids = permissions1?.map(permission => permission.id);
+  const permissions2Ids = peremissions2?.map(permission => permission.id);
+  return isEqual(sort(permissions1Ids), sort(permissions2Ids));
 }
 
 export function permissionsAreEqual(cp1: CategoryPermissions, cp2: CategoryPermissions): boolean {
@@ -90,7 +92,8 @@ function populateCategoryAttributes(
     };
   });
 
-  // attribute_codes is a special entry in attributes, useful only on DB side
+  // [DEPRECATED] keep this filter to manage uncleaned data from previous code version
+  // attribute_codes is a deprecated entry in attributes,
   // should not come to front via GET
   // but if it does we should ignore it (would break POSTing)
   delete fixedCategory.attributes['attribute_codes'];
@@ -111,7 +114,14 @@ function buildCategoryAttributeValues(
   channels: ChannelCode[],
   locales: LocaleCode[]
 ): CategoryAttributes {
-  const attributesValues = {};
+  const attributesValues: {
+    [key: string]: {
+      data: CategoryAttributeValueData;
+      channel: string | null;
+      locale: string | null;
+      attribute_code: string;
+    };
+  } = {};
   const applicableChannels = attribute.is_scopable ? channels : [null];
   const applicableLocales = attribute.is_localizable ? locales : [null];
   for (const channel of applicableChannels) {

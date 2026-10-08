@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Akeneo\Connectivity\Connection\Infrastructure\Connections\Install;
 
 use Akeneo\Connectivity\Connection\Infrastructure\Connections\WrongCredentialsCombination\Install\CreateWrongCredentialsCombinationQuery;
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvent;
-use Akeneo\Platform\Bundle\InstallerBundle\Event\InstallerEvents;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvent;
+use Akeneo\Platform\Installer\Infrastructure\Event\InstallerEvents;
 use Doctrine\DBAL\Connection as DbalConnection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -16,7 +16,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class InstallSubscriber implements EventSubscriberInterface
 {
-    const ICECAT_DEMO_DEV = 'icecat_demo_dev';
+    public const ICECAT_DEMO_DEV = 'icecat_demo_dev';
 
     public function __construct(
         private DbalConnection $dbalConnection,

@@ -45,7 +45,9 @@ class PersistedConnectionEntityManager extends EntityManagerDecorator
     {
         $connection = $this->wrapped->getConnection();
 
-        if (false === $connection->ping()) {
+        try {
+            $connection->executeQuery('SELECT 1');
+        } catch (\Exception $e) {
             $connection->close();
             $connection->connect();
         }

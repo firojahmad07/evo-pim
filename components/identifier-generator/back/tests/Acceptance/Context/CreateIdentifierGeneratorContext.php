@@ -5,111 +5,24 @@ declare(strict_types=1);
 namespace Akeneo\Test\Pim\Automation\IdentifierGenerator\Acceptance\Context;
 
 use Akeneo\Pim\Automation\IdentifierGenerator\Application\Create\CreateGeneratorCommand;
-use Akeneo\Pim\Automation\IdentifierGenerator\Application\Create\CreateGeneratorHandler;
 use Akeneo\Pim\Automation\IdentifierGenerator\Application\Exception\ViolationsException;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Condition\Conditions;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Delimiter;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGenerator;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGeneratorCode;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\IdentifierGeneratorId;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\LabelCollection;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Property\FreeText;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Structure;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Target;
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Repository\IdentifierGeneratorRepository;
-use Akeneo\Pim\Structure\Component\AttributeTypes;
-use Akeneo\Pim\Structure\Component\Model\Attribute;
-use Akeneo\Tool\Component\StorageUtils\Saver\SaverInterface;
 use Behat\Behat\Context\Context;
-use Webmozart\Assert\Assert;
 
 /**
  * @copyright 2022 Akeneo SAS (https://www.akeneo.com)
  * @license   https://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-final class CreateIdentifierGeneratorContext implements Context
+final class CreateIdentifierGeneratorContext extends BaseCreateOrUpdateIdentifierGenerator implements Context
 {
-    public const DEFAULT_CODE = 'abcdef';
-    private ?ViolationsException $violations = null;
-
-    public function __construct(
-        private CreateGeneratorHandler $createGeneratorHandler,
-        private IdentifierGeneratorRepository $generatorRepository,
-        private SaverInterface $attributeRepository
-    ) {
-    }
-
     /**
-     * @Given the ':attributeCode' attribute of type ':attributeType'
+     * @When /^I create (?P<count>\d+|an) identifier generators?$/
      */
-    public function theAttribute(string $attributeCode, string $attributeType): void
+    public function iCreateAnIdentifierGenerator(string $count): void
     {
-        $identifierAttribute = new Attribute();
-        $identifierAttribute->setType($attributeType);
-        $identifierAttribute->setCode($attributeCode);
-        $identifierAttribute->setScopable(false);
-        $identifierAttribute->setLocalizable(false);
-        $identifierAttribute->setBackendType(AttributeTypes::BACKEND_TYPE_TEXT);
-        $this->attributeRepository->save($identifierAttribute);
-    }
-
-    /**
-     * @Then The identifier generator is saved in the repository
-     */
-    public function identifierGeneratorIsSavedInTheRepository(): void
-    {
-        $identifierGenerator = $this->generatorRepository->get(self::DEFAULT_CODE);
-        Assert::isInstanceOf($identifierGenerator, IdentifierGenerator::class);
-    }
-
-    /**
-     * @Then the identifier generator is created
-     */
-    public function theIdentifierGeneratorIsCreated(): void
-    {
-        $identifierGenerator = new IdentifierGenerator(
-            IdentifierGeneratorId::fromString('2038e1c9-68ff-4833-b06f-01e42d206002'),
-            IdentifierGeneratorCode::fromString(self::DEFAULT_CODE),
-            Conditions::fromArray([]),
-            Structure::fromArray([FreeText::fromString('abc')]),
-            LabelCollection::fromNormalized(['fr_FR' => 'Générateur']),
-            Target::fromString('sku'),
-            Delimiter::fromString('-'),
-        );
-        $this->generatorRepository->save($identifierGenerator);
-    }
-
-    /**
-     * @Then the identifier should not be created
-     */
-    public function theIdentifierShouldNotBeCreated(): void
-    {
-        Assert::null($this->generatorRepository->get(self::DEFAULT_CODE));
-    }
-
-    /**
-     * @Then I should not get any error
-     */
-    public function iShouldNotGetAnyError(): void
-    {
-        Assert::null($this->violations, 'Errors were raised: ' . \json_encode($this->violations?->normalize()));
-    }
-
-    /**
-     * @Then /^I should get an error with message '(?P<message>[^']*)'$/
-     */
-    public function iShouldGetAnErrorWithMessage(string $message): void
-    {
-        Assert::notNull($this->violations, 'No error were raised.');
-        Assert::contains($this->violations->getMessage(), $message);
-    }
-
-    /**
-     * @When I create an identifier generator
-     */
-    public function iCreateAnIdentifierGenerator(): void
-    {
-        $this->tryToCreateGenerator();
+        $intCount = $count === 'an' ? 1 : \intval($count);
+        for ($i = 0; $i < $intCount; $i++) {
+            $this->tryToCreateGenerator(code: \sprintf('generator_%d', $i));
+        }
     }
 
     /**
@@ -137,65 +50,14 @@ final class CreateIdentifierGeneratorContext implements Context
     }
 
     /**
-     * @When I try to create an identifier generator with too many properties in structure
+     * @When I try to create an identifier generator with :propertiesCount properties in structure
      */
-    public function iTryToCreateAnIdentifierGeneratorWithTooManyPropertiesInStructure(): void
+    public function iTryToCreateAnIdentifierGeneratorWithTooManyPropertiesInStructure(int $propertiesCount): void
     {
         $this->tryToCreateGenerator(
             structure:
-            \array_fill(0, 21, ['type' => 'free_text', 'string' => 'abcdef1'])
+            \array_fill(0, $propertiesCount, ['type' => 'free_text', 'string' => 'abcdef1'])
         );
-    }
-
-    /**
-     * @When I try to create an identifier generator with multiple auto number in structure
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithMultipleAutoNumberInStructure(): void
-    {
-        $this->tryToCreateGenerator(structure: [
-            ['type' => 'auto_number', 'numberMin' => 2, 'digitsMin' => 3],
-            ['type' => 'auto_number', 'numberMin' => 1, 'digitsMin' => 4],
-        ]);
-    }
-
-    /**
-     * @When /^I try to create an identifier generator with free text '(?P<freetextContent>[^']*)'$/
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithFreeText(string $freetextContent): void
-    {
-        $this->tryToCreateGenerator(structure: [['type' => 'free_text', 'string' => $freetextContent]]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with free text without required field
-     */
-    public function iCreateAnIdentifierGeneratorWithFreeTextWithoutRequiredField(): void
-    {
-        $this->tryToCreateGenerator(structure: [['type' => 'free_text']]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with free text with unknown field
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithFreeTextWithUnknownField(): void
-    {
-        $this->tryToCreateGenerator(structure: [['type' => 'free_text', 'unknown' => 'hello', 'string' => 'hey']]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with autoNumber without required field
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithAutonumberWithoutRequiredField(): void
-    {
-        $this->tryToCreateGenerator(structure: [['type' => 'auto_number', 'numberMin' => 4]]);
-    }
-
-    /**
-     * @When /^I try to create an identifier generator with an auto number with '(?P<numberMin>[^']*)' as number min and '(?P<digitsMin>[^']*)' as min digits$/
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithAnAutoNumberWithNumberMinAndDigitsMin(int $numberMin, int $digitsMin): void
-    {
-        $this->tryToCreateGenerator(structure: [['type' => 'auto_number', 'numberMin' => $numberMin, 'digitsMin' => $digitsMin]]);
     }
 
     /**
@@ -229,16 +91,25 @@ final class CreateIdentifierGeneratorContext implements Context
     {
         try {
             ($this->createGeneratorHandler)(new CreateGeneratorCommand(
-                self::DEFAULT_CODE,
+                self::DEFAULT_IDENTIFIER_GENERATOR_CODE,
                 [],
-                [['type' => 'free_text', 'string' => self::DEFAULT_CODE]],
+                [['type' => 'free_text', 'string' => self::DEFAULT_IDENTIFIER_GENERATOR_CODE]],
                 [],
                 'sku',
                 null,
+                'no',
             ));
         } catch (ViolationsException $exception) {
-            $this->violations = $exception;
+            $this->violationsContext->setViolationsException($exception);
         }
+    }
+
+    /**
+     * @When I try to create an identifier generator with text transformation :textTransformation
+     */
+    public function iTryToCreateAnIdentifierGeneratorWithTextTransformation(string $textTransformation): void
+    {
+        $this->tryToCreateGenerator(textTransformation: $textTransformation);
     }
 
     /**
@@ -260,65 +131,10 @@ final class CreateIdentifierGeneratorContext implements Context
     }
 
     /**
-     * @When I try to create an identifier generator with enabled condition without value
+     * @When /^I try to create an identifier generator with (\d+) conditions$/
      */
-    public function iTryToCreateAnIdentifierGeneratorWithEnabledConditionWithoutValue(): void
+    public function iTryToCreateAnIdentifierGeneratorWithConditions(string $count): void
     {
-        $this->tryToCreateGenerator(conditions: [
-            ['type' => 'enabled'],
-        ]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with enabled condition with string value
-     */
-    public function iCreateAnIdentifierGeneratorWithEnabledConditionWithStringValue(): void
-    {
-        $this->tryToCreateGenerator(conditions: [
-            ['type' => 'enabled', 'value' => 'true'],
-        ]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with enabled condition with an unknown property
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithEnabledConditionWithAnUnknownProperty(): void
-    {
-        $this->tryToCreateGenerator(conditions: [
-            ['type' => 'enabled', 'value' => true, 'unknown' => 'unknown property'],
-        ]);
-    }
-
-    /**
-     * @When I try to create an identifier generator with 2 enabled conditions
-     */
-    public function iTryToCreateAnIdentifierGeneratorWithEnabledConditions(): void
-    {
-        $this->tryToCreateGenerator(conditions: [
-            ['type' => 'enabled', 'value' => true],
-            ['type' => 'enabled', 'value' => true],
-        ]);
-    }
-
-    private function tryToCreateGenerator(
-        ?string $code = null,
-        ?array $structure = null,
-        ?array $conditions = null,
-        ?array $labels = null,
-        ?string $target = null,
-        ?string $delimiter = null,
-    ): void {
-        try {
-            ($this->createGeneratorHandler)(new CreateGeneratorCommand(
-                $code ?? self::DEFAULT_CODE,
-                $conditions ?? [['type' => 'enabled', 'value' => true]],
-                $structure ?? [['type' => 'free_text', 'string' => self::DEFAULT_CODE]],
-                $labels ?? ['fr_FR' => 'Générateur'],
-                $target ?? 'sku',
-                $delimiter ?? '-'
-            ));
-        } catch (ViolationsException $exception) {
-            $this->violations = $exception;
-        }
+        $this->tryToCreateGenerator(conditions: \array_fill(0, \intval($count), $this->getValidCondition('simple_select')));
     }
 }

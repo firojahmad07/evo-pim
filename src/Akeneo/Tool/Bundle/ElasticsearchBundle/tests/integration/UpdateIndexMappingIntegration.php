@@ -9,7 +9,7 @@ use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\Client;
 use Akeneo\Tool\Bundle\ElasticsearchBundle\IndexConfiguration\UpdateIndexMapping;
-use Elasticsearch\ClientBuilder;
+use Akeneo\Tool\Bundle\ElasticsearchBundle\SearchEngine\SearchEngineClientBuilderFactory;
 use PHPUnit\Framework\Assert;
 
 class UpdateIndexMappingIntegration extends TestCase
@@ -20,14 +20,14 @@ class UpdateIndexMappingIntegration extends TestCase
         /** @var Client $akeneoProductClient */
         $akeneoProductClient = $this->get('akeneo_elasticsearch.client.product_and_product_model');
 
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts(is_string($indexHost) ? [$indexHost] : $indexHost);
 
         $client = $clientBuilder->build();
 
         $aliases = array_map(function (array $index) : string {
             return $index['alias'];
-        }, $client->cat()->aliases());
+        }, $client->cat()->aliases(['format' => 'json']));
 
         /** @var ProductQueryBuilderFactory $pqb */
         $pqb = $this->get('pim_catalog.query.product_query_builder_factory_for_reading_purpose');
@@ -40,7 +40,7 @@ class UpdateIndexMappingIntegration extends TestCase
 
         $newIndices = array_map(function (array $index) : string {
             return $index['index'];
-        }, $client->cat()->indices());
+        }, $client->cat()->indices(['format' => 'json']));
 
         Assert::assertNotContains($this->getParameter('product_and_product_model_index_name'), $newIndices);
         Assert::assertTrue($client->indices()->existsAlias(['name' => $this->getParameter('product_and_product_model_index_name')]));
@@ -53,14 +53,14 @@ class UpdateIndexMappingIntegration extends TestCase
         /** @var Client $akeneoProductClient */
         $akeneoProductClient = $this->get('akeneo_elasticsearch.client.product_and_product_model');
 
-        $clientBuilder = new ClientBuilder();
+        $clientBuilder = SearchEngineClientBuilderFactory::createBuilder($_ENV['SEARCH_ENGINE'] ?? 'opensearch');
         $clientBuilder->setHosts(is_string($indexHost) ? [$indexHost] : $indexHost);
 
         $client = $clientBuilder->build();
 
         $aliases = array_map(function (array $index) : string {
             return $index['alias'];
-        }, $client->cat()->aliases());
+        }, $client->cat()->aliases(['format' => 'json']));
 
         /** @var ProductQueryBuilderFactory $pqb */
         $pqb = $this->get('pim_catalog.query.product_query_builder_factory_for_reading_purpose');

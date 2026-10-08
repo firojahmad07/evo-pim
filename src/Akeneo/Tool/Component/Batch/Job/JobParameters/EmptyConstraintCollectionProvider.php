@@ -23,7 +23,7 @@ class EmptyConstraintCollectionProvider implements ConstraintCollectionProviderI
      */
     public function getConstraintCollection(): Collection
     {
-        return new Collection([]);
+        return new Collection(['fields' => [], 'allowExtraFields' => true]);
     }
 
     /**

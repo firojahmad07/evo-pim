@@ -2,6 +2,7 @@ pim_notification:
   types:
     settings: 설정
     mass_delete: 삭제
+    attribute_mass_delete: 삭제
 flash:
   comment:
     create:
@@ -70,6 +71,7 @@ pim_enrich.entity.product:
       modified: 수정됨
       old_value: 이전 값
       new_value: 새 값
+      limit: '마지막 {{ limit }}개 버전만 표시됩니다.'
     meta:
       updated: 마지막 업데이트
       groups: 그룹
@@ -114,7 +116,7 @@ pim_enrich.entity.product:
         quantity: 수량
         unlinked: 연결 안 됨
       search:
-        placeholder: 레이블 또는 식별자 검색
+        placeholder: 레이블, 식별자 또는 UUID로 검색
       no_data: 연결된 제품이 없습니다.
       remove: 연결 해제
       edit: 제품 정보 편집
@@ -244,6 +246,9 @@ pim_enrich.entity.category:
     success: 트리 '{{ tree }}'이(가) 삭제되었습니다.
     error: 트리 '{{ tree }}'을(를) 삭제할 수 없습니다.
     confirmation: '{{ name }} 트리를 삭제하시겠습니까? 그러면 해당 트리의 모든 카테고리가 삭제되며 해당 카테고리의 제품도 제거됩니다.'
+    confirmation_question: '{{ name }}을(를) 삭제하시겠습니까?'
+    warning_categories_number: 연결된 {{ categoriesNumber }}개 카테고리가 삭제되고 이러한 모든 카테고리에서 제품이 제거됩니다.
+    warning_products: 연결된 모든 제품이 {{name}}에서 제거됩니다.
     products_limit_exceeded:
       title: 이 트리를 삭제할 수 없습니다.
       message: 트리 '{{ tree }}'에 {{ limit }}개가 넘는 제품이 있으므로 트리를 삭제할 수 없습니다.
@@ -251,6 +256,7 @@ pim_enrich.entity.category:
     success: 카테고리 '{{ name }}'이(가) 삭제되었습니다.
     error: 카테고리 '{{ name }}'을(를) 삭제할 수 없습니다.
     confirmation: 카테고리 {{ name }}을(를) 삭제하시겠습니까? 이 카테고리의 제품은 삭제되지 않습니다.
+    confirmation_question: '{{ name }}을(를) 삭제하시겠습니까?'
     products_limit_exceeded:
       title: 이 카테고리를 삭제할 수 없습니다.
       message: '''{{ name }}'' 카테고리에 {{ limit }}개가 넘는 제품이 있으므로 카테고리를 삭제할 수 없습니다.'
@@ -320,8 +326,6 @@ pim_enrich.export.product:
     string:
       operators:
         ALL: 모두
-    price-collection:
-      operators:
     select:
       operators:
         IN: 목록에 있음
@@ -454,6 +458,7 @@ pim_datagrid:
     mass_delete: 대량 삭제
     selected:
       family: "]-Inf, 1]{{ count }}개 패밀리 선택|]1, Inf[{{ count }}개 패밀리 선택"
+      attribute: "]-Inf, 1]{{ count }}개 특성 선택됨|]1, Inf[{{ count }}개 특성 선택됨"
       product: "]-Inf, 1]{{ count }}개 결과 선택|]1, Inf[{{ count }}개 결과 선택"
   view_selector:
     view: 보기
@@ -496,12 +501,15 @@ pim_datagrid:
       label: 업데이트
     label_or_identifier:
       label: 레이블 또는 식별자
+      label_with_uuid: 레이블, 식별자 또는 UUID
     parent:
       label: 상위
     identifier:
       label: 식별자
     uuid:
       label: Uuid
+    code_or_label:
+      label: 코드 또는 레이블
   search: '{{ label }}(으)로 검색'
 batch_jobs:
   add_association:

@@ -1,5 +1,5 @@
 parameters:
-    akeneo_elasticsearch.client_builder.class: 'Elasticsearch\ClientBuilder'
+    akeneo_elasticsearch.client_builder.class: 'Elastic\Elasticsearch\ClientBuilder'
     akeneo_elasticsearch.registry.clients.class: 'Akeneo\Tool\Bundle\ElasticsearchBundle\ClientRegistry'
     env(APP_ELASTICSEARCH_TOTAL_FIELDS_LIMIT): '0'
     env(APP_ELASTICSEARCH_MAX_CHUNK_SIZE_CHARACTERS): '100000000'
@@ -11,6 +11,9 @@ services:
     akeneo_elasticsearch.client_builder:
         public: true
         class: '%akeneo_elasticsearch.client_builder.class%'
+        factory: ['Akeneo\Tool\Bundle\ElasticsearchBundle\SearchEngine\SearchEngineClientBuilderFactory', 'createBuilder']
+        arguments:
+            - '%env(default::SEARCH_ENGINE)%'
 
     akeneo_elasticsearch.install.install_subscriber:
         class: Akeneo\Tool\Bundle\ElasticsearchBundle\Infrastructure\Install\InstallSubscriber

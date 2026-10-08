@@ -1,5 +1,5 @@
 parameters:
-    comm_panel_api_url: 'http://localhost:8088'
+    comm_panel_api_url: 'http://127.0.0.1:8088'
     akeneo_integration_tests.loader.reference_data_loader.class: Akeneo\Test\IntegrationTestsBundle\Loader\ReferenceDataLoader
     akeneo_integration_tests.loader.fixtures_loader.class: Akeneo\Test\IntegrationTestsBundle\Loader\FixturesLoader
     akeneo_integration_tests.loader.database_schema_handler.class: Akeneo\Test\IntegrationTestsBundle\Loader\DatabaseSchemaHandler
@@ -20,12 +20,17 @@ imports:
     - { resource: ../../../src/Akeneo/Platform/Job/back/tests/Integration/Resources/config/services.yml }
     # FeatureFlag
     - { resource: ../../../src/Akeneo/Platform/Bundle/FeatureFlagBundle/Resources/config/test_services.yml }
-    # Catalogs
-    - { resource: ../../../components/catalogs/back/tests/Acceptance/services.yml }
+    # MessengerBundle
+    - { resource: ../../../src/Akeneo/Tool/Bundle/MessengerBundle/Resources/config/test_services.yml }
 
 services:
 
     _defaults:
+        public: true
+
+    session:
+        class: Symfony\Component\HttpFoundation\Session\Session
+        factory: ['@session.factory', 'createSession']
         public: true
 
     akeneo_integration_tests.migration_command_launcher:
@@ -210,6 +215,22 @@ services:
         tags:
             - { name: 'akeneo.pim.tests.pub_sub_queue_status.job' }
 
+    akeneo_integration_tests.pub_sub_queue_status.dqi_product_score_compute_on_upsert:
+        class: AkeneoTest\Integration\IntegrationTestsBundle\Launcher\PubSubQueueStatus
+        arguments:
+            - '@Akeneo\Tool\Bundle\MessengerBundle\Transport\GooglePubSub\PubSubClientFactory'
+            - '%env(GOOGLE_CLOUD_PROJECT)%'
+            - '%env(PUBSUB_TOPIC_PRODUCTS_WERE_UPSERT)%'
+            - '%env(PUBSUB_SUBSCRIPTION_DQI_PRODUCT_SCORE_COMPUTE)%'
+
+    akeneo_integration_tests.pub_sub_queue_status.dqi_product_model_score_compute_on_upsert:
+      class: AkeneoTest\Integration\IntegrationTestsBundle\Launcher\PubSubQueueStatus
+      arguments:
+        - '@Akeneo\Tool\Bundle\MessengerBundle\Transport\GooglePubSub\PubSubClientFactory'
+        - '%env(GOOGLE_CLOUD_PROJECT)%'
+        - '%env(PUBSUB_TOPIC_PRODUCT_MODELS_WERE_UPSERT)%'
+        - '%env(PUBSUB_SUBSCRIPTION_DQI_PRODUCT_MODEL_SCORE_COMPUTE)%'
+  
     akeneo_integration_tests.launcher.job_execution_observer:
         class: '%akeneo_integration_tests.launcher.job_execution_observer.class%'
         arguments:
@@ -326,3 +347,19 @@ services:
             - '@doctrine'
             - '@akeneo_integration_tests.loader.database_schema_handler'
             - '%env(bool:EXPERIMENTAL_TEST_DATABASE)%'
+
+    akeneo_integration_tests.pub_sub_queue_status.dqi_attribute_group_activate_consumer:
+        class: AkeneoTest\Integration\IntegrationTestsBundle\Launcher\PubSubQueueStatus
+        arguments:
+            - '@Akeneo\Tool\Bundle\MessengerBundle\Transport\GooglePubSub\PubSubClientFactory'
+            - '%env(GOOGLE_CLOUD_PROJECT)%'
+            - '%env(PUBSUB_TOPIC_DQI_ATTRIBUTE_GROUP_ACTIVATE)%'
+            - '%env(PUBSUB_SUBSCRIPTION_DQI_ATTRIBUTE_GROUP_ACTIVATE)%'
+
+    akeneo_integration_tests.pub_sub_queue_status.dqi_launch_product_evaluations_consumer:
+        class: AkeneoTest\Integration\IntegrationTestsBundle\Launcher\PubSubQueueStatus
+        arguments:
+            - '@Akeneo\Tool\Bundle\MessengerBundle\Transport\GooglePubSub\PubSubClientFactory'
+            - '%env(GOOGLE_CLOUD_PROJECT)%'
+            - '%env(PUBSUB_TOPIC_LAUNCH_PRODUCT_EVALUATIONS_QUEUE)%'
+            - '%env(PUBSUB_SUBSCRIPTION_DQI_LAUNCH_PRODUCT_EVALUATIONS)%'

@@ -22,10 +22,10 @@ jobs:
             - run:
                   name: Merge all files
                   command: |
-                      yq eval-all '. as $item ireduce ({}; . *+ $item )' .circleci/settings.yml .circleci/*/*.yml .circleci/*/*/*.yml .circleci/*/*/*/*.yml > .circleci/merged_config.yml
+                      yq eval-all '. as $item ireduce ({}; . *+ $item )' .circleci/*/*.yml .circleci/*/*/*.yml .circleci/*/*/*/*.yml > .circleci/merged_config.yml
                       cat .circleci/merged_config.yml
             -   path-filtering/set-parameters:
-                    base-revision: main
+                    base-revision: master
                     mapping: |
                         upgrades/.* run-database-tests true
                     output-path: /tmp/pipeline-parameters.json

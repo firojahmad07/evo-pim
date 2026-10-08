@@ -36,8 +36,8 @@ const UserProvider: FC = ({children}) => {
     return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 };
 
-const DefaultProviders: FC = ({children}) => {
-    const client = new QueryClient({
+export const ReactQueryWrapper: FC = ({children}) => {
+    const queryClient = new QueryClient({
         defaultOptions: {
             queries: {
                 // by default, react query uses a back-off delay gradually applied to each retry attempt.
@@ -48,11 +48,20 @@ const DefaultProviders: FC = ({children}) => {
         },
     });
 
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+};
+const DefaultProviders: FC = ({children}) => {
     return (
-        <QueryClientProvider client={client}>
+        <ReactQueryWrapper>
             <DependenciesContext.Provider
                 value={{
                     translate: (id: string) => id,
+                    featureFlags: {isEnabled: (_feature: string) => true},
+                    systemConfiguration: {
+                        get: (key: string) => key,
+                        initialize: () => Promise.resolve(),
+                        refresh: () => Promise.resolve(),
+                    },
                 }}
             >
                 <ThemeProvider theme={theme}>
@@ -61,7 +70,7 @@ const DefaultProviders: FC = ({children}) => {
                     </UserProvider>
                 </ThemeProvider>
             </DependenciesContext.Provider>
-        </QueryClientProvider>
+        </ReactQueryWrapper>
     );
 };
 
@@ -81,7 +90,7 @@ export type MockFetchResponses = {
         status?: number;
         statusText?: string;
         headers?: string[][] | {[key: string]: string};
-        json: object | string;
+        json: object | string | boolean;
     };
 };
 

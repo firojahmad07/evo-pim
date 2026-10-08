@@ -67,8 +67,8 @@ class ProductValueMetadataFactorySpec extends ObjectBehavior
         $unique->getTargets()->willReturn(Constraint::PROPERTY_CONSTRAINT);
         $validNumber->getTargets()->willReturn(Constraint::PROPERTY_CONSTRAINT);
 
-        $metadata->addPropertyConstraint('data', $unique)->shouldBeCalled();
-        $metadata->addPropertyConstraint('data', $validNumber)->shouldBeCalled();
+        $metadata->addPropertyConstraint('data', $unique)->willReturn($metadata);
+        $metadata->addPropertyConstraint('data', $validNumber)->willReturn($metadata);
 
         $this->getMetadataFor($value);
     }
@@ -90,6 +90,7 @@ class ProductValueMetadataFactorySpec extends ObjectBehavior
         $guesser->guessConstraints($attribute)->willReturn([$property]);
 
         $property->getTargets()->willReturn(Constraint::PROPERTY_CONSTRAINT);
+        $metadata->addPropertyConstraint(Argument::cetera())->willReturn($metadata);
 
         $this->getMetadataFor($value);
     }
@@ -111,7 +112,7 @@ class ProductValueMetadataFactorySpec extends ObjectBehavior
         $guesser->guessConstraints($attribute)->willReturn([$class]);
 
         $class->getTargets()->willReturn(Constraint::CLASS_CONSTRAINT);
-        $metadata->addConstraint(Argument::any())->shouldBeCalled();
+        $metadata->addConstraint(Argument::any())->willReturn($metadata);
 
         $this->getMetadataFor($value);
     }
@@ -133,8 +134,8 @@ class ProductValueMetadataFactorySpec extends ObjectBehavior
         $guesser->guessConstraints($attribute)->willReturn([$multiTargets]);
 
         $multiTargets->getTargets()->willReturn([Constraint::PROPERTY_CONSTRAINT, Constraint::CLASS_CONSTRAINT]);
-        $metadata->addConstraint(Argument::any())->shouldBeCalled();
-        $metadata->addPropertyConstraint(Argument::cetera())->shouldBeCalled();
+        $metadata->addConstraint(Argument::any())->willReturn($metadata);
+        $metadata->addPropertyConstraint(Argument::cetera())->willReturn($metadata);
 
         $this->getMetadataFor($value);
     }

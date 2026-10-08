@@ -9,6 +9,7 @@ use Akeneo\Category\Domain\ValueObject\CategoryId;
 use Akeneo\Category\Domain\ValueObject\LabelCollection;
 use Akeneo\Category\Domain\ValueObject\Template\TemplateCode;
 use Akeneo\Category\Domain\ValueObject\Template\TemplateUuid;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @copyright 2022 Akeneo SAS (http://www.akeneo.com)
@@ -55,6 +56,13 @@ class Template
         return $this->attributeCollection;
     }
 
+    public function update(?LabelCollection $labelCollection): void
+    {
+        if ($labelCollection !== null) {
+            $this->labelCollection->merge($labelCollection);
+        }
+    }
+
     /**
      * @return array{
      *     uuid: string,
@@ -92,9 +100,25 @@ class Template
         $labelCollection = $result['labels'] ?
             LabelCollection::fromArray(
                 json_decode($result['labels'], true, 512, JSON_THROW_ON_ERROR),
-            ) : null;
+            ) : LabelCollection::fromArray([]);
         $categoryId = new CategoryId((int) $result['category_id']);
 
-        return new self($id, $code, $labelCollection, $categoryId, null);
+        return new self($id, $code, $labelCollection, $categoryId, AttributeCollection::fromArray([]));
+    }
+
+    public static function create(
+        CategoryId $categoryTreeId,
+        TemplateCode $templateCode,
+        LabelCollection $templateLabelCollection,
+    ): self {
+        $templateUuid = TemplateUuid::fromUuid(Uuid::uuid4());
+
+        return new self(
+            $templateUuid,
+            $templateCode,
+            $templateLabelCollection,
+            $categoryTreeId,
+            AttributeCollection::fromArray([]),
+        );
     }
 }

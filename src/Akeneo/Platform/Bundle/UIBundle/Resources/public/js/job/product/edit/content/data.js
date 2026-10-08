@@ -16,23 +16,10 @@ define([
   'pim/fetcher-registry',
   'pim/form-builder',
   'pim/common/property',
-  '@akeneo-pim-community/shared',
-], function (
-  $,
-  _,
-  __,
-  template,
-  BaseForm,
-  fetcherRegistry,
-  formBuilder,
-  PropertyAccessor,
-  {filterErrors, formatParameters}
-) {
+], function ($, _, __, template, BaseForm, fetcherRegistry, formBuilder, PropertyAccessor) {
   return BaseForm.extend({
     filterViews: [],
     template: _.template(template),
-    errorByField: {},
-    warningByField: {},
 
     /**
      * {@inheritdoc}
@@ -59,39 +46,9 @@ define([
         }.bind(this)
       );
 
-      this.listenTo(this.getRoot(), 'pim_enrich:form:entity:pre_save', () => {
-        this.errorByField = {};
-      });
-
-      this.listenTo(this.getRoot(), 'pim_enrich:form:entity:bad_request', event => {
-        const validationErrors = event.response.normalized_errors;
-        const errors = formatParameters(filterErrors(validationErrors, '[filters][data]'));
-
-        for (const [index, filter] of this.getFilters().data.entries()) {
-          const fieldCode = this.getFieldCode(filter.field);
-          this.errorByField[fieldCode] = filterErrors(errors, `[${index}][value]`);
-        }
-      });
-
       this.filterViews = [];
 
       return $.when(BaseForm.prototype.configure.apply(this, arguments), this.addConfigFilters());
-    },
-
-    getFilterValidationErrors: function (field) {
-      return this.errorByField[field] ?? [];
-    },
-
-    getFilterWarningInfos: function (field) {
-      return this.warningByField[field] ?? [];
-    },
-
-    setFilterWarningInfos: function (field, warningMessage) {
-      return (this.warningByField[field] = warningMessage);
-    },
-
-    getFieldCode: function (field) {
-      return field.replace(/\.code$/, '');
     },
 
     /**

@@ -52,6 +52,8 @@ final class GetAllAppsQuery implements GetAllAppsQueryInterface
             }
         } while (\count($result['items']) > 0 && \count($apps) < $result['total'] && $requests < self::MAX_REQUESTS);
 
+        \usort($apps, fn ($a, $b): int => $a->isCertified() === $b->isCertified() ? 0 : ($a->isCertified() ? -1 : 1));
+
         return GetAllAppsResult::create($result['total'], $apps);
     }
 }

@@ -22,10 +22,10 @@ class ChannelProcessor extends AbstractProcessor implements ItemProcessorInterfa
 {
     public function __construct(
         IdentifiableObjectRepositoryInterface $repository,
-        private SimpleFactoryInterface $channelFactory,
-        private ObjectUpdaterInterface $channelUpdater,
-        private ValidatorInterface $validator,
-        private ObjectDetacherInterface $objectDetacher
+        private readonly SimpleFactoryInterface $channelFactory,
+        private readonly ObjectUpdaterInterface $channelUpdater,
+        private readonly ValidatorInterface $validator,
+        private readonly ObjectDetacherInterface $objectDetacher
     ) {
         parent::__construct($repository);
     }

@@ -126,19 +126,34 @@ akeneo_catalogs:
     source:
       title: Seleziona origine
       parameters:
+        placeholder: Seleziona un attributo
         title: Parametri origine
         channel:
-          label: Canale
           placeholder: Seleziona un canale
         locale:
-          label: Impostazione locale
           placeholder: Seleziona un'impostazione locale
+        label_locale:
+          label: Traduzione valore
+          placeholder: Seleziona una traduzione
+          helper: Seleziona la lingua in cui il valore deve essere inviato.
+        currency:
+          label: Valuta
+          placeholder: Seleziona una valuta
+          helper: Seleziona la valuta in cui il valore deve essere inviato.
+        default_value:
+          label: Valore predefinito quando vuoto
+          placeholder: Imposta il valore predefinito
+        no_parameters_message: Nessun parametro per questa origine.
+        unit:
+          label: Unità di misura
+          placeholder: Seleziona un'unità di misura
+          helper: Seleziona l'unità di misura in cui il valore deve essere inviato.
       select_source:
         label: Origine Pim
         search: Criterio di ricerca
-        no_results: nessuna corrispondenza trovata
-        section_system: sistema
-        section_attributes: attributi
+        no_results: Nessuna corrispondenza trovata
+        section_system: Sistema
+        section_attributes: Attributi
       placeholder:
         title: Seleziona origine
         illustration_title: Fai clic su una destinazione nel pannello di destra per configurare la mappatura del catalogo.
@@ -148,3 +163,18 @@ akeneo_catalogs:
         illustration_title: L'UUID è un identificatore tecnico del prodotto.
         subtitle: Tutte le app lo richiedono come destinazione. Per questa destinazione non devi configurare nulla perché la associamo automaticamente con l'UUID di prodotto Akeneo.
         link: Ulteriori informazioni sull'UUID.
+      requirements:
+        title: Requisiti app
+        help: Aiuto
+        constraints:
+          minLength: '{0,1} Questa destinazione deve aver almeno {{ value }} carattere.|[2,Inf[ Questa destinazione deve aver almeno {{ value }} caratteri.'
+          maxLength: '{0,1} Questa destinazione non deve superare {{ value }} carattere.|[2,Inf[ Questa destinazione non deve superare {{ value }} caratteri.'
+          pattern: '[0,Inf[ Schema: questa destinazione deve corrispondere alla seguente espressione regolare: "{{ value }}".'
+          minimum: '[0,Inf[ Questa destinazione deve essere maggiore o uguale a {{ value }}.'
+          maximum: '[0,Inf[ Questa destinazione deve essere minore o uguale a {{ value }}.'
+          enum: '[0,Inf[ Enum: Questa destinazione accetta solo i seguenti valori: {{ value }}.'
+      system_attributes:
+        categories:
+          label: Categorie
+        family:
+          label: Famiglia

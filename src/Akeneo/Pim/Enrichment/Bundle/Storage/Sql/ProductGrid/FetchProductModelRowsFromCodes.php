@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Akeneo\Pim\Enrichment\Bundle\Storage\Sql\ProductGrid;
 
-use Akeneo\Channel\Infrastructure\Component\Query\PublicApi\ChannelExistsWithLocaleInterface;
 use Akeneo\Pim\Enrichment\Component\Product\Factory\WriteValueCollectionFactory;
 use Akeneo\Pim\Enrichment\Component\Product\Grid\ReadModel;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ValueInterface;
@@ -19,28 +18,11 @@ use Doctrine\DBAL\Types\Types;
  */
 final class FetchProductModelRowsFromCodes implements FetchProductModelRowsFromCodesInterface
 {
-    /** @var Connection */
-    private $connection;
-
-    /** @var WriteValueCollectionFactory */
-    private $valueCollectionFactory;
-
-    /** @var ProductModelImagesFromCodes */
-    private $productModelImagesFromCodes;
-
-    /** @var ChannelExistsWithLocaleInterface */
-    private $channelExistsWithLocale;
-
     public function __construct(
-        Connection $connection,
-        WriteValueCollectionFactory $valueCollectionFactory,
-        ProductModelImagesFromCodes $productModelImagesFromCodes,
-        ChannelExistsWithLocaleInterface $channelExistsWithLocale
+        private readonly Connection $connection,
+        private readonly WriteValueCollectionFactory $valueCollectionFactory,
+        private readonly ProductModelImagesFromCodes $productModelImagesFromCodes
     ) {
-        $this->connection = $connection;
-        $this->valueCollectionFactory = $valueCollectionFactory;
-        $this->productModelImagesFromCodes = $productModelImagesFromCodes;
-        $this->channelExistsWithLocale = $channelExistsWithLocale;
     }
 
     /**
@@ -175,64 +157,51 @@ SQL;
             ];
         }
 
-        $sql = <<<SQL
-            SELECT
-                pm.code,
-                COUNT(p_child.id) AS nb_children,
-                SUM(IF(completeness.missing_count = 0, 1, 0)) AS nb_children_complete
-            FROM
-                pim_catalog_product_model pm
-                LEFT JOIN pim_catalog_product_model pm_child
-                    ON pm_child.parent_id = pm.id
-                    AND pm_child.parent_id IS NOT NULL
-                LEFT JOIN pim_catalog_product p_child ON p_child.product_model_id = pm_child.id
-                LEFT JOIN pim_catalog_completeness completeness ON completeness.product_uuid = p_child.uuid
-                LEFT JOIN pim_catalog_channel channel ON channel.id = completeness.channel_id
-                LEFT JOIN pim_catalog_locale locale ON locale.id = completeness.locale_id
-            WHERE pm.code IN (:codes)
-                AND channel.code = :channel
-                AND locale.code = :locale
-            GROUP BY
-                pm.code
-            UNION
-            SELECT
-                pm.code,
-                COUNT(p_child.id) AS nb_children,
-                SUM(IF(completeness.missing_count = 0, 1, 0)) AS nb_children_complete
-            FROM
-                pim_catalog_product_model pm
-                LEFT JOIN pim_catalog_product p_child ON p_child.product_model_id = pm.id
-                LEFT JOIN pim_catalog_completeness completeness ON completeness.product_uuid = p_child.uuid
-                LEFT JOIN pim_catalog_channel channel ON channel.id = completeness.channel_id
-                LEFT JOIN pim_catalog_locale locale ON locale.id = completeness.locale_id
-            WHERE pm.code IN (:codes)
-                AND channel.code = :channel
-                AND locale.code = :locale
-            GROUP BY
-                pm.code
-SQL;
-        $rows = $this->connection->executeQuery(
-            $sql,
-            [
-                'codes' => $codes,
-                'channel' => $channelCode,
-                'locale' => $localeCode,
-            ],
-            [
-                'codes' => Connection::PARAM_STR_ARRAY,
-                'channel' => \PDO::PARAM_STR,
-                'locale' => \PDO::PARAM_STR,
-            ]
-        )->fetchAllAssociative();
+        $completenessByProductModelCode = $this->getCompletenessesFor($codes);
 
-        foreach ($rows as $row) {
-            $result[$row['code']]['children_completeness'] = [
-                'total'    => (int) $row['nb_children'],
-                'complete' => (int) $row['nb_children_complete'],
-            ];
+        foreach ($completenessByProductModelCode as $value) {
+            $code = $value['code'];
+            $completeness = \json_decode($value['completeness'], true);
+
+            $result[$code]['children_completeness']['total'] += 1;
+
+            if (0 === ($completeness[$channelCode][$localeCode]['missing'] ?? null)) {
+                $result[$code]['children_completeness']['complete'] += 1;
+            }
         }
 
         return $result;
+    }
+
+    private function getCompletenessesFor(array $productModelCodes): array
+    {
+        $sql = <<<SQL
+WITH descendant_product_uuids as ( 
+    SELECT code, product.uuid
+    FROM pim_catalog_product product
+        INNER JOIN pim_catalog_product_model product_model ON product_model.id = product.product_model_id
+    WHERE product_model.code IN (:codes)
+    UNION ALL
+    SELECT root_product_model.code, product.uuid
+    FROM pim_catalog_product product
+        INNER JOIN pim_catalog_product_model sub_product_model ON sub_product_model.id = product.product_model_id
+        INNER JOIN pim_catalog_product_model root_product_model ON root_product_model.id = sub_product_model.parent_id
+    WHERE root_product_model.code IN (:codes)
+)          
+    SELECT descendant_product_uuids.code, completeness
+    FROM pim_catalog_product_completeness completeness
+        JOIN descendant_product_uuids ON descendant_product_uuids.uuid = completeness.product_uuid
+SQL;
+
+        return $this->connection->fetchAllAssociative(
+            $sql,
+            [
+                'codes' => $productModelCodes,
+            ],
+            [
+                'codes' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
     }
 
     private function getFamilyLabels(array $codes, string $localeCode): array
@@ -313,12 +282,8 @@ SQL;
         foreach ($valueCollections as $productModelCode => $valueCollection) {
             $result[$productModelCode]['value_collection'] = $valueCollection->filter(
                 function (ValueInterface $value) use ($channelCode, $localeCode) {
-                    $isScopeMatching = $value->getScopeCode() === null || $value->getScopeCode() === $channelCode;
-                    $isLocaleMatching = $value->getLocaleCode() === null || $value->getLocaleCode() === $localeCode;
-                    $isLocaleBoundToChannel = null === $value->getLocaleCode()
-                        || $this->channelExistsWithLocale->isLocaleBoundToChannel($value->getLocaleCode(), $channelCode);
-
-                    return $isScopeMatching && $isLocaleMatching && $isLocaleBoundToChannel;
+                    return ($value->getScopeCode() === $channelCode || $value->getScopeCode() === null)
+                        && ($value->getLocaleCode() === $localeCode || $value->getLocaleCode() === null);
                 }
             );
         }

@@ -28,6 +28,9 @@ class JobInstanceRepository extends EntityRepository implements DatagridReposito
         parent::__construct($em, $em->getClassMetadata($class));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function createDatagridQueryBuilder()
     {
         $jobName = array_map(
@@ -44,7 +47,8 @@ class JobInstanceRepository extends EntityRepository implements DatagridReposito
             ->andWhere('j.type = :jobType')
             ->andWhere(
                 $qb->expr()->in('j.jobName', $jobName)
-            );
+            )
+            ->andWhere('j.isVisible = 1');
 
         return $qb;
     }

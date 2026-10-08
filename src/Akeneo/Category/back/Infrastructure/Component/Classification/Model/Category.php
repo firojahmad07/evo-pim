@@ -43,11 +43,17 @@ class Category implements CategoryInterface
         $this->children = new ArrayCollection();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setCode($code)
     {
         $this->code = $code;
@@ -55,11 +61,17 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getCode()
     {
         return $this->code;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setLeft($left)
     {
         $this->left = $left;
@@ -67,11 +79,17 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getLeft()
     {
         return $this->left;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setLevel($level)
     {
         $this->level = $level;
@@ -79,11 +97,17 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getLevel()
     {
         return $this->level;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setRight($right)
     {
         $this->right = $right;
@@ -91,11 +115,17 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getRight()
     {
         return $this->right;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function setRoot($root)
     {
         $this->root = $root;
@@ -103,23 +133,35 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getRoot()
     {
         return $this->root;
     }
 
-    public function setParent(?CategoryInterface $parent = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function setParent(CategoryInterface $parent = null)
     {
         $this->parent = $parent;
 
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getParent()
     {
         return $this->parent;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function addChild(CategoryInterface $child)
     {
         $child->setParent($this);
@@ -128,6 +170,9 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function removeChild(CategoryInterface $children)
     {
         $this->children->removeElement($children);
@@ -135,16 +180,25 @@ class Category implements CategoryInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function hasChildren()
     {
         return count($this->getChildren()) > 0;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getChildren()
     {
         return $this->children;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isRoot()
     {
         return null === $this->getParent();

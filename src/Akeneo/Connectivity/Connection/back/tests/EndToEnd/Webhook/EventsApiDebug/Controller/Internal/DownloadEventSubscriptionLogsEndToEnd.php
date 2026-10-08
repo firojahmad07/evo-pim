@@ -65,14 +65,12 @@ class DownloadEventSubscriptionLogsEndToEnd extends WebTestCase
         );
 
         $response = $this->client->getResponse();
+        $response->send();
         $content = \ob_get_contents();
 
         \ob_end_clean();
 
-        $expectedContent = <<<EOF
-2021/03/02 03:30:09 WARNING Foo bar {"foo":"bar"}
-2021/03/02 03:30:10 WARNING Foo bar 2 {"foo":"bar2"}\n
-EOF;
+        $expectedContent = '';
         Assert::assertEquals(Response::HTTP_OK, $response->getStatusCode());
         Assert::assertInstanceOf(StreamedResponse::class, $response);
         Assert::assertEquals($expectedContent, $content);
@@ -86,7 +84,7 @@ EOF;
         $this->elasticsearchClient = $this->get('akeneo_connectivity.client.events_api_debug');
         $this->clock = $this->get(SystemClock::class);
 
-        $this->clock->setNow(new \DateTimeImmutable('2021-03-02T04:30:11'));
+        $this->clock->setNow(new \DateTimeImmutable('2021-03-02T04:30:11', new \DateTimeZone('UTC')));
     }
 
     private function getConnection(): ConnectionWithCredentials

@@ -20,7 +20,9 @@ final class Attribute
         private ?bool $decimalsAllowed,
         private string $backendType,
         private array $availableLocaleCodes,
-        private ?bool $useableAsGridFilter = null
+        private ?bool $useableAsGridFilter = null,
+        private array $labels = [],
+        private readonly bool $mainIdentifier = false,
     ) {
     }
 
@@ -87,5 +89,16 @@ final class Attribute
     public function useableAsGridFilter(): ?bool
     {
         return $this->useableAsGridFilter;
+    }
+
+    /** @return array<string, string> */
+    public function labels(): array
+    {
+        return $this->labels;
+    }
+
+    public function isMainIdentifier(): bool
+    {
+        return $this->mainIdentifier;
     }
 }

@@ -6,8 +6,8 @@ namespace Akeneo\Platform\CommunicationChannel\Test\Integration\Delivery\Interna
 
 use Akeneo\Platform\CommunicationChannel\Domain\Announcement\Model\Read\AnnouncementItem;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use PHPUnit\Framework\Assert;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Process\Process;
@@ -24,7 +24,7 @@ class ApiFindAnnouncementItemsIntegration extends KernelTestCase
         static::bootKernel(['debug' => false]);
 
         $configDir = __DIR__;
-        $this->process = Process::fromShellCommandline("./vendor/bin/phiremock --config-path '$configDir'");
+        $this->process = Process::fromShellCommandline("exec ./vendor/bin/phiremock --config-path '$configDir'");
         $this->process->start();
         $this->waitServerUp();
     }
@@ -57,6 +57,27 @@ class ApiFindAnnouncementItemsIntegration extends KernelTestCase
         );
     }
 
+    public function test_it_finds_second_page_of_announcements()
+    {
+        $query = self::getContainer()->get('akeneo_communication_channel.query.api.find_announcement_items');
+        $result = $query->byPimVersion('Serenity', '2020105', 'en_US', 'update_1-new-screen-for-measurements-families_2020-05', 10);
+        Assert::assertCount(1, $result);
+        Assert::assertEquals(
+            new AnnouncementItem(
+                'update_2-new-measurements-api-endpoints_2020-05',
+                'New endpoints to manage measurements',
+                'We introduced two new API endpoints to create, update and list your measurement families.',
+                '/bundles/akeneocommunicationchannel/images/announcements/measurements-api.png',
+                'Measurement endpoints',
+                'https://help.akeneo.com/pim/serenity/updates/2020-04.html#new-endpoints-to-manage-measurements',
+                new \DateTimeImmutable('2020-05-07'),
+                new \DateTimeImmutable('2020-05-14'),
+                ['updates']
+            ),
+            $result[0]
+        );
+    }
+
     public function waitServerUp()
     {
         $attempt = 0;
@@ -66,7 +87,7 @@ class ApiFindAnnouncementItemsIntegration extends KernelTestCase
                 $httpClient->get('/');
             } catch (ConnectException $e) {
                 usleep(100000);
-            } catch (ClientException $e) {
+            } catch (RequestException $e) {
                 return; // started
             }
 

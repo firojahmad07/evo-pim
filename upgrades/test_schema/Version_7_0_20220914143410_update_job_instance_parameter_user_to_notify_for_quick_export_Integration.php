@@ -35,7 +35,7 @@ final class Version_7_0_20220914143410_update_job_instance_parameter_user_to_not
         $this->assertFalse($this->jobIsMigrated('another_quick_export', []));
 
         $this->reExecuteMigration(self::MIGRATION_LABEL);
-        $this->reExecuteMigration(self::MIGRATION_LABEL, true);
+        $this->reExecuteMigration(self::MIGRATION_LABEL);
 
         $this->assertTrue($this->jobIsMigrated('a_quick_export', ['admin']));
         $this->assertTrue($this->jobIsMigrated('another_quick_export', []));
@@ -104,7 +104,7 @@ SQL;
 
     private function jobIsMigrated(string $jobCode, array $usersToNotify): bool
     {
-        $this->jobInstanceRepository->clear();
+        $this->get('doctrine.orm.entity_manager')->clear();
 
         /** @var JobInstance $jobInstance */
         $jobInstance = $this->jobInstanceRepository->findOneByCode($jobCode);

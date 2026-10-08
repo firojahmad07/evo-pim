@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\Condition;
 
-use Akeneo\Pim\Automation\IdentifierGenerator\Domain\Model\ProductProjection;
 use Webmozart\Assert\Assert;
 
 /**
@@ -12,8 +11,8 @@ use Webmozart\Assert\Assert;
  * @copyright 2022 Akeneo SAS (https://www.akeneo.com)
  * @license   https://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *
- * @phpstan-import-type EnabledNormalized from Enabled
- * @phpstan-type ConditionsNormalized list<EnabledNormalized>
+ * @phpstan-import-type ConditionNormalized from ConditionInterface
+ * @phpstan-type ConditionsNormalized list<ConditionNormalized>
  */
 final class Conditions
 {
@@ -47,7 +46,11 @@ final class Conditions
             Assert::stringNotEmpty($normalizedCondition['type'] ?? null);
             $conditions[] = match ($normalizedCondition['type']) {
                 Enabled::type() => Enabled::fromNormalized($normalizedCondition),
-                default => throw new \InvalidArgumentException(sprintf('The type %s does not exist', $normalizedCondition['type'])),
+                Family::type() => Family::fromNormalized($normalizedCondition),
+                SimpleSelect::type() => SimpleSelect::fromNormalized($normalizedCondition),
+                MultiSelect::type() => MultiSelect::fromNormalized($normalizedCondition),
+                Category::type() => Category::fromNormalized($normalizedCondition),
+                default => throw new \InvalidArgumentException(\sprintf('The Condition type "%s" does not exist', $normalizedCondition['type'])),
             };
         }
 
@@ -62,12 +65,19 @@ final class Conditions
         return \array_map(static fn (ConditionInterface $condition) => $condition->normalize(), $this->conditions);
     }
 
-    public function match(ProductProjection $productProjection): bool
+    /**
+     * @param ConditionInterface[] $otherConditions
+     */
+    public function and(array $otherConditions): Conditions
     {
-        return \array_reduce(
-            $this->conditions,
-            fn (bool $prev, $condition): bool => $prev && $condition->match($productProjection),
-            true
-        );
+        return new self(\array_merge($this->conditions, $otherConditions));
+    }
+
+    /**
+     * @return ConditionInterface[]
+     */
+    public function conditions(): array
+    {
+        return $this->conditions;
     }
 }

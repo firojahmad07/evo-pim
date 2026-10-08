@@ -9,6 +9,7 @@ use AkeneoTest\Acceptance\Messenger\InMemorySpyTransportFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageReceivedEvent;
+use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
 
 /**
  * @copyright 2021 Akeneo SAS (http://www.akeneo.com)
@@ -41,7 +42,7 @@ final class AckMessageEventListenerTest extends KernelTestCase
     public function it_acks_the_message(): void
     {
         $message = UiJobExecutionMessage::createJobExecutionMessage(1, []);
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message, [new TransportMessageIdStamp('some-id')]);
         $this->get('messenger.default_bus')->dispatch($message);
 
         $event = new WorkerMessageReceivedEvent($envelope, 'job');

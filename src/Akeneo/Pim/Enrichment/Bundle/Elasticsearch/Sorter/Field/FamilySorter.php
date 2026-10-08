@@ -55,7 +55,7 @@ class FamilySorter extends BaseFieldSorter
                     $sortFamilyLabelClause = [
                         $familyLabelPath => [
                             'order'         => 'ASC',
-                            'unmapped_type' => 'long',
+                            'unmapped_type' => 'string',
                             'missing'       => '_last',
                         ],
                     ];
@@ -76,7 +76,7 @@ class FamilySorter extends BaseFieldSorter
                     $sortFamilyLabelClause = [
                         $familyLabelPath => [
                             'order'         => 'DESC',
-                            'unmapped_type' => 'long',
+                            'unmapped_type' => 'string',
                             'missing'       => '_last',
                         ],
                     ];

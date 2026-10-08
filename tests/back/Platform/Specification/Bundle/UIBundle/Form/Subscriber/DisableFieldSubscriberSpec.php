@@ -43,7 +43,7 @@ class DisableFieldSubscriberSpec extends ObjectBehavior
         $form->add('name', null, [
             'disabled'  => true,
             'attr' => ['read_only' => true]
-        ])->shouldBeCalled();
+        ])->willReturn($form);
         $this->postSetData($event);
     }
 

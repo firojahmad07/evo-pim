@@ -58,9 +58,9 @@ class UserNormalizerSpec extends ObjectBehavior
         $datagridViewRepo->getDatagridViewAliasesByUser($user)->willReturn([]);
 
         $result = [
-            'code'                      => null,
+            'code'                      => '',
             'enabled'                   => true,
-            'username'                  => null,
+            'username'                  => '',
             'email'                     => null,
             'name_prefix'               => null,
             'first_name'                => null,
