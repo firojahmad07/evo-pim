@@ -131,7 +131,7 @@ class DualIndexationClientSpec extends ObjectBehavior
 
 /**
  * Engine-agnostic test double of the native search client. It declares only
- * the methods LibrePIM's Client wrapper calls, so it works regardless of the
+ * the methods EvoPIM's Client wrapper calls, so it works regardless of the
  * configured search engine (OpenSearch or the Elasticsearch adapter).
  */
 interface MockDualIndexationElasticClientInterface

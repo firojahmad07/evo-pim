@@ -1,11 +1,11 @@
-# **Librepim – Community-Driven LTS Fork of Akeneo PIM Community Edition**
+# **EvoPIM – Community-Driven LTS Fork of Akeneo PIM Community Edition**
 
-> ⚠️ **This is a community fork, not an official Akeneo project.** Librepim is maintained independently to provide long-term support for Akeneo PIM Community Edition users. For details, see [CONTRIBUTORS.md](./CONTRIBUTORS.md).
+> ⚠️ **This is a community fork, not an official Akeneo project.** EvoPIM is maintained independently to provide long-term support for Akeneo PIM Community Edition users. For details, see [CONTRIBUTORS.md](./CONTRIBUTORS.md).
 
-**Librepim** is an open-source, community-maintained fork of the **Akeneo PIM Community Edition**.
+**EvoPIM** is an open-source, community-maintained fork of the **Akeneo PIM Community Edition**.
 Its goal is to provide **Long-Term Support (LTS)**, continued improvements, security fixes, and compatibility updates for teams that rely on the community version of Akeneo for product information management.
 
-Librepim is built on the foundation of Akeneo CE, extending its life through community contributions and modern package updates.
+EvoPIM is built on the foundation of Akeneo CE, extending its life through community contributions and modern package updates.
 
 ---
 
@@ -17,7 +17,7 @@ Continuous improvements, bug fixes, dependency upgrades, and security patches.
 
 ### **🔧 Compatible Migration**
 
-Users of Akeneo PIM CE can migrate to Librepim with minimal changes.
+Users of Akeneo PIM CE can migrate to EvoPIM with minimal changes.
 
 ### **🤝 Community-Driven**
 
@@ -46,8 +46,8 @@ Focused on maintaining a stable and secure PIM experience for real-world workloa
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/libre-pim/librepim-dev
-cd librepim-dev
+git clone https://github.com/firojahmad07/evo-pim
+cd evo-pim
 
 # 2. Configure your local environment
 echo "SEARCH_ENGINE=opensearch" > .env.local
@@ -82,14 +82,14 @@ make pim-dev
 Only needed if you want to build the PHP image locally instead of pulling from the registry:
 
 ```bash
-docker build --target dev -t webkul/librepim-php-dev:master .
+docker build --target dev -t evopim/php-dev:master .
 ```
 
 ---
 
 ## ⚙️ Local Environment Configuration
 
-LibrePIM ships a `.env` file with safe defaults. **Do not edit `.env` directly.**
+EvoPIM ships a `.env` file with safe defaults. **Do not edit `.env` directly.**
 Instead, create a `.env.local` file in the project root and override only what you need.
 `.env.local` is gitignored and never committed.
 
@@ -129,7 +129,7 @@ These values are used by the `php` service in `docker-compose.yml` so that files
 
 ## 🗄️ Database (MySQL)
 
-LibrePIM supports **MySQL 8.0.30 and later, up to (but not including) 9.0**,
+EvoPIM supports **MySQL 8.0.30 and later, up to (but not including) 9.0**,
 which covers both the 8.0 series and **MySQL 8.4 LTS**. The Docker setup ships
 `mysql:8.4.9`.
 
@@ -149,7 +149,7 @@ columns are both parsed correctly on either server version.
 
 ## 🔍 Search Engine (Elasticsearch or OpenSearch)
 
-LibrePIM runs on **Elasticsearch 8** by default and also supports
+EvoPIM runs on **Elasticsearch 8** by default and also supports
 **OpenSearch 2.x** as an alternative. The choice is made by the
 `SEARCH_ENGINE` environment variable; the rest of the codebase is
 engine-agnostic.
@@ -193,7 +193,7 @@ service returns an `OpenSearchClientBuilderAdapter` instead of the native
 into `Elastic\Elasticsearch\Exception\ClientResponseException` or
 `ServerResponseException`, preserving the HTTP status on the attached
 PSR-7 response. Existing `catch (ElasticsearchException $e)` blocks
-across LibrePIM keep working unchanged.
+across EvoPIM keep working unchanged.
 
 The adapter layer lives at
 `src/Akeneo/Tool/Bundle/ElasticsearchBundle/SearchEngine/` and is the
@@ -216,7 +216,7 @@ vendor/bin/phpspec run src/Akeneo/Tool/Bundle/ElasticsearchBundle/spec
 
 `opensearch-project/opensearch-php` is pinned at `~2.3.1`. Newer 2.x
 releases require `psr/http-message ^2.0`, which conflicts with other
-LibrePIM dependencies.
+EvoPIM dependencies.
 
 ### Common pitfalls
 
@@ -232,7 +232,7 @@ LibrePIM dependencies.
 
 ## 🔄 Upgrading
 
-Librepim follows Akeneo CE’s upgrade flow, making transitions simple and predictable.
+EvoPIM follows Akeneo CE’s upgrade flow, making transitions simple and predictable.
 
 👉 **Upgrade Guide (Akeneo process compatible)**
 [https://docs.akeneo.com/master/migrate_pim/index.html](https://docs.akeneo.com/master/migrate_pim/index.html)
@@ -249,7 +249,7 @@ You can follow their testing documentation to run unit, integration, and end-to-
 
 ---
 
-## 🤝 Contributing to Librepim
+## 🤝 Contributing to EvoPIM
 
 We encourage the community to participate and help improve the project.
 
@@ -271,13 +271,13 @@ A respectful and collaborative environment is expected from everyone involved.
 
 ## 📄 License
 
-Librepim is distributed under the **Open Software License (OSL 3.0)**, the same license used by Akeneo PIM CE.
+EvoPIM is distributed under the **Open Software License (OSL 3.0)**, the same license used by Akeneo PIM CE.
 
 👉 [LICENSE.txt](./LICENSE.txt)
 
 ---
 
-## 🎯 Why Librepim?
+## 🎯 Why EvoPIM?
 
 * **Continued Support:** Ongoing maintenance for users of Akeneo CE
 * **Security First:** Regular patches and dependency updates
@@ -289,14 +289,14 @@ Librepim is distributed under the **Open Software License (OSL 3.0)**, the same 
 
 ## ℹ️ About the Project
 
-**Librepim** aims to ensure a long-term, stable future for the Akeneo Community Edition ecosystem by:
+**EvoPIM** aims to ensure a long-term, stable future for the Akeneo Community Edition ecosystem by:
 
 * Providing LTS
 * Ensuring modern PHP, Symfony, and package compatibility
 * Maintaining open-source availability for businesses and developers
 * Encouraging community collaboration and contributions
 
-Whether you're using Akeneo CE for small catalogs or managing large-scale product data, Librepim helps you continue with confidence.
+Whether you're using Akeneo CE for small catalogs or managing large-scale product data, EvoPIM helps you continue with confidence.
 
 ---
 
@@ -305,21 +305,21 @@ Whether you're using Akeneo CE for small catalogs or managing large-scale produc
 * **Akeneo PIM Documentation**
   [https://docs.akeneo.com/](https://docs.akeneo.com/)
 
-* **Librepim Repository**
-  [https://github.com/libre-pim/librepim-dev](https://github.com/libre-pim/librepim-dev)
+* **EvoPIM Repository**
+  [https://github.com/firojahmad07/evo-pim](https://github.com/firojahmad07/evo-pim)
 
 * **Contributing Guide**
   ./CONTRIBUTING.md
 
 * **Issue Tracker**
-  [https://github.com/libre-pim/librepim-dev/issues](https://github.com/libre-pim/librepim-dev/issues)
+  [https://github.com/firojahmad07/evo-pim/issues](https://github.com/firojahmad07/evo-pim/issues)
 
 ---
 
 ## 💬 Final Note
 
-Librepim is built for the community and maintained by the community.
-If you're looking for a stable, secure, and continuously maintained version of Akeneo CE, Librepim is the ideal choice.
+EvoPIM is built for the community and maintained by the community.
+If you're looking for a stable, secure, and continuously maintained version of Akeneo CE, EvoPIM is the ideal choice.
 
 Join us, contribute, and help keep the open-source PIM ecosystem strong.
  

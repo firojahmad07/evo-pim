@@ -1,11 +1,11 @@
 version: '3.7'
 
-# LibrePIM - Long-Term Support Fork of Akeneo PIM Community Edition
-# Repository: https://github.com/libre-pim/librepim-dev
+# EvoPIM - Long-Term Support Fork of Akeneo PIM Community Edition
+# Repository: https://github.com/firojahmad07/evo-pim
 
 services:
   php:
-    image: 'webkul/librepim-php-dev:8.3'
+    image: 'evopim/php-dev:8.3'
     environment:
       APP_ENV: '${APP_ENV:-prod}'
       COMPOSER_HOME: '/var/www/.composer'
@@ -26,7 +26,7 @@ services:
       - 'pim'
 
   httpd:
-    image: 'webkul/librepim-php-dev:8.3'
+    image: 'evopim/php-dev:8.3'
     env_file:
       - .env
     environment:

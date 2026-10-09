@@ -93,11 +93,11 @@ jobs:
             - run:
                   name: Require proper dev CE branch
                   command: |
-                      sed -i "s#librepim/librepim-dev\": \"dev-master#librepim/librepim-dev\": \"dev-${CIRCLE_BRANCH}#" composer.json
-                      sed -i "s#librepim/librepim-dev\": \"dev-master#librepim/librepim-dev\": \"dev-${CIRCLE_BRANCH}#" grth/composer.json
+                      sed -i "s#evopim/evo-pim\": \"dev-master#evopim/evo-pim\": \"dev-${CIRCLE_BRANCH}#" composer.json
+                      sed -i "s#evopim/evo-pim\": \"dev-master#evopim/evo-pim\": \"dev-${CIRCLE_BRANCH}#" grth/composer.json
             - run:
                   name: Checkout CE
-                  command: git clone --depth 1 https://github.com/librepim/librepim-dev vendor/librepim/librepim-dev -b ${CIRCLE_BRANCH}
+                  command: git clone --depth 1 https://github.com/firojahmad07/evo-pim vendor/evopim/evo-pim -b ${CIRCLE_BRANCH}
             - install_yq_v3
             - run:
                   name: Remove MySQL port translation (see BH-664)

@@ -1,8 +1,8 @@
 {
-    "name": "librepim/librepim-dev",
-    "description": "LibrePIM - Community-Maintained Fork of Akeneo PIM Community Edition",
+    "name": "evopim/evo-pim",
+    "description": "EvoPIM - Community-Maintained Fork of Akeneo PIM Community Edition",
     "license": "OSL-3.0",
-    "homepage": "https://github.com/libre-pim/librepim-dev",
+    "homepage": "https://github.com/firojahmad07/evo-pim",
     "autoload": {
         "psr-0": {
             "": "src/"

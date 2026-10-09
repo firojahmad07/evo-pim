@@ -1,10 +1,10 @@
 {
-    "extends": "./vendor/librepim/librepim-dev/tsconfig.json",
+    "extends": "./vendor/evopim/evo-pim/tsconfig.json",
     "compilerOptions": {
         "baseUrl": "./public/bundles"
     },
     "include": [
         "public/bundles",
-        "vendor/librepim/librepim-dev/frontend/types.d.ts"
+        "vendor/evopim/evo-pim/frontend/types.d.ts"
     ]
 }

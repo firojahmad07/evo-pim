@@ -1,14 +1,14 @@
 {
-  "name": "librepim-dev",
+  "name": "evo-pim",
   "version": "7.0.0",
-  "description": "LibrePIM - Community-maintained LTS fork of Akeneo PIM Community Edition. Not affiliated with Akeneo SAS.",
-  "homepage": "https://github.com/libre-pim/librepim-dev",
+  "description": "EvoPIM - Community-maintained LTS fork of Akeneo PIM Community Edition. Not affiliated with Akeneo SAS.",
+  "homepage": "https://github.com/firojahmad07/evo-pim",
   "repository": {
     "type": "git",
-    "url": "https://github.com/libre-pim/librepim-dev.git"
+    "url": "https://github.com/firojahmad07/evo-pim.git"
   },
   "bugs": {
-    "url": "https://github.com/libre-pim/librepim-dev/issues"
+    "url": "https://github.com/firojahmad07/evo-pim/issues"
   },
   "keywords": [
     "pim",

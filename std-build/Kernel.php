@@ -25,7 +25,7 @@ class Kernel extends BaseKernel
 
     public function registerBundles(): iterable
     {
-        $bundles = require $this->getProjectDir() . '/vendor/librepim/librepim-dev/config/bundles.php';
+        $bundles = require $this->getProjectDir() . '/vendor/evopim/evo-pim/config/bundles.php';
         $bundles += require $this->getProjectDir() . '/config/bundles.php';
         foreach ($bundles as $class => $envs) {
             if ($envs[$this->environment] ?? $envs['all'] ?? false) {
@@ -44,7 +44,7 @@ class Kernel extends BaseKernel
         $container->addResource(new FileResource($this->getProjectDir() . '/config/bundles.php'));
         $container->setParameter('container.dumper.inline_class_loader', true);
 
-        $ceConfDir = $this->getProjectDir() . '/vendor/librepim/librepim-dev/config';
+        $ceConfDir = $this->getProjectDir() . '/vendor/evopim/evo-pim/config';
         $projectConfDir = $this->getProjectDir() . '/config';
 
         $this->loadPackagesConfigurationExceptSecurity($loader, $ceConfDir, $this->environment);
@@ -56,7 +56,7 @@ class Kernel extends BaseKernel
 
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
-        $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/vendor/librepim/librepim-dev/config', $this->environment);
+        $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/vendor/evopim/evo-pim/config', $this->environment);
         $this->loadRoutesConfiguration($routes, $this->getProjectDir() . '/config', $this->environment);
     }
 

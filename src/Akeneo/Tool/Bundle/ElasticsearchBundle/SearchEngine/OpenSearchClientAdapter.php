@@ -8,7 +8,7 @@ use OpenSearch\Client as OpenSearchClient;
 
 /**
  * Adapts the OpenSearch PHP client so it presents the same surface that the
- * Elasticsearch PHP client v8 exposes to LibrePIM. Top-level calls forward
+ * Elasticsearch PHP client v8 exposes to EvoPIM. Top-level calls forward
  * via {@see __call()} and return plain arrays (which `Client::toResultArray()`
  * already accepts) or booleans for `exists*` methods. Every failure is
  * re-thrown as an Elasticsearch exception type via

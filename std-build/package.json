@@ -4,8 +4,8 @@
   "homepage": "http://www.akeneo.com",
   "private": true,
   "config": {
-    "source": "vendor/librepim/librepim-dev",
-    "styles": "vendor/librepim/librepim-dev/frontend/build/compile-less.js"
+    "source": "vendor/evopim/evo-pim",
+    "styles": "vendor/evopim/evo-pim/frontend/build/compile-less.js"
   },
   "scripts": {
     "requirements": "node $npm_package_config_source/frontend/build/check-requirements.js",
@@ -14,33 +14,33 @@
     "less": "node $npm_package_config_styles",
     "update-extensions": "node $npm_package_config_source/frontend/build/update-extensions.js",
     "generate-models": "yarn workspace @akeneo-pim-community/communication-channel generate-models",
-    "packages:build": "yarn workspace librepim-dev packages:build"
+    "packages:build": "yarn workspace evo-pim packages:build"
   },
   "devDependencies": {
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1"
   },
   "workspaces": [
-    "vendor/librepim/librepim-dev",
-    "vendor/librepim/librepim-dev/components/catalogs/mock",
-    "vendor/librepim/librepim-dev/components/identifier-generator/front",
-    "vendor/librepim/librepim-dev/front-packages/shared",
-    "vendor/librepim/librepim-dev/src/Akeneo/Category/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Connectivity/Connection/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Connectivity/Connection/workspaces/permission-form",
-    "vendor/librepim/librepim-dev/src/Akeneo/Pim/Automation/DataQualityInsights/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Pim/Enrichment/Bundle/Resources/workspaces/enrichment",
-    "vendor/librepim/librepim-dev/src/Akeneo/Pim/Structure/Bundle/Resources/workspaces/settings-ui",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/CatalogVolumeMonitoringBundle/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/CommunicationChannelBundle/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/ImportExportBundle/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/activity",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/legacy-bridge",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/product",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/system",
-    "vendor/librepim/librepim-dev/src/Akeneo/Platform/Job/front/process-tracker",
-    "vendor/librepim/librepim-dev/src/Akeneo/Tool/Bundle/MeasureBundle/front",
-    "vendor/librepim/librepim-dev/src/Akeneo/UserManagement/Bundle/Resources/workspaces/user-ui",
-    "vendor/librepim/librepim-dev/src/Oro/Bundle/ConfigBundle/front"
+    "vendor/evopim/evo-pim",
+    "vendor/evopim/evo-pim/components/catalogs/mock",
+    "vendor/evopim/evo-pim/components/identifier-generator/front",
+    "vendor/evopim/evo-pim/front-packages/shared",
+    "vendor/evopim/evo-pim/src/Akeneo/Category/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Connectivity/Connection/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Connectivity/Connection/workspaces/permission-form",
+    "vendor/evopim/evo-pim/src/Akeneo/Pim/Automation/DataQualityInsights/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Pim/Enrichment/Bundle/Resources/workspaces/enrichment",
+    "vendor/evopim/evo-pim/src/Akeneo/Pim/Structure/Bundle/Resources/workspaces/settings-ui",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/CatalogVolumeMonitoringBundle/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/CommunicationChannelBundle/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/ImportExportBundle/front",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/activity",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/legacy-bridge",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/product",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Bundle/UIBundle/Resources/workspaces/system",
+    "vendor/evopim/evo-pim/src/Akeneo/Platform/Job/front/process-tracker",
+    "vendor/evopim/evo-pim/src/Akeneo/Tool/Bundle/MeasureBundle/front",
+    "vendor/evopim/evo-pim/src/Akeneo/UserManagement/Bundle/Resources/workspaces/user-ui",
+    "vendor/evopim/evo-pim/src/Oro/Bundle/ConfigBundle/front"
   ]
 }

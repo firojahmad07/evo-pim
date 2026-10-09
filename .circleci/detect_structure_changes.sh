@@ -54,7 +54,7 @@ echo "Update composer dependencies"
 make vendor
 
 echo "Copy CE migrations into EE to install 5.0 branch..."
-cp -R vendor/librepim/librepim-dev/upgrades/schema/* upgrades/schema
+cp -R vendor/evopim/evo-pim/upgrades/schema/* upgrades/schema
 
 echo "Enable Onboarder bundle on 5.0 branch..."
 sudo chown 1000:1000 composer.json
@@ -96,7 +96,7 @@ sudo chown 1000:1000 -R .
 make vendor
 
 echo "Copy CE migrations into EE to launch branch migrations..."
-cp -R vendor/librepim/librepim-dev/upgrades/schema/* upgrades/schema
+cp -R vendor/evopim/evo-pim/upgrades/schema/* upgrades/schema
 
 echo "Enable Onboarder bundle on PR branch..."
 if [ -d "vendor/akeneo/pim-onboarder" ]; then

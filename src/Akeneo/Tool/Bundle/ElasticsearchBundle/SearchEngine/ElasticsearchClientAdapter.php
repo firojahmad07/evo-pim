@@ -9,10 +9,10 @@ use Elastic\Elasticsearch\Response\Elasticsearch;
 
 /**
  * Adapts the Elasticsearch 8 PHP client so it presents the same surface as the
- * OpenSearch PHP client used throughout LibrePIM: every call returns a plain
+ * OpenSearch PHP client used throughout EvoPIM: every call returns a plain
  * array and every failure throws an OpenSearch exception type.
  *
- * This is the bridge that lets LibrePIM run on Elasticsearch when
+ * This is the bridge that lets EvoPIM run on Elasticsearch when
  * SEARCH_ENGINE=elasticsearch, while the rest of the codebase keeps talking
  * to a single OpenSearch-shaped client API.
  *

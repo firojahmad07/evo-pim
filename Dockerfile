@@ -1,9 +1,9 @@
 FROM httpd:2.4-bullseye AS base
 
-LABEL maintainer="LibrePIM Contributors" \
-      description="LibrePIM - Long-Term Support Fork of Akeneo PIM Community Edition" \
+LABEL maintainer="EvoPIM Contributors" \
+      description="EvoPIM - Long-Term Support Fork of Akeneo PIM Community Edition" \
       version="8.2.0" \
-      repository="https://github.com/libre-pim/librepim-dev"
+      repository="https://github.com/firojahmad07/evo-pim"
 
 ENV PHP_VERSION=8.3 \
     PHP_CONF_DATE_TIMEZONE=UTC \
@@ -56,8 +56,8 @@ RUN ln -s /usr/sbin/php-fpm8.3 /usr/local/sbin/php-fpm && \
     usermod --uid 1000 www-data && groupmod --gid 1000 www-data && \
     mkdir -p /run/php /srv/pim
 
-COPY docker/build/akeneo.ini /etc/php/8.3/cli/conf.d/99-librepim.ini
-COPY docker/build/akeneo.ini /etc/php/8.3/fpm/conf.d/99-librepim.ini
+COPY docker/build/akeneo.ini /etc/php/8.3/cli/conf.d/99-evopim.ini
+COPY docker/build/akeneo.ini /etc/php/8.3/fpm/conf.d/99-evopim.ini
 
 CMD ["/usr/bin/supervisord", "-c", "docker/supervisord.conf"]
 
@@ -75,8 +75,8 @@ RUN apt-get update && apt-get install -y \
       php8.3-xdebug && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY docker/build/xdebug.ini /etc/php/8.3/cli/conf.d/99-librepim-xdebug.ini
-COPY docker/build/xdebug.ini /etc/php/8.3/fpm/conf.d/99-librepim-xdebug.ini
+COPY docker/build/xdebug.ini /etc/php/8.3/cli/conf.d/99-evopim-xdebug.ini
+COPY docker/build/xdebug.ini /etc/php/8.3/fpm/conf.d/99-evopim-xdebug.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 

@@ -11,7 +11,7 @@ use Elastic\Elasticsearch\ClientBuilder;
  * (`setHosts()` / `build()`) but produces an Elasticsearch client wrapped in
  * {@see ElasticsearchClientAdapter}.
  *
- * This lets LibrePIM's services keep building their client the same way
+ * This lets EvoPIM's services keep building their client the same way
  * regardless of the configured search engine.
  */
 final class ElasticsearchClientBuilderAdapter

@@ -1,6 +1,6 @@
 # Contributors & Attribution
 
-LibrePIM is a **community-maintained, long-term support (LTS) fork** of Akeneo PIM Community Edition. This project would not exist without the foundational work of the original authors and the Akeneo ecosystem.
+EvoPIM is a **community-maintained, long-term support (LTS) fork** of Akeneo PIM Community Edition. This project would not exist without the foundational work of the original authors and the Akeneo ecosystem.
 
 ## Original Work & Core Contributors
 
@@ -43,11 +43,11 @@ LibrePIM is a **community-maintained, long-term support (LTS) fork** of Akeneo P
 - **License**: Apache License 2.0
 - **Version**: 8.x client / Elasticsearch 8.19 server
 - **Website**: https://www.elastic.co/
-- **Note**: LibrePIM maintains dual compatibility — supports both OpenSearch 2.19 and Elasticsearch 8.19 as interchangeable search backends
+- **Note**: EvoPIM maintains dual compatibility — supports both OpenSearch 2.19 and Elasticsearch 8.19 as interchangeable search backends
 
-## LibrePIM Contributors
+## EvoPIM Contributors
 
-LibrePIM extends the foundation of Akeneo CE with:
+EvoPIM extends the foundation of Akeneo CE with:
 
 - **Dependency Updates**: Modern package versions (Symfony 6+, Doctrine 3+, OpenSearch 2.19, Elasticsearch 8.19)
 - **Dual Search Engine Support**: Compatible with both OpenSearch 2.19 and Elasticsearch 8.19 as drop-in search backends
@@ -68,7 +68,7 @@ We welcome contributions! Please:
 
 ### Licensing
 
-**LibrePIM** is dual-licensed:
+**EvoPIM** is dual-licensed:
 
 - **Code inherited from Akeneo CE**: Open Software License 3.0 (OSL-3.0)
 - **New contributions**: OSL-3.0 (to maintain compatibility)
@@ -82,16 +82,16 @@ For details, see:
 
 ⚠️ **This project is NOT affiliated with Akeneo SAS.** 
 
-LibrePIM is a community-driven fork maintained independently to provide:
+EvoPIM is a community-driven fork maintained independently to provide:
 - Extended support for Akeneo PIM CE users
 - Compatibility with modern dependencies
 - Community-driven improvements
 
-**Akeneo** is a trademark of Akeneo SAS. LibrePIM is a fork, not an official Akeneo project.
+**Akeneo** is a trademark of Akeneo SAS. EvoPIM is a fork, not an official Akeneo project.
 
 ---
 
 For questions about contributions or licensing, please open an issue on GitHub:
-https://github.com/libre-pim/librepim-dev
+https://github.com/firojahmad07/evo-pim
 
 **Thank you to all contributors and the original Akeneo team!** 🎉

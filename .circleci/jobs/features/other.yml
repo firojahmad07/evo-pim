@@ -237,14 +237,14 @@ jobs:
             -   run:
                     name: Restore permissions on vendor files
                     command: |
-                        cd vendor/librepim/librepim-dev
+                        cd vendor/evopim/evo-pim
                         git checkout -- .
             -   run:
                     name: Change owner on project dir after restoring cache
                     command: sudo chown -R 1000:1000 ../project
             -   run:
                     name: Test missing database and index structure migrations
-                    command: vendor/librepim/librepim-dev/.circleci/detect_structure_changes.sh $CIRCLE_BRANCH
+                    command: vendor/evopim/evo-pim/.circleci/detect_structure_changes.sh $CIRCLE_BRANCH
 
     test_back_data_migrations:
         machine:
