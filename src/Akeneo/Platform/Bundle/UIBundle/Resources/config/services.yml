@@ -29,6 +29,7 @@ services:
         class: 'Akeneo\Platform\Bundle\UIBundle\VersionStrategy\CacheBusterVersionStrategy'
         arguments:
             - '@pim_catalog.version_provider'
+            - '%kernel.project_dir%'
 
     # inject current locale into translatable entities
     pim_enrich.event_listener.add_locale:

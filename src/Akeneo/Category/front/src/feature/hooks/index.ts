@@ -11,3 +11,4 @@ export * from './useCountProductsBeforeDeleteCategory';
 export * from './useCountProductsByCategory';
 export * from './useTemplateByTemplateUuid';
 export * from './useCategoryTree';
+export * from './useSearchCategories';

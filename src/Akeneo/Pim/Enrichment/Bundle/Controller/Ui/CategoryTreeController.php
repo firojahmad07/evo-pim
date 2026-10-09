@@ -11,6 +11,7 @@ use Akeneo\Category\Infrastructure\Component\CategoryItemsCounterInterface;
 use Akeneo\Category\Infrastructure\Component\Classification\Model\CategoryInterface;
 use Akeneo\Category\Infrastructure\Component\Classification\Repository\CategoryRepositoryInterface;
 use Akeneo\Category\Infrastructure\Symfony\Form\CategoryFormViewNormalizerInterface;
+use Akeneo\Pim\Enrichment\Bundle\Storage\Sql\Category\SearchCategoriesInTree;
 use Akeneo\Pim\Enrichment\Component\Category\Query\CountTreesChildrenInterface;
 use Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactoryInterface;
 use Akeneo\Tool\Component\StorageUtils\Saver\SaverInterface;
@@ -59,6 +60,7 @@ class CategoryTreeController extends AbstractController
         private GetCategoryTreesInterface $getCategoryTrees,
         private CommandBus $commandBus,
         private Environment $twig,
+        private SearchCategoriesInTree $searchCategoriesInTree,
         array $rawConfiguration,
     ) {
         $resolver = new OptionsResolver();
@@ -368,6 +370,23 @@ class CategoryTreeController extends AbstractController
         $countChildren = $this->countTreesChildrenQuery->execute();
 
         return new JsonResponse($countChildren);
+    }
+
+    public function searchAction(Request $request, int $id): JsonResponse
+    {
+        if (false === $this->securityFacade->isGranted($this->buildAclName('category_list'))) {
+            throw new AccessDeniedException();
+        }
+
+        $tree = $this->findCategory($id);
+        if (!$tree->isRoot()) {
+            throw $this->createNotFoundException('Category tree not found');
+        }
+
+        $locale = (string) $request->query->get('locale', $this->userContext->getCurrentLocaleCode());
+        $search = (string) $request->query->get('search', '');
+
+        return new JsonResponse($this->searchCategoriesInTree->search((int) $tree->getId(), $locale, $search));
     }
 
     /**

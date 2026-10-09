@@ -53,6 +53,14 @@ pim_enrich_categorytree_tree:
     requirements:
         id: \d+
 
+pim_enrich_categorytree_search:
+    path: /{id}/search
+    defaults:
+        _controller: 'pim_enrich.controller.category_tree.product::searchAction'
+    requirements:
+        id: \d+
+    methods: [GET]
+
 pim_enrich_categorytree_remove:
     path: /{id}/remove
     defaults:

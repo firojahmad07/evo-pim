@@ -235,6 +235,10 @@ pim_enrich.entity.category:
                 count_categories: ]-Inf, 1]{{ count }} category|]1, Inf[{{ count }} categories
         tree:
             not_found: Category tree not found
+            search_by_label_or_code: Search by label or code
+            columns:
+                code: Code
+                path: Path
         edit:
             not_found: Category not found
             default_tree_label: Tree

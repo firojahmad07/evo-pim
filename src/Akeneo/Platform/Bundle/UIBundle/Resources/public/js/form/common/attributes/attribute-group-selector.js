@@ -117,7 +117,7 @@ define([
                 allAttributeCode: this.all.code,
                 currentElement: _.findWhere(this.getElements(), {code: this.getCurrent()}),
                 i18n: i18n,
-                label: __('pim_enrich.entity.attribute_group.uppercase_label'),
+                label: __('pim_enrich.entity.attribute_group.plural_label'),
               })
             );
           }

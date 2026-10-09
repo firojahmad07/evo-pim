@@ -6,14 +6,17 @@ import {
   PageContent,
   PageHeader,
   PimView,
+  useDebounceCallback,
   useRouter,
   useSecurity,
   useSessionStorageState,
   useSetPageTitle,
   useTranslate,
+  useUserContext,
 } from '@akeneo-pim-community/shared';
-import {CategoryToDelete, useCategoryTreeDeprecated, useDeleteCategory} from '../hooks';
+import {CategoryToDelete, useCategoryTreeDeprecated, useDeleteCategory, useSearchCategories} from '../hooks';
 import {CategoryTree, DiscoverEnrichedCategoriesInformationHelper} from '../components';
+import {CategoryTreeSearch} from '../components/datagrids/CategoryTreeSearch';
 import {NewCategoryModal} from './NewCategoryModal';
 import {DeleteCategoryModal} from '../components/datagrids/DeleteCategoryModal';
 
@@ -35,7 +38,13 @@ const CategoriesTreePage: FC = () => {
   let {treeId} = useParams<Params>();
   const router = useRouter();
   const translate = useTranslate();
+  const userContext = useUserContext();
   const {isGranted} = useSecurity();
+  const [searchString, setSearchString] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [locale, setLocale] = useState<string>(userContext.get('catalogLocale'));
+  const updateDebouncedSearch = useDebounceCallback(setDebouncedSearch, 300);
+  const {data: searchResults = [], isFetching: isSearching} = useSearchCategories(treeId, locale, debouncedSearch);
   const [lastSelectedCategory] = useSessionStorageState<lastSelectedCategory>(
     {
       treeId: treeId,
@@ -136,18 +145,34 @@ const CategoriesTreePage: FC = () => {
       <PageContent>
         <section>
           <DiscoverEnrichedCategoriesInformationHelper />
-          <SectionTitle>
-            <SectionTitle.Title>{translate('pim_enrich.entity.category.plural_label')}</SectionTitle.Title>
-          </SectionTitle>
-          <CategoryTree
-            root={tree}
-            orderable={isGranted('pim_enrich_product_category_order_trees')}
-            followCategory={
-              isGranted('pim_enrich_product_category_edit') ? cat => followEditCategory(cat.id) : undefined
-            }
-            addCategory={isGranted('pim_enrich_product_category_create') ? addCategory : undefined}
-            deleteCategory={isGranted('pim_enrich_product_category_remove') ? confirmDeleteCategory : undefined}
+          <CategoryTreeSearch
+            searchValue={searchString}
+            onSearchChange={searchValue => {
+              setSearchString(searchValue);
+              updateDebouncedSearch(searchValue);
+            }}
+            locale={locale}
+            onLocaleChange={setLocale}
+            results={searchResults}
+            isSearching={isSearching}
+            onSelectCategory={followEditCategory}
           />
+          {debouncedSearch.trim() === '' && (
+            <>
+              <SectionTitle>
+                <SectionTitle.Title>{translate('pim_enrich.entity.category.plural_label')}</SectionTitle.Title>
+              </SectionTitle>
+              <CategoryTree
+                root={tree}
+                orderable={isGranted('pim_enrich_product_category_order_trees')}
+                followCategory={
+                  isGranted('pim_enrich_product_category_edit') ? cat => followEditCategory(cat.id) : undefined
+                }
+                addCategory={isGranted('pim_enrich_product_category_create') ? addCategory : undefined}
+                deleteCategory={isGranted('pim_enrich_product_category_remove') ? confirmDeleteCategory : undefined}
+              />
+            </>
+          )}
         </section>
         {isNewCategoryModalOpen && categoryToCreate !== null && (
           <NewCategoryModal

@@ -376,6 +376,7 @@ services:
             - '@Akeneo\Category\Domain\Query\GetCategoryTreesInterface'
             - '@category.command.message_bus'
             - '@twig'
+            - '@Akeneo\Pim\Enrichment\Bundle\Storage\Sql\Category\SearchCategoriesInTree'
             - { related_entity: product, form_type: 'Akeneo\Category\Infrastructure\Symfony\Form\Type\CategoryType', acl: pim_enrich_product, route: pim_enrich }
         calls:
             - [ setContainer, [ '@service_container' ] ]

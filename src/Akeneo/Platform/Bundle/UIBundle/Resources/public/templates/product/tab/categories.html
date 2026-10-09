@@ -1,9 +1,21 @@
-<div class="tabbable">
+<div class="tabbable AknCategoryAssociate">
     <div class="AknHorizontalNavtab">
         <div class="AknButtonList catalog-switcher"></div>
     </div>
+    <div class="AknCategoryAssociate-toolbar">
+        <div class="AknSearch AknCategorySearch">
+            <input
+                type="search"
+                class="AknSearch-input AknCategorySearch-input"
+                placeholder="<%- __('pim_enrich.entity.category.content.tree.search_by_label_or_code') %>"
+                value="<%- categorySearch %>"
+                autocomplete="off"
+            />
+        </div>
+    </div>
     <div class="tab-content">
         <div class="tab-pane active" id="product-categories">
+            <div class="AknCategorySearch-results" hidden></div>
             <div id="trees" data-id="<%- product.meta.id %>" data-uuid="<%- product.meta.id %>" data-datalocale="<%- locale %>" data-selected-tree="<%- trees.find(function (tree) { return tree.id === parseInt(state.currentTreeId); }).id %>">
                 <% _.each(trees, function (tree) { %>
                     <div id="root-unselectable" class="tree root-unselectable" data-tree-id="<%- tree.id %>">

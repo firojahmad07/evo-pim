@@ -117,8 +117,10 @@ define([
     events: {
       'click .remove-attribute': 'removeAttribute',
       'click .required-attribute-indicator': 'filterRequiredAttributes',
+      'input .AknAttributeSearch-input': 'onAttributeSearch',
     },
     rendering: false,
+    attributeSearch: '',
 
     /**
      * {@inheritdoc}
@@ -174,7 +176,13 @@ define([
      * {@inheritdoc}
      */
     render: function () {
-      if (!this.configured || this.rendering) {
+      if (!this.configured) {
+        return this;
+      }
+
+      if (this.rendering) {
+        this.renderRequested = true;
+
         return this;
       }
 
@@ -182,7 +190,12 @@ define([
       this.getRoot().trigger('pim_enrich:form:attributes:render:before');
 
       this.rendering = true;
-      this.$el.html(this.template({}));
+      this.$el.html(
+        this.template({
+          attributeSearch: this.attributeSearch || '',
+          __: __,
+        })
+      );
 
       var data = this.getFormData();
       AttributeGroupManager.getAttributeGroupsForObject(data)
@@ -241,8 +254,14 @@ define([
               _.defer(this.sticky.bind(this));
             })
             .then(() => {
+              this.focusAttributeSearch();
               this.getRoot().trigger('pim_enrich:form:extension:render:after');
               this.getRoot().trigger('pim_enrich:form:attributes:render:after');
+
+              if (this.renderRequested) {
+                this.renderRequested = false;
+                this.render();
+              }
             });
         });
 
@@ -491,6 +510,39 @@ define([
      *
      * @return {Promise}
      */
+    /**
+     * Filters the attribute list while the user types in the search field.
+     *
+     * @param {Event} event
+     */
+    onAttributeSearch: function (event) {
+      this.attributeSearch = event.currentTarget.value;
+      clearTimeout(this.attributeSearchTimer);
+      this.attributeSearchTimer = setTimeout(() => {
+        this.shouldFocusAttributeSearch = true;
+        this.render();
+      }, 250);
+    },
+
+    /**
+     * Puts the cursor back in the search field after the attribute list is redrawn.
+     */
+    focusAttributeSearch: function () {
+      if (!this.shouldFocusAttributeSearch) {
+        return;
+      }
+
+      this.shouldFocusAttributeSearch = false;
+      const input = this.el.querySelector('.AknAttributeSearch-input');
+      if (null === input) {
+        return;
+      }
+
+      input.focus();
+      const cursor = input.value.length;
+      input.setSelectionRange(cursor, cursor);
+    },
+
     filterValues: function (values) {
       if (!this.getExtension('attribute-group-selector').isAll()) {
         const filteredValues = {};
@@ -526,7 +578,21 @@ define([
       return FetcherRegistry.getFetcher('attribute')
         .fetchByIdentifiers(Object.keys(values))
         .then(attributes => {
-          attributes.sort((a, b) => {
+          const search = (this.attributeSearch || '').trim().toLocaleLowerCase();
+          const locale = UserContext.get('catalogLocale');
+          const visibleAttributes = attributes.filter(attribute => {
+            if ('' === search) {
+              return true;
+            }
+
+            const label = i18n.getLabel(attribute.labels, locale, attribute.code) || '';
+
+            return (
+              label.toLocaleLowerCase().includes(search) || attribute.code.toLocaleLowerCase().includes(search)
+            );
+          });
+
+          visibleAttributes.sort((a, b) => {
             if (a.sortOrder < b.sortOrder) {
               return -1;
             }
@@ -538,14 +604,22 @@ define([
             return a.meta.id < b.meta.id ? -1 : 1;
           });
 
+          if (0 === visibleAttributes.length) {
+            return [];
+          }
+
           return $.when.apply(
             $,
-            attributes.map(attribute => {
+            visibleAttributes.map(attribute => {
               return this.createAttributeField(data, attribute.code, values[attribute.code]);
             })
           );
         })
-        .then(function () {
+        .then(function (resolved) {
+          if (Array.isArray(resolved)) {
+            return resolved;
+          }
+
           return _.values(arguments);
         });
     },

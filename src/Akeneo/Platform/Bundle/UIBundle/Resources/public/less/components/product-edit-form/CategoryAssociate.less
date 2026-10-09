@@ -1,0 +1,48 @@
+@import '../../base/variables';
+
+.AknCategoryAssociate-toolbar {
+  margin-top: 4px;
+
+  .AknCategorySearch {
+    margin-bottom: 0;
+  }
+}
+
+.AknCategorySearch-results {
+  padding: 4px 0 12px;
+}
+
+.AknCategorySearch-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.AknCategorySearch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 2px;
+  border-bottom: 1px solid @AknBorderColor;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.AknCategorySearch-label {
+  color: @AknDefaultFontColor;
+}
+
+.AknCategorySearch-code,
+.AknCategorySearch-path {
+  color: @AknGrey120;
+}
+
+.AknCategorySearch-path {
+  margin-left: auto;
+}
+
+.AknCategorySearch-empty {
+  padding: 24px 0;
+  color: @AknGrey120;
+}

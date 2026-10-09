@@ -10,12 +10,15 @@ class CacheBusterVersionStrategy implements VersionStrategyInterface
     /** @var VersionProviderInterface */
     protected $versionProvider;
 
+    private string $projectDir;
+
     /**
      * @param VersionProviderInterface $versionProvider
      */
-    public function __construct(VersionProviderInterface $versionProvider)
+    public function __construct(VersionProviderInterface $versionProvider, string $projectDir)
     {
         $this->versionProvider = $versionProvider;
+        $this->projectDir = $projectDir;
     }
 
     /**
@@ -23,7 +26,10 @@ class CacheBusterVersionStrategy implements VersionStrategyInterface
      */
     public function getVersion($path): string
     {
-        return $this->versionProvider->getPatch();
+        $publicFile = $this->projectDir.'/public/'.ltrim((string) $path, '/');
+        $mtime = is_file($publicFile) ? (string) filemtime($publicFile) : '0';
+
+        return $this->versionProvider->getPatch().'-'.$mtime;
     }
 
     /**

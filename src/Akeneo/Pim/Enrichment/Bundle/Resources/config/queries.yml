@@ -431,6 +431,10 @@ services:
         arguments:
             - '@database_connection'
 
+    Akeneo\Pim\Enrichment\Bundle\Storage\Sql\Category\SearchCategoriesInTree:
+        arguments:
+            - '@database_connection'
+
     Akeneo\Pim\Enrichment\Bundle\Storage\Sql\Category\GetDirectChildrenCategoryCodes:
         arguments:
             - '@database_connection'
