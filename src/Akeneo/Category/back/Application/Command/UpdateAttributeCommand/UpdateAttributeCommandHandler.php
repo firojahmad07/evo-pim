@@ -36,7 +36,13 @@ class UpdateAttributeCommandHandler
             throw new \InvalidArgumentException(sprintf('Attribute with uuid: %s does not exist', $command->attributeUuid));
         }
 
-        $attribute->update($command->isRichTextArea, $command->labels);
+        $attribute->update(
+            $command->isRichTextArea,
+            $command->labels,
+            $command->options,
+            $command->updateDefaultValue,
+            $command->defaultValue,
+        );
         $this->categoryTemplateAttributeSaver->update($attribute);
     }
 }

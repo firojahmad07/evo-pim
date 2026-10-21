@@ -17,9 +17,13 @@ $rules = [
 
         // TBD
         'Akeneo\Category\Api\Command\UpsertCategoryCommand',
+        'Akeneo\Category\Api\Command\UserIntents\SetBoolean',
+        'Akeneo\Category\Api\Command\UserIntents\SetDateTime',
         'Akeneo\Category\Api\Command\UserIntents\SetImage',
         'Akeneo\Category\Api\Command\UserIntents\SetLabel',
+        'Akeneo\Category\Api\Command\UserIntents\SetMultiSelect',
         'Akeneo\Category\Api\Command\UserIntents\SetRichText',
+        'Akeneo\Category\Api\Command\UserIntents\SetSimpleSelect',
         'Akeneo\Category\Api\Command\UserIntents\SetText',
         'Akeneo\Category\Api\Command\UserIntents\SetTextArea',
         'Akeneo\Category\Api\Command\UserIntents\UserIntent',
@@ -52,8 +56,12 @@ $rules = [
         // Outside /!\
         'Akeneo\Category\Api\Command\UserIntents\UserIntent',
         'Akeneo\Category\Api\Command\UserIntents\SetLabel',
+        'Akeneo\Category\Api\Command\UserIntents\SetBoolean',
+        'Akeneo\Category\Api\Command\UserIntents\SetDateTime',
         'Akeneo\Category\Api\Command\UserIntents\SetImage',
+        'Akeneo\Category\Api\Command\UserIntents\SetMultiSelect',
         'Akeneo\Category\Api\Command\UserIntents\SetRichText',
+        'Akeneo\Category\Api\Command\UserIntents\SetSimpleSelect',
         'Akeneo\Category\Api\Command\UserIntents\SetText',
         'Akeneo\Category\Api\Command\UserIntents\SetTextArea',
         'Akeneo\Category\Application\Query\GetAttribute',

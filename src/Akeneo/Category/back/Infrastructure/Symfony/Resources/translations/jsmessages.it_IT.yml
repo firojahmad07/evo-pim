@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Area di testo
         richtext: Testo formattato
         image: Immagine
+        boolean: Sì/No
+        datetime: Data e ora
+        simple_select: Selezione semplice
+        multi_select: Selezione multipla
       delete_button: Elimina attributo
       settings:
         title: Impostazioni
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Valore per canale
           value_per_locale: Valore per impostazione locale
           rich_text: Editor di Testi Avanzato
+        select_options:
+          title: Opzioni
+          code: Codice
+          label: Etichetta
+          add: Aggiungi opzione
+          empty: Aggiungi opzioni per compilare questo attributo nelle categorie.
+          invalid_code: Il codice dell'opzione può contenere solo lettere, numeri e underscore.
+          duplicate_code: Questo codice opzione esiste già.
         translations:
           title: Traduzioni etichette
         error_message: La pagina contiene valori non validi.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Testo
               textarea: Area di testo
               image: Immagine
+              boolean: Sì/No
+              datetime: Data e ora
+              simple_select: Selezione semplice
+              multi_select: Selezione multipla
       success:
         notification: Attributo creato correttamente
       error:

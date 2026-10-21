@@ -86,6 +86,10 @@ abstract class Attribute
             AttributeType::TEXT => new AttributeText($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
             AttributeType::IMAGE => new AttributeImage($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
             AttributeType::TEXTAREA => new AttributeTextArea($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
+            AttributeType::BOOLEAN => new AttributeBoolean($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
+            AttributeType::DATETIME => new AttributeDateTime($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
+            AttributeType::SIMPLE_SELECT => new AttributeSimpleSelect($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
+            AttributeType::MULTI_SELECT => new AttributeMultiSelect($uuid, $code, $type, $order, $isRequired, $isScopable, $isLocalizable, $labelCollection, $templateUuid, $additionalProperties),
             default => throw new \LogicException(sprintf('Type not recognized: "%s"', $type)),
         };
     }
@@ -193,9 +197,15 @@ abstract class Attribute
 
     /**
      * @phpstan-param LocalizedLabels $labels
+     * @param array<int, array{code: string, labels: array<string, string>}>|null $options
      */
-    public function update(?bool $isRichTextArea, ?array $labels): void
-    {
+    public function update(
+        ?bool $isRichTextArea,
+        ?array $labels,
+        ?array $options = null,
+        bool $updateDefaultValue = false,
+        ?string $defaultValue = null,
+    ): void {
         if ($isRichTextArea !== null) {
             $validTypes = [AttributeType::TEXTAREA, AttributeType::RICH_TEXT];
             Assert::inArray((string) $this->getType(), $validTypes);
@@ -205,5 +215,78 @@ abstract class Attribute
         if ($labels !== null) {
             $this->labelCollection->merge(LabelCollection::fromArray($labels));
         }
+
+        if ($options !== null) {
+            Assert::inArray((string) $this->getType(), [AttributeType::SIMPLE_SELECT, AttributeType::MULTI_SELECT]);
+            $this->additionalProperties->setAdditionalProperty('options', self::normalizeOptions($options));
+            if (!$updateDefaultValue) {
+                $currentDefault = $this->additionalProperties->getAdditionalProperty('default_value') ?? '';
+                if ($currentDefault !== '' && !\in_array($currentDefault, $this->optionCodes(), true)) {
+                    $this->additionalProperties->setAdditionalProperty('default_value', '');
+                }
+            }
+        }
+
+        if ($updateDefaultValue) {
+            Assert::inArray((string) $this->getType(), [AttributeType::SIMPLE_SELECT, AttributeType::MULTI_SELECT]);
+            if ($defaultValue === null || $defaultValue === '') {
+                $this->additionalProperties->setAdditionalProperty('default_value', '');
+            } else {
+                Assert::regex($defaultValue, '/^[a-zA-Z0-9_]+$/');
+                Assert::inArray($defaultValue, $this->optionCodes());
+                $this->additionalProperties->setAdditionalProperty('default_value', $defaultValue);
+            }
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function optionCodes(): array
+    {
+        $rawOptions = $this->additionalProperties->getAdditionalProperty('options');
+        if (!\is_string($rawOptions) || $rawOptions === '') {
+            return [];
+        }
+
+        $decoded = json_decode($rawOptions, true);
+        if (!\is_array($decoded)) {
+            return [];
+        }
+
+        $codes = [];
+        foreach ($decoded as $option) {
+            if (\is_array($option) && isset($option['code']) && \is_string($option['code'])) {
+                $codes[] = $option['code'];
+            }
+        }
+
+        return $codes;
+    }
+
+    /**
+     * @param array<int, array{code: string, labels: array<string, string>}> $options
+     */
+    private static function normalizeOptions(array $options): string
+    {
+        $normalizedOptions = [];
+        $codes = [];
+        foreach ($options as $option) {
+            Assert::isArray($option);
+            Assert::keyExists($option, 'code');
+            Assert::stringNotEmpty($option['code']);
+            Assert::regex($option['code'], '/^[a-zA-Z0-9_]+$/');
+            Assert::keyExists($option, 'labels');
+            Assert::isArray($option['labels']);
+            Assert::allNullOrString($option['labels']);
+            Assert::false(\in_array($option['code'], $codes, true));
+            $codes[] = $option['code'];
+            $normalizedOptions[] = [
+                'code' => $option['code'],
+                'labels' => array_filter($option['labels'], static fn ($label) => $label !== null && $label !== ''),
+            ];
+        }
+
+        return json_encode($normalizedOptions, JSON_THROW_ON_ERROR);
     }
 }

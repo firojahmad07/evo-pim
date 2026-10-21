@@ -9,8 +9,12 @@ declare(strict_types=1);
 
 namespace Akeneo\Test\Category\EndToEnd\ExternalApi;
 
+use Akeneo\Category\Domain\Model\Attribute\AttributeBoolean;
+use Akeneo\Category\Domain\Model\Attribute\AttributeDateTime;
 use Akeneo\Category\Domain\Model\Attribute\AttributeImage;
+use Akeneo\Category\Domain\Model\Attribute\AttributeMultiSelect;
 use Akeneo\Category\Domain\Model\Attribute\AttributeRichText;
+use Akeneo\Category\Domain\Model\Attribute\AttributeSimpleSelect;
 use Akeneo\Category\Domain\Model\Attribute\AttributeText;
 use Akeneo\Category\Domain\Model\Attribute\AttributeTextArea;
 use Akeneo\Category\Domain\Model\Enrichment\Template;
@@ -101,6 +105,18 @@ abstract class ApiCategoryTestCase extends ApiTestCase
                         break;
                     case AttributeType::RICH_TEXT:
                         $attributeClass = AttributeRichText::class;
+                        break;
+                    case AttributeType::BOOLEAN:
+                        $attributeClass = AttributeBoolean::class;
+                        break;
+                    case AttributeType::DATETIME:
+                        $attributeClass = AttributeDateTime::class;
+                        break;
+                    case AttributeType::SIMPLE_SELECT:
+                        $attributeClass = AttributeSimpleSelect::class;
+                        break;
+                    case AttributeType::MULTI_SELECT:
+                        $attributeClass = AttributeMultiSelect::class;
                         break;
                     default:
                         throw new \Exception(sprintf('Can\'t generate mocked template: unknown attribute type "%s"', $attribute['type']));

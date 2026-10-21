@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Àrea de Text
         richtext: Text enriquit
         image: Imatge
+        boolean: Sí/No
+        datetime: Data i hora
+        simple_select: Llista simple
+        multi_select: Llista múltiple
       delete_button: Suprimeix atribut
       settings:
         title: Configuració
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Valor per Canal
           value_per_locale: Valor per local
           rich_text: Editor de text enriquit
+        select_options:
+          title: Opcions
+          code: Codi
+          label: Etiqueta
+          add: Afegeix una opció
+          empty: Afegiu opcions perquè aquest atribut es pugui omplir a les categories.
+          invalid_code: El codi de l'opció només pot contenir lletres, números i guions baixos.
+          duplicate_code: Aquest codi d'opció ja existeix.
         translations:
           title: Traduccions d'etiquetes
         error_message: Hi ha valors no vàlids a la pàgina.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Text
               textarea: Àrea de text
               image: Imatge
+              boolean: Sí/No
+              datetime: Data i hora
+              simple_select: Llista simple
+              multi_select: Llista múltiple
       success:
         notification: Atribut creat correctament
       error:

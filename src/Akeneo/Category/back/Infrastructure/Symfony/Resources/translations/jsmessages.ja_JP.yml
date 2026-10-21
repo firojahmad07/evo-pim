@@ -42,6 +42,10 @@ akeneo.category:
         textarea: テキストエリア
         richtext: リッチテキスト
         image: 画像
+        boolean: はい/いいえ
+        datetime: 日時
+        simple_select: 単一選択
+        multi_select: 複数選択
       delete_button: 属性を削除
       settings:
         title: 設定
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: チャンネルごとの値
           value_per_locale: ロケールごとの値
           rich_text: リッチテキストエディタ
+        select_options:
+          title: オプション
+          code: コード
+          label: ラベル
+          add: オプションを追加
+          empty: カテゴリでこの属性を入力できるようにオプションを追加してください。
+          invalid_code: オプションコードには文字、数字、アンダースコアのみ使用できます。
+          duplicate_code: このオプションコードは既に存在します。
         translations:
           title: ラベルの翻訳
         error_message: ページに無効な値があります。
@@ -76,6 +88,10 @@ akeneo.category:
               text: テキスト
               textarea: テキストエリア
               image: 画像
+              boolean: はい/いいえ
+              datetime: 日時
+              simple_select: 単一選択
+              multi_select: 複数選択
       success:
         notification: 属性を作成しました
       error:

@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Obszar tekstowy
         richtext: Tekst sformatowany
         image: Obraz
+        boolean: Tak/Nie
+        datetime: Data i godzina
+        simple_select: Lista pojedyncza
+        multi_select: Lista wielokrotna
       delete_button: Usuń atrybut
       settings:
         title: Ustawienia
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Wartość dla kanału
           value_per_locale: Wartość dla wersji językowej
           rich_text: Edytor tekstu sformatowanego
+        select_options:
+          title: Opcje
+          code: Kod
+          label: Etykieta
+          add: Dodaj opcję
+          empty: Dodaj opcje, aby uzupełniać ten atrybut w kategoriach.
+          invalid_code: Kod opcji może zawierać tylko litery, cyfry i podkreślenia.
+          duplicate_code: Ten kod opcji już istnieje.
         translations:
           title: Tłumaczenia etykiet
         error_message: Na stronie występują nieprawidłowe wartości.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Tekst
               textarea: Obszar tekstowy
               image: Obraz
+              boolean: Tak/Nie
+              datetime: Data i godzina
+              simple_select: Lista pojedyncza
+              multi_select: Lista wielokrotna
       success:
         notification: Utworzono atrybut
       error:

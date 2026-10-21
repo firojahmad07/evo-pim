@@ -6,6 +6,7 @@ import {ChannelSelector} from './channel';
 import {
   Attribute,
   buildCompositeKey,
+  CATEGORY_ATTRIBUTE_TYPE_IMAGE,
   CATEGORY_ATTRIBUTE_TYPE_RICHTEXT,
   CategoryAttributeValueData,
   EnrichCategory,
@@ -138,14 +139,22 @@ export const EditAttributesForm = ({attributeValues, template, onAttributeValueC
 
     let value = attributeValues[compositeKey];
 
-    let dataForInput;
+    let dataForInput: AttributeInputValue;
     if (value) {
-      let {data: dataFromModel} = value;
+      const {data: dataFromModel} = value;
 
-      if (isCategoryImageAttributeValueData(dataFromModel)) {
+      if (attribute.type === CATEGORY_ATTRIBUTE_TYPE_IMAGE && isCategoryImageAttributeValueData(dataFromModel)) {
         dataForInput = convertCategoryImageAttributeValueDataToFileInfo(dataFromModel);
-      } else {
+      } else if (dataFromModel === null) {
+        dataForInput = buildDefaultAttributeInputValue(attribute.type);
+      } else if (
+        typeof dataFromModel === 'string' ||
+        typeof dataFromModel === 'boolean' ||
+        Array.isArray(dataFromModel)
+      ) {
         dataForInput = dataFromModel;
+      } else {
+        dataForInput = buildDefaultAttributeInputValue(attribute.type);
       }
     } else {
       dataForInput = buildDefaultAttributeInputValue(attribute.type);

@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Zone de texte
         richtext: Éditeur de texte enrichi
         image: Image
+        boolean: Oui/Non
+        datetime: Date et heure
+        simple_select: Liste simple
+        multi_select: Liste multiple
       delete_button: Supprimer l'attribut
       settings:
         title: Paramètres
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Valeur par canal
           value_per_locale: Valeur par locale
           rich_text: Éditeur de texte enrichi
+        select_options:
+          title: Options
+          code: Code
+          label: Libellé
+          add: Ajouter une option
+          empty: Ajoutez des options pour renseigner cet attribut sur les catégories.
+          invalid_code: Le code d'option ne peut contenir que des lettres, des chiffres et des underscores.
+          duplicate_code: Ce code d'option existe déjà.
         translations:
           title: Traduction des libellés
         error_message: Il y a des valeurs non valides sur la page.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Texte
               textarea: Zone de texte
               image: Image
+              boolean: Oui/Non
+              datetime: Date et heure
+              simple_select: Liste simple
+              multi_select: Liste multiple
       success:
         notification: Attribut créé avec succès
       error:

@@ -17,11 +17,15 @@ final class UpdateAttributeCommand
 {
     /**
      * @phpstan-param LocalizedLabels $labels
+     * @param array<int, array{code: string, labels: array<string, string>}>|null $options
      */
     private function __construct(
         public readonly string $attributeUuid,
         public readonly ?bool $isRichTextArea,
         public readonly ?array $labels,
+        public readonly ?array $options = null,
+        public readonly bool $updateDefaultValue = false,
+        public readonly ?string $defaultValue = null,
     ) {
         if ($labels !== null) {
             Assert::isMap($labels);
@@ -31,16 +35,23 @@ final class UpdateAttributeCommand
 
     /**
      * @phpstan-param LocalizedLabels $labels
+     * @param array<int, array{code: string, labels: array<string, string>}>|null $options
      */
     public static function create(
         string $attributeUuid,
         ?bool $isRichTextArea,
         ?array $labels,
+        ?array $options = null,
+        bool $updateDefaultValue = false,
+        ?string $defaultValue = null,
     ): self {
         return new self(
             attributeUuid: $attributeUuid,
             isRichTextArea: $isRichTextArea,
             labels: $labels,
+            options: $options,
+            updateDefaultValue: $updateDefaultValue,
+            defaultValue: $defaultValue,
         );
     }
 }

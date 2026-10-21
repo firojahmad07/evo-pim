@@ -49,12 +49,20 @@ export interface CategoryImageAttributeValueDataFileInfo {
 
 export type CategoryImageAttributeValueData = CategoryImageAttributeValueDataFileInfo | null;
 
-export type CategoryAttributeValueData = CategoryTextAttributeValueData | CategoryImageAttributeValueData;
+export type CategoryAttributeValueData =
+  | CategoryTextAttributeValueData
+  | CategoryImageAttributeValueData
+  | boolean
+  | string[];
 
 export const isCategoryImageAttributeValueData = (
   data: CategoryAttributeValueData
 ): data is CategoryImageAttributeValueData =>
-  data === null || (data.hasOwnProperty('original_filename') && data.hasOwnProperty('file_path'));
+  data === null ||
+  (typeof data === 'object' &&
+    !Array.isArray(data) &&
+    data.hasOwnProperty('original_filename') &&
+    data.hasOwnProperty('file_path'));
 
 export type BackendCategoryTree = {
   attr: {
@@ -121,6 +129,10 @@ export const attributeDefaultValues: {[key in CategoryAttributeType]: CategoryAt
   textarea: '',
   richtext: RICH_TEXT_DEFAULT_VALUE,
   image: null,
+  boolean: null,
+  datetime: '',
+  simple_select: '',
+  multi_select: [],
 };
 
 const convertToCategoryTree = (tree: BackendCategoryTree): CategoryTreeModel => {

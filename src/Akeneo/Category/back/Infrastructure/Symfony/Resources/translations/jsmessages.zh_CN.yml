@@ -42,6 +42,10 @@ akeneo.category:
         textarea: 文本区域
         richtext: 富文本
         image: 图像
+        boolean: 是/否
+        datetime: 日期时间
+        simple_select: 单选
+        multi_select: 多选
       delete_button: 删除属性
       settings:
         title: 设置 
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: 每个渠道的值
           value_per_locale: 每项区域设置的值
           rich_text: 富文本编辑器
+        select_options:
+          title: 选项
+          code: 代码
+          label: 标签
+          add: 添加选项
+          empty: 请添加选项，以便在分类中填写此属性。
+          invalid_code: 选项代码只能包含字母、数字和下划线。
+          duplicate_code: 该选项代码已存在。
         translations:
           title: 标签翻译
         error_message: 此页上存在无效的值。
@@ -76,6 +88,10 @@ akeneo.category:
               text: 文本
               textarea: 文本区域
               image: 图像
+              boolean: 是/否
+              datetime: 日期时间
+              simple_select: 单选
+              multi_select: 多选
       success:
         notification: 属性已成功创建
       error:

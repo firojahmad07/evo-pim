@@ -16,12 +16,20 @@ class AttributeType
     public const TEXTAREA = 'textarea';
     public const RICH_TEXT = 'richtext';
     public const IMAGE = 'image';
+    public const BOOLEAN = 'boolean';
+    public const DATETIME = 'datetime';
+    public const SIMPLE_SELECT = 'simple_select';
+    public const MULTI_SELECT = 'multi_select';
 
     public const ATTRIBUTE_TYPES = [
         self::TEXT,
         self::TEXTAREA,
         self::RICH_TEXT,
         self::IMAGE,
+        self::BOOLEAN,
+        self::DATETIME,
+        self::SIMPLE_SELECT,
+        self::MULTI_SELECT,
     ];
 
     /**

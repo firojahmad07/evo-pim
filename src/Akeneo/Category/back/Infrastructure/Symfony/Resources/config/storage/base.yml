@@ -3,6 +3,10 @@ parameters:
     pim.category.api.user_intent.set_rich_text.class: Akeneo\Category\Api\Command\UserIntents\SetRichText
     pim.category.api.user_intent.set_text_area.class: Akeneo\Category\Api\Command\UserIntents\SetTextArea
     pim.category.api.user_intent.set_image.class: Akeneo\Category\Api\Command\UserIntents\SetImage
+    pim.category.api.user_intent.set_boolean.class: Akeneo\Category\Api\Command\UserIntents\SetBoolean
+    pim.category.api.user_intent.set_datetime.class: Akeneo\Category\Api\Command\UserIntents\SetDateTime
+    pim.category.api.user_intent.set_simple_select.class: Akeneo\Category\Api\Command\UserIntents\SetSimpleSelect
+    pim.category.api.user_intent.set_multi_select.class: Akeneo\Category\Api\Command\UserIntents\SetMultiSelect
 
 services:
     Akeneo\Category\Application\Storage\Save\Saver\CategoryBaseSaver:
@@ -13,6 +17,10 @@ services:
                 '%pim.category.api.user_intent.set_text_area.class%',
                 '%pim.category.api.user_intent.set_rich_text.class%',
                 '%pim.category.api.user_intent.set_image.class%',
+                '%pim.category.api.user_intent.set_boolean.class%',
+                '%pim.category.api.user_intent.set_datetime.class%',
+                '%pim.category.api.user_intent.set_simple_select.class%',
+                '%pim.category.api.user_intent.set_multi_select.class%',
             ]
         tags:
             - { name: 'pim.category.save.category_saver' }

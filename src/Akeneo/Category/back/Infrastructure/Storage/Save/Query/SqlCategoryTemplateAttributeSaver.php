@@ -42,7 +42,7 @@ class SqlCategoryTemplateAttributeSaver implements CategoryTemplateAttributeSave
 
         $query = <<<SQL
             UPDATE pim_catalog_category_attribute
-            SET attribute_type = :type, labels = :labels
+            SET attribute_type = :type, labels = :labels, additional_properties = :additional_properties
             WHERE uuid = UUID_TO_BIN(:uuid);
         SQL;
 
@@ -51,11 +51,13 @@ class SqlCategoryTemplateAttributeSaver implements CategoryTemplateAttributeSave
             [
                 'type' => (string) $attribute->getType(),
                 'labels' => $attribute->getLabelCollection()->normalize(),
+                'additional_properties' => $attribute->getAdditionalProperties()->normalize(),
                 'uuid' => $attribute->getUuid()->getValue(),
             ],
             [
                 'type' => \PDO::PARAM_STR,
                 'labels' => Types::JSON,
+                'additional_properties' => Types::JSON,
                 'uuid' => \PDO::PARAM_STR,
             ],
         );

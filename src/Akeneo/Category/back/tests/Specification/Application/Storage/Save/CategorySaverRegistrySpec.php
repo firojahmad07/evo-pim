@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Specification\Akeneo\Category\Application\Storage\Save;
 
+use Akeneo\Category\Api\Command\UserIntents\SetBoolean;
+use Akeneo\Category\Api\Command\UserIntents\SetDateTime;
 use Akeneo\Category\Api\Command\UserIntents\SetImage;
 use Akeneo\Category\Api\Command\UserIntents\SetLabel;
+use Akeneo\Category\Api\Command\UserIntents\SetMultiSelect;
 use Akeneo\Category\Api\Command\UserIntents\SetRichText;
+use Akeneo\Category\Api\Command\UserIntents\SetSimpleSelect;
 use Akeneo\Category\Api\Command\UserIntents\SetText;
 use Akeneo\Category\Api\Command\UserIntents\SetTextArea;
 use Akeneo\Category\Application\Storage\Save\Saver\CategoryBaseSaver;
@@ -28,6 +32,10 @@ class CategorySaverRegistrySpec extends ObjectBehavior
             SetText::class,
             SetTextArea::class,
             SetImage::class,
+            SetBoolean::class,
+            SetDateTime::class,
+            SetSimpleSelect::class,
+            SetMultiSelect::class,
         ]);
 
         $translationsSaver->getSupportedUserIntents()->willReturn([
@@ -45,6 +53,10 @@ class CategorySaverRegistrySpec extends ObjectBehavior
         $this->fromUserIntent(SetTextArea::class)->shouldReturn($baseSaver);
         $this->fromUserIntent(SetRichText::class)->shouldReturn($baseSaver);
         $this->fromUserIntent(SetImage::class)->shouldReturn($baseSaver);
+        $this->fromUserIntent(SetBoolean::class)->shouldReturn($baseSaver);
+        $this->fromUserIntent(SetDateTime::class)->shouldReturn($baseSaver);
+        $this->fromUserIntent(SetSimpleSelect::class)->shouldReturn($baseSaver);
+        $this->fromUserIntent(SetMultiSelect::class)->shouldReturn($baseSaver);
 
         $this->fromUserIntent(SetLabel::class)->shouldReturn($translationsSaver);
     }

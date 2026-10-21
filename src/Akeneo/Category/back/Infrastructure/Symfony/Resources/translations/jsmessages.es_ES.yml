@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Área de texto
         richtext: Texto enriquecido
         image: Imagen
+        boolean: Sí/No
+        datetime: Fecha y hora
+        simple_select: Lista simple
+        multi_select: Lista múltiple
       delete_button: Eliminar atributo
       settings:
         title: Ajustes
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Valor por canal
           value_per_locale: Valor por configuración regional
           rich_text: Editor de texto enriquecido
+        select_options:
+          title: Opciones
+          code: Código
+          label: Etiqueta
+          add: Añadir opción
+          empty: Añada opciones para completar este atributo en las categorías.
+          invalid_code: El código de la opción solo puede contener letras, números y guiones bajos.
+          duplicate_code: Este código de opción ya existe.
         translations:
           title: Traducciones de etiquetas
         error_message: Hay valores no válidos en la página.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Texto
               textarea: Área de texto
               image: Imagen
+              boolean: Sí/No
+              datetime: Fecha y hora
+              simple_select: Lista simple
+              multi_select: Lista múltiple
       success:
         notification: Atributo creado correctamente
       error:

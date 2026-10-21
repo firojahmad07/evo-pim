@@ -1,18 +1,32 @@
 import {ChannelCode} from '@akeneo-pim-community/shared';
 import {FileInfo} from 'akeneo-design-system';
 import React from 'react';
-import {Attribute, CATEGORY_ATTRIBUTE_TYPE_IMAGE} from '../../models';
+import {
+  Attribute,
+  CATEGORY_ATTRIBUTE_TYPE_BOOLEAN,
+  CATEGORY_ATTRIBUTE_TYPE_IMAGE,
+  CATEGORY_ATTRIBUTE_TYPE_MULTI_SELECT,
+} from '../../models';
 
 export type TextAttributeInputValue = string;
 
 export type ImageAttributeInputValue = FileInfo | null;
+
+export type BooleanAttributeInputValue = boolean | null;
+
+export type MultiSelectAttributeInputValue = string[];
 
 export type ChannelTranslationAttributeValue = {
   code: ChannelCode;
   label: string;
 };
 
-export type AttributeInputValue = TextAttributeInputValue | ImageAttributeInputValue | null;
+export type AttributeInputValue =
+  | TextAttributeInputValue
+  | ImageAttributeInputValue
+  | BooleanAttributeInputValue
+  | MultiSelectAttributeInputValue
+  | null;
 
 export type AttributeFieldBuilder<ValueType extends AttributeInputValue> = (
   attribute: Attribute
@@ -26,11 +40,18 @@ export type AttributeFieldProps<ValueType> = {
 };
 
 export const isImageAttributeInputValue = (value: AttributeInputValue): value is ImageAttributeInputValue =>
-  value !== null && value.hasOwnProperty('originalFilename') && value.hasOwnProperty('filePath');
+  typeof value === 'object' &&
+  value !== null &&
+  !Array.isArray(value) &&
+  value.hasOwnProperty('originalFilename') &&
+  value.hasOwnProperty('filePath');
 
 export const buildDefaultAttributeInputValue = (attributeType: string): AttributeInputValue => {
-  if (attributeType === CATEGORY_ATTRIBUTE_TYPE_IMAGE) {
+  if (attributeType === CATEGORY_ATTRIBUTE_TYPE_IMAGE || attributeType === CATEGORY_ATTRIBUTE_TYPE_BOOLEAN) {
     return null;
+  }
+  if (attributeType === CATEGORY_ATTRIBUTE_TYPE_MULTI_SELECT) {
+    return [];
   }
   return '';
 };

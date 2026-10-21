@@ -42,6 +42,10 @@ akeneo.category:
         textarea: Tekstgebied
         richtext: Tekst met opmaak
         image: Afbeelding
+        boolean: Ja/Nee
+        datetime: Datum/tijd
+        simple_select: Enkele selectie
+        multi_select: Meervoudige selectie
       delete_button: Attribuut verwijderen
       settings:
         title: Instellingen
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: Waarde per kanaal
           value_per_locale: Waarde per taal
           rich_text: Editor voor opgemaakte tekst
+        select_options:
+          title: Opties
+          code: Code
+          label: Label
+          add: Optie toevoegen
+          empty: Voeg opties toe zodat dit attribuut op categorieën kan worden ingevuld.
+          invalid_code: De optiecode mag alleen letters, cijfers en underscores bevatten.
+          duplicate_code: Deze optiecode bestaat al.
         translations:
           title: Labelvertalingen
         error_message: Er staan ongeldige waarden op de pagina.
@@ -76,6 +88,10 @@ akeneo.category:
               text: Tekst
               textarea: Tekstgebied
               image: Afbeelding
+              boolean: Ja/Nee
+              datetime: Datum/tijd
+              simple_select: Enkele selectie
+              multi_select: Meervoudige selectie
       success:
         notification: Het attribuut is gemaakt
       error:

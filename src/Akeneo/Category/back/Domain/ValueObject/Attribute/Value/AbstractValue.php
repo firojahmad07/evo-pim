@@ -19,6 +19,10 @@ abstract class AbstractValue implements Value
     public const IMAGE_TYPE = 'image';
     public const TEXT_TYPE = 'text';
     public const TEXT_AREA_TYPE = 'textarea';
+    public const BOOLEAN_TYPE = 'boolean';
+    public const DATETIME_TYPE = 'datetime';
+    public const SIMPLE_SELECT_TYPE = 'simple_select';
+    public const MULTI_SELECT_TYPE = 'multi_select';
 
     public function __construct(
         protected AttributeUuid $uuid,
@@ -98,6 +102,10 @@ abstract class AbstractValue implements Value
             self::TEXT_TYPE => TextValue::fromArray($value),
             self::TEXT_AREA_TYPE => TextAreaValue::fromArray($value),
             self::IMAGE_TYPE => ImageValue::fromArray($value),
+            self::BOOLEAN_TYPE => BooleanValue::fromArray($value),
+            self::DATETIME_TYPE => DateTimeValue::fromArray($value),
+            self::SIMPLE_SELECT_TYPE => SimpleSelectValue::fromArray($value),
+            self::MULTI_SELECT_TYPE => MultiSelectValue::fromArray($value),
             default => throw new \LogicException(sprintf('Type not recognized: "%s"', $type)),
         };
     }

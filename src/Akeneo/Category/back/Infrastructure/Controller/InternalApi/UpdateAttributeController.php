@@ -37,10 +37,18 @@ class UpdateAttributeController
         $data = $request->toArray();
 
         try {
+            $updateDefaultValue = \array_key_exists('default_value', $data);
+            $defaultValue = $updateDefaultValue && \is_string($data['default_value']) && $data['default_value'] !== ''
+                ? $data['default_value']
+                : null;
+
             $command = UpdateAttributeCommand::create(
                 attributeUuid: $attributeUuid,
                 isRichTextArea: $data['isRichTextArea'] ?? null,
                 labels: $data['labels'] ?? null,
+                options: \array_key_exists('options', $data) ? $data['options'] : null,
+                updateDefaultValue: $updateDefaultValue,
+                defaultValue: $defaultValue,
             );
             $this->commandBus->dispatch($command);
         } catch (ViolationsException $exception) {

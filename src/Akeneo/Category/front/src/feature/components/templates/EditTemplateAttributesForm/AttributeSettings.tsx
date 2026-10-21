@@ -8,6 +8,7 @@ import {getLabelFromAttribute} from '../../attributes';
 import {DeactivateTemplateAttributeModal} from '../DeactivateTemplateAttributeModal';
 import {AttributeLabelTranslationInput} from './AttributeLabelTranslationInput';
 import {AttributeOptionRichTextCheckbox} from './AttributeOptionRichTextCheckbox';
+import {AttributeOptionsEditor} from './AttributeOptionsEditor';
 
 type Props = {
   attribute: Attribute;
@@ -52,6 +53,7 @@ export const AttributeSettings = ({attribute}: Props) => {
         <Checkbox checked={attribute.is_scopable} readOnly={true}>
           {translate('akeneo.category.template.attribute.settings.options.value_per_channel')}
         </Checkbox>
+        <AttributeOptionsEditor attribute={attribute} />
       </FieldContainer>
 
       <SectionTitle>

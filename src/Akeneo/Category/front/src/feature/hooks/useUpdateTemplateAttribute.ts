@@ -5,6 +5,8 @@ import {ApiError, apiFetch} from '../tools/apiFetch';
 type Data = {
   isRichTextArea?: boolean;
   labels?: {[locale: string]: string};
+  options?: {code: string; labels: {[locale: string]: string}}[];
+  default_value?: string | null;
 };
 
 type Error = {

@@ -43,6 +43,10 @@ akeneo.category:
                 textarea: Text Area
                 richtext: Rich Text
                 image: Image
+                boolean: Yes/No
+                datetime: Datetime
+                simple_select: Simple select
+                multi_select: Multi select
             delete_button: Delete Attribute
             settings:
                 title: Settings
@@ -51,6 +55,20 @@ akeneo.category:
                     value_per_channel: Value per Channel
                     value_per_locale: Value per Locale
                     rich_text: Rich Text Editor
+                select_options:
+                  title: Options
+                  code: Code
+                  label: Label
+                  add: Add option
+                  empty: Add options so this attribute can be filled on categories.
+                  invalid_code: Option code may contain only letters, numbers and underscores.
+                  duplicate_code: This option code already exists.
+                  manage_options: Manage options
+                  default_value: Default value
+                  page_title: Manage options
+                  section: Attribute options
+                  new_option_placeholder: Write you new option label here
+                  code_required: Code (required)
                 translations:
                     title: Label translations
                 error_message: There are invalid values on the page.
@@ -77,6 +95,10 @@ akeneo.category:
                             text: Text
                             textarea: Text area
                             image: Image
+                            boolean: Yes/No
+                            datetime: Datetime
+                            simple_select: Simple select
+                            multi_select: Multi select
             success:
                 notification: Attribute successfully created
             error:

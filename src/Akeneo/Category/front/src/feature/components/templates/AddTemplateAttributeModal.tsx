@@ -65,6 +65,22 @@ export const AddTemplateAttributeModal = ({templateId, onClose, onSuccess}: Prop
       type: 'image',
       label: translate('akeneo.category.template.add_attribute.confirmation_modal.input.type.option_title.image'),
     },
+    {
+      type: 'boolean',
+      label: translate('akeneo.category.template.add_attribute.confirmation_modal.input.type.option_title.boolean'),
+    },
+    {
+      type: 'datetime',
+      label: translate('akeneo.category.template.add_attribute.confirmation_modal.input.type.option_title.datetime'),
+    },
+    {
+      type: 'simple_select',
+      label: translate('akeneo.category.template.add_attribute.confirmation_modal.input.type.option_title.simple_select'),
+    },
+    {
+      type: 'multi_select',
+      label: translate('akeneo.category.template.add_attribute.confirmation_modal.input.type.option_title.multi_select'),
+    },
   ];
 
   const displayError = (errorMessages: string[]) => {

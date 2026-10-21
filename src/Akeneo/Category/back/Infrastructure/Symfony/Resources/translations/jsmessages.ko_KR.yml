@@ -42,6 +42,10 @@ akeneo.category:
         textarea: 텍스트 영역
         richtext: 서식 있는 텍스트
         image: 이미지
+        boolean: 예/아니오
+        datetime: 날짜/시간
+        simple_select: 단일 선택
+        multi_select: 다중 선택
       delete_button: 특성 삭제
       settings:
         title: 설정
@@ -50,6 +54,14 @@ akeneo.category:
           value_per_channel: 채널별 값
           value_per_locale: 로케일별 값
           rich_text: 서식 있는 텍스트 편집기
+        select_options:
+          title: 옵션
+          code: 코드
+          label: 레이블
+          add: 옵션 추가
+          empty: 카테고리에서 이 특성을 입력할 수 있도록 옵션을 추가하세요.
+          invalid_code: 옵션 코드에는 문자, 숫자, 밑줄만 사용할 수 있습니다.
+          duplicate_code: 이 옵션 코드는 이미 있습니다.
         translations:
           title: 레이블 번역
         error_message: 이 페이지에 잘못된 값이 있습니다.
@@ -76,6 +88,10 @@ akeneo.category:
               text: 텍스트
               textarea: 텍스트 영역
               image: 이미지
+              boolean: 예/아니오
+              datetime: 날짜/시간
+              simple_select: 단일 선택
+              multi_select: 다중 선택
       success:
         notification: 특성 생성됨
       error:

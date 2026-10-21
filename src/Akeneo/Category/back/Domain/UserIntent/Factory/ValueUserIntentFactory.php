@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Akeneo\Category\Domain\UserIntent\Factory;
 
+use Akeneo\Category\Api\Command\UserIntents\SetBoolean;
+use Akeneo\Category\Api\Command\UserIntents\SetDateTime;
 use Akeneo\Category\Api\Command\UserIntents\SetImage;
+use Akeneo\Category\Api\Command\UserIntents\SetMultiSelect;
 use Akeneo\Category\Api\Command\UserIntents\SetRichText;
+use Akeneo\Category\Api\Command\UserIntents\SetSimpleSelect;
 use Akeneo\Category\Api\Command\UserIntents\SetText;
 use Akeneo\Category\Api\Command\UserIntents\SetTextArea;
 use Akeneo\Category\Api\Command\UserIntents\UserIntent;
@@ -157,11 +161,57 @@ final class ValueUserIntentFactory implements UserIntentFactory
         $code = $identifiers[0];
 
         return match ((string) $attributeType) {
-            AttributeType::TEXTAREA => new SetTextArea($uuid, $code, $value['channel'], $value['locale'], $value['data']),
-            AttributeType::RICH_TEXT => new SetRichText($uuid, $code, $value['channel'], $value['locale'], $value['data']),
-            AttributeType::TEXT => new SetText($uuid, $code, $value['channel'], $value['locale'], $value['data']),
+            AttributeType::TEXTAREA => new SetTextArea($uuid, $code, $value['channel'], $value['locale'], $this->stringValue($value['data'])),
+            AttributeType::RICH_TEXT => new SetRichText($uuid, $code, $value['channel'], $value['locale'], $this->stringValue($value['data'])),
+            AttributeType::TEXT => new SetText($uuid, $code, $value['channel'], $value['locale'], $this->stringValue($value['data'])),
             AttributeType::IMAGE => new SetImage($uuid, $code, $value['channel'], $value['locale'], $value['data']),
+            AttributeType::BOOLEAN => new SetBoolean($uuid, $code, $value['channel'], $value['locale'], $this->booleanValue($value['data'])),
+            AttributeType::DATETIME => new SetDateTime($uuid, $code, $value['channel'], $value['locale'], $this->stringValue($value['data'])),
+            AttributeType::SIMPLE_SELECT => new SetSimpleSelect($uuid, $code, $value['channel'], $value['locale'], $this->stringValue($value['data'])),
+            AttributeType::MULTI_SELECT => new SetMultiSelect($uuid, $code, $value['channel'], $value['locale'], $this->multiSelectValue($value['data'])),
             default => throw new \InvalidArgumentException('Not implemented')
         };
+    }
+
+    private function stringValue(mixed $data): ?string
+    {
+        if ($data === null || $data === '') {
+            return null;
+        }
+
+        if (!\is_string($data)) {
+            throw new \InvalidArgumentException('A string value is expected.');
+        }
+
+        return $data;
+    }
+
+    private function booleanValue(mixed $data): ?bool
+    {
+        if ($data === null || $data === '') {
+            return null;
+        }
+
+        if (!\is_bool($data)) {
+            throw new \InvalidArgumentException('A boolean value is expected.');
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    private function multiSelectValue(mixed $data): ?array
+    {
+        if ($data === null) {
+            return null;
+        }
+
+        if (!\is_array($data)) {
+            throw new \InvalidArgumentException('A list of option codes is expected.');
+        }
+
+        return $data;
     }
 }

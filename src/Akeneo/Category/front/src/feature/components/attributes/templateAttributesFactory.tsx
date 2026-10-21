@@ -1,7 +1,11 @@
 import React from 'react';
 import {Attribute} from '../../models';
+import {buildBooleanFieldAttribute} from './buildBooleanFieldAttribute';
+import {buildDateTimeFieldAttribute} from './buildDateTimeFieldAttribute';
 import {buildImageFieldAttribute} from './buildImageFieldAttribute';
+import {buildMultiSelectFieldAttribute} from './buildMultiSelectFieldAttribute';
 import {buildRichTextFieldAttribute} from './buildRichTextFieldAttribute';
+import {buildSimpleSelectFieldAttribute} from './buildSimpleSelectFieldAttribute';
 import {buildTextAreaFieldAttribute} from './buildTextAreaFieldAttribute';
 import {buildTextFieldAttribute} from './buildTextFieldAttribute';
 import {AttributeFieldBuilder, AttributeInputValue, AttributeFieldProps} from './types';
@@ -14,6 +18,10 @@ const attributeFieldBuilders: {[attributeType: string]: AttributeFieldBuilder<At
   richtext: buildRichTextFieldAttribute,
   textarea: buildTextAreaFieldAttribute,
   image: buildImageFieldAttribute,
+  boolean: buildBooleanFieldAttribute,
+  datetime: buildDateTimeFieldAttribute,
+  simple_select: buildSimpleSelectFieldAttribute,
+  multi_select: buildMultiSelectFieldAttribute,
 };
 
 const attributeFieldFactory = (attribute: Attribute): React.FC<AttributeFieldProps<AttributeInputValue>> | null => {
