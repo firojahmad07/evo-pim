@@ -1,0 +1,37 @@
+extensions:
+    pim-menu-connect-connectors:
+        module: pim/menu/item
+        parent: pim-menu-connect-navigation-block
+        position: 50
+        feature: spygar_connectors
+        aclResourceId: akeneo_connectivity_connection_manage_settings
+        config:
+            title: pim_menu.item.spygar_connectors
+            to: spygar_connectors_index
+
+    pim-menu-connector-column:
+        module: pim/menu/column
+        parent: pim-menu
+        targetZone: column
+        feature: spygar_connectors
+        config:
+            tab: pim-menu-connect
+            stateCode: pim-menu-connector
+            navigationTitle: spygar.connectors.navigation
+            backLink:
+                title: spygar.connectors.navigation_back
+                route: spygar_connectors_index
+
+    pim-menu-connector-params-provider:
+        module: spygar/menu/connector-params-provider
+        parent: pim-menu-connector-column
+        feature: spygar_connectors
+
+    pim-menu-connector-navigation-block:
+        module: pim/menu/navigation-block
+        parent: pim-menu-connector-column
+        targetZone: navigation
+        position: 100
+        feature: spygar_connectors
+        config:
+            title: spygar.connectors.navigation_block

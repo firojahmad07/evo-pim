@@ -1,0 +1,20 @@
+spygar_connectors_rest_list:
+    path: /rest/connectors
+    controller: Spygar\Core\Infrastructure\Symfony\Controller\ConnectorsController
+    methods: [GET]
+    defaults:
+        _feature: spygar_connectors
+
+spygar_connectors_index:
+    path: /connect/connectors
+
+spygar_connectors_edit:
+    path: /connect/connectors/{code}
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+
+spygar_connectors_any:
+    path: /connect/connectors/{code}/{any}
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+        any: .*

@@ -1,0 +1,22 @@
+parameters:
+    env(FLAG_SPYGAR_CONNECTORS_ENABLED): '1'
+
+services:
+    spygar.connectors.feature:
+        class: Akeneo\Platform\Bundle\FeatureFlagBundle\Configuration\EnvVarFeatureFlag
+        arguments:
+            - '%env(bool:FLAG_SPYGAR_CONNECTORS_ENABLED)%'
+        public: true
+
+    Spygar\Core\Connector\InstalledCustomBundleRegistry:
+        arguments:
+            - '@kernel'
+            - '%kernel.project_dir%'
+            - !tagged_iterator spygar.custom_bundle
+
+    Spygar\Core\Infrastructure\Symfony\Controller\ConnectorsController:
+        public: true
+        arguments:
+            - '@oro_security.security_facade'
+            - '@Spygar\Core\Connector\InstalledCustomBundleRegistry'
+            - '@router'

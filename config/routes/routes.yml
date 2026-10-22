@@ -64,6 +64,9 @@ akeneo_category:
 identifier_generator:
     resource: "@AkeneoIdentifierGeneratorBundle/Resources/config/routing.yml"
 
+spygar_core:
+    resource: "@SpygarCoreBundle/Resources/config/routing.yml"
+
 installer:
     resource: "@AkeneoInstallerBundle/Resources/config/routing.yml"
 
