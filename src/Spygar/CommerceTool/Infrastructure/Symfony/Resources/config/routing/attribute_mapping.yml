@@ -1,0 +1,33 @@
+spygar_commercetool_attribute_mapping_rest_create:
+    path: ''
+    controller: spygar_commercetool.controller.attribute_mapping::createAction
+    methods: [POST]
+    defaults:
+        _feature: spygar_connectors
+
+spygar_commercetool_attribute_mapping_rest_get:
+    path: /{identifier}
+    controller: spygar_commercetool.controller.attribute_mapping::getAction
+    methods: [GET]
+    requirements:
+        identifier: '[a-zA-Z0-9_]+'
+    defaults:
+        _feature: spygar_connectors
+
+spygar_commercetool_attribute_mapping_rest_post:
+    path: /{identifier}
+    controller: spygar_commercetool.controller.attribute_mapping::postAction
+    methods: [POST]
+    requirements:
+        identifier: '[a-zA-Z0-9_]+'
+    defaults:
+        _feature: spygar_connectors
+
+spygar_commercetool_attribute_mapping_rest_remove:
+    path: /{identifier}
+    controller: spygar_commercetool.controller.attribute_mapping::removeAction
+    methods: [DELETE]
+    requirements:
+        identifier: '[a-zA-Z0-9_]+'
+    defaults:
+        _feature: spygar_connectors

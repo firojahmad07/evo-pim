@@ -1,0 +1,7 @@
+services:
+    spygar_commercetool.job.default_values_provider:
+        class: Spygar\CommerceTool\Application\Connector\Job\JobParameters\DefaultValuesProvider\CommerceTool
+        arguments:
+            - '%spygar_commercetool.job_names%'
+        tags:
+            - { name: akeneo_batch.job.job_parameters.default_values_provider }

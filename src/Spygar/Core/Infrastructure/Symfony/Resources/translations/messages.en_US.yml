@@ -1,0 +1,6 @@
+spygar:
+    acl:
+        connector:
+            index: List connectors
+    acl_group:
+        connector: Connectors

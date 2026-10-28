@@ -5,10 +5,19 @@
 export HOST_UID ?= $(shell id -u)
 export HOST_GID ?= $(shell id -g)
 
-CMD_ON_PROJECT = docker compose run --rm php
+-include docker/.runtime-user.mk
+
+# prepare-runtime-user.sh sets these. On Docker Desktop they are the image's
+# PHP-FPM uid (1000), which is not the same number as the host user.
+PHP_RUNTIME_UID ?= $(HOST_UID)
+PHP_RUNTIME_GID ?= $(HOST_GID)
+export PHP_RUNTIME_UID
+export PHP_RUNTIME_GID
+
+CMD_ON_PROJECT = docker compose run --rm --user $(PHP_RUNTIME_UID):$(PHP_RUNTIME_GID) php
 ROOT_CMD_ON_PROJECT = docker compose run --rm --user root php
 PHP_RUN = $(CMD_ON_PROJECT) php
-YARN_RUN = docker compose run -u $(HOST_UID):$(HOST_GID) --rm -e YARN_REGISTRY -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD node yarn
+YARN_RUN = docker compose run -u $(PHP_RUNTIME_UID):$(PHP_RUNTIME_GID) --rm -e YARN_REGISTRY -e PUPPETEER_SKIP_CHROMIUM_DOWNLOAD node yarn
 
 ifdef NO_DOCKER
   CMD_ON_PROJECT =
@@ -18,6 +27,10 @@ ifdef NO_DOCKER
 endif
 
 .DEFAULT_GOAL := dev
+
+.PHONY: prepare-runtime
+prepare-runtime:
+	./docker/prepare-runtime-user.sh
 
 yarn.lock: package.json
 	PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 $(YARN_RUN) install
@@ -35,22 +48,23 @@ front-packages:
 
 .PHONY: assets
 assets:
-	$(CMD_ON_PROJECT) rm -rf public/bundles public/js
+	$(ROOT_CMD_ON_PROJECT) rm -rf public/bundles public/js
 	$(PHP_RUN) bin/console pim:installer:assets --symlink --clean
+	$(MAKE) javascript-extensions
 
 .PHONY: css
 css:
-	$(CMD_ON_PROJECT) rm -rf public/css
+	$(ROOT_CMD_ON_PROJECT) rm -rf public/css
 	$(YARN_RUN) run less
 
 .PHONY: javascript-prod
 javascript-prod:
-	$(CMD_ON_PROJECT) rm -rf public/dist
+	$(ROOT_CMD_ON_PROJECT) rm -rf public/dist
 	$(YARN_RUN) run webpack
 
 .PHONY: javascript-dev
 javascript-dev:
-	$(CMD_ON_PROJECT) rm -rf public/dist
+	$(ROOT_CMD_ON_PROJECT) rm -rf public/dist
 	$(YARN_RUN) run webpack-dev
 
 .PHONY: front
@@ -62,11 +76,25 @@ database:
 	$(PHP_RUN) bin/console doctrine:database:create --if-not-exists
 	$(PHP_RUN) bin/console pim:installer:db ${O}
 
+.PHONY: database-if-needed
+database-if-needed:
+ifndef NO_DOCKER
+	@tables=$$(docker compose exec -T mysql mysql -N -uroot -proot -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='akeneo_pim'" 2>/dev/null | tail -n 1); \
+	if [ "$$tables" = "0" ] || [ -z "$$tables" ]; then \
+		echo "Database is empty. Loading the demo catalog."; \
+		$(MAKE) database O="$(O)"; \
+	else \
+		echo "Database already has $$tables tables. Skipping demo catalog load."; \
+	fi
+else
+	$(MAKE) database O="$(O)"
+endif
+
 .PHONY: cache
 cache:
-	$(ROOT_CMD_ON_PROJECT) rm -rf var/cache
+	$(ROOT_CMD_ON_PROJECT) sh -c 'mkdir -p var/cache var/logs var/file_storage && chmod 777 var var/cache var/logs var/file_storage && rm -rf var/cache/*'
 	$(PHP_RUN) bin/console cache:warmup
-	chmod -R o+w var/cache
+	$(ROOT_CMD_ON_PROJECT) chmod -R a+rwX var/cache var/logs || true
 
 composer.lock: composer.json
 	$(PHP_RUN) -d memory_limit=4G /usr/local/bin/composer update
@@ -78,17 +106,25 @@ vendor: composer.lock
 dependencies: vendor node_modules
 
 .PHONY: dev
-dev:
-	$(MAKE) dependencies
-	$(MAKE) pim-dev
+dev: prepare-runtime
+	$(MAKE) dev-after-prepare
+
+.PHONY: dev-after-prepare
+dev-after-prepare: dependencies pim-after-prepare
 
 .PHONY: prod
-prod:
-	$(MAKE) dependencies
-	$(MAKE) pim-prod
+prod: prepare-runtime
+	$(MAKE) prod-after-prepare
+
+.PHONY: prod-after-prepare
+prod-after-prepare: dependencies pim-prod-after-prepare
 
 .PHONY: pim-prod
-pim-prod:
+pim-prod: prepare-runtime
+	$(MAKE) pim-prod-after-prepare
+
+.PHONY: pim-prod-after-prepare
+pim-prod-after-prepare:
 ifndef NO_DOCKER
 	APP_ENV=prod $(MAKE) up
 	docker/wait_docker_up.sh
@@ -99,10 +135,14 @@ endif
 	$(MAKE) javascript-prod
 	$(MAKE) css
 	$(MAKE) javascript-extensions
-	APP_ENV=prod $(MAKE) database O="--catalog src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/minimal"
+	APP_ENV=prod $(MAKE) database-if-needed O="--catalog src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/minimal"
 
 .PHONY: pim-dev
-pim-dev:
+pim-dev: prepare-runtime
+	$(MAKE) pim-after-prepare
+
+.PHONY: pim-after-prepare
+pim-after-prepare:
 ifndef NO_DOCKER
 	APP_ENV=dev $(MAKE) up
 	docker/wait_docker_up.sh
@@ -113,7 +153,7 @@ endif
 	$(MAKE) javascript-dev
 	$(MAKE) css
 	$(MAKE) javascript-extensions
-	APP_ENV=dev $(MAKE) database O="--catalog src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/icecat_demo_dev"
+	APP_ENV=dev $(MAKE) database-if-needed O="--catalog src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/icecat_demo_dev"
 
 .PHONY: up
 up:

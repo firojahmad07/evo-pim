@@ -1,0 +1,115 @@
+services:
+    Spygar\CommerceTool\Application\Job\LocaleBridge: ~
+
+    Spygar\CommerceTool\Application\Job\AttributeDefinitionBuilder: ~
+
+    Spygar\CommerceTool\Application\Job\MappingReader:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+
+    Spygar\CommerceTool\Application\Job\AkeneoPersister:
+        arguments:
+            - '@validator'
+            - '@doctrine.orm.entity_manager'
+
+    Spygar\CommerceTool\Application\Job\CommerceToolGateway:
+        arguments:
+            - '@spygar_commercetool.client.commercetool'
+
+    Spygar\CommerceTool\Application\Job\ProductTypeRegistry:
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolGateway'
+
+    Spygar\CommerceTool\Application\Job\ProductPayload:
+        arguments:
+            - '@pim_catalog.repository.attribute'
+
+    Spygar\CommerceTool\Application\Job\ImportedValues:
+        arguments:
+            - '@pim_catalog.repository.attribute'
+
+    Spygar\CommerceTool\Application\Job\CommerceToolProductWriter:
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolGateway'
+
+    Spygar\CommerceTool\Application\Job\Transfer\CategoryTransfer:
+        arguments:
+            - '@pim_catalog.repository.category'
+            - '@pim_catalog.factory.category'
+            - '@pim_catalog.updater.category'
+            - '@pim_catalog.saver.category'
+            - '@pim_catalog.repository.channel'
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolGateway'
+            - '@Spygar\CommerceTool\Application\Job\LocaleBridge'
+            - '@Spygar\CommerceTool\Application\Job\AkeneoPersister'
+
+    Spygar\CommerceTool\Application\Job\Transfer\AttributeTransfer:
+        arguments:
+            - '@pim_catalog.repository.attribute'
+            - '@pim_catalog.repository.attribute_option'
+            - '@pim_catalog.repository.attribute_group'
+            - '@pim_catalog.factory.attribute'
+            - '@pim_catalog.updater.attribute'
+            - '@pim_catalog.saver.attribute'
+            - '@Spygar\CommerceTool\Application\Job\ProductTypeRegistry'
+            - '@Spygar\CommerceTool\Application\Job\AttributeDefinitionBuilder'
+            - '@Spygar\CommerceTool\Application\Job\AkeneoPersister'
+
+    Spygar\CommerceTool\Application\Job\Transfer\OptionTransfer:
+        arguments:
+            - '@pim_catalog.repository.attribute'
+            - '@pim_catalog.repository.attribute_option'
+            - '@pim_catalog.factory.attribute_option'
+            - '@pim_catalog.updater.attribute_option'
+            - '@pim_catalog.saver.attribute_option'
+            - '@Spygar\CommerceTool\Application\Job\ProductTypeRegistry'
+            - '@Spygar\CommerceTool\Application\Job\AttributeDefinitionBuilder'
+            - '@Spygar\CommerceTool\Application\Job\AkeneoPersister'
+
+    Spygar\CommerceTool\Application\Job\Transfer\ProductTransfer:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '@pim_catalog.repository.product'
+            - '@pim_catalog.builder.product'
+            - '@pim_catalog.updater.product'
+            - '@pim_catalog.saver.product'
+            - '@doctrine.orm.entity_manager'
+            - '@Spygar\CommerceTool\Application\Job\ProductTypeRegistry'
+            - '@Spygar\CommerceTool\Application\Job\ProductPayload'
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolGateway'
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolProductWriter'
+            - '@Spygar\CommerceTool\Application\Job\ImportedValues'
+            - '@Spygar\CommerceTool\Application\Job\AkeneoPersister'
+
+    Spygar\CommerceTool\Application\Job\Transfer\ProductModelTransfer:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+            - '@pim_catalog.repository.product_model'
+            - '@pim_catalog.repository.family_variant'
+            - '@pim_catalog.factory.product_model'
+            - '@pim_catalog.updater.product_model'
+            - '@pim_catalog.saver.product_model'
+            - '@doctrine.orm.entity_manager'
+            - '@Spygar\CommerceTool\Application\Job\ProductTypeRegistry'
+            - '@Spygar\CommerceTool\Application\Job\ProductPayload'
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolGateway'
+            - '@Spygar\CommerceTool\Application\Job\CommerceToolProductWriter'
+            - '@Spygar\CommerceTool\Application\Job\ImportedValues'
+            - '@Spygar\CommerceTool\Application\Job\Transfer\ProductTransfer'
+            - '@Spygar\CommerceTool\Application\Job\AkeneoPersister'
+
+    Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory:
+        arguments:
+            - '@spygar_commercetool.repository.credential'
+            - '@spygar_commercetool.credential_catalog'
+            - '@spygar_commercetool.client.commercetool'
+            - '@doctrine.dbal.default_connection'
+            - '@Spygar\CommerceTool\Application\Job\LocaleBridge'
+            - '@Spygar\CommerceTool\Application\Job\MappingReader'
+            - '@akeneo_batch.job_repository'
+
+    Spygar\CommerceTool\Application\Job\JobProfileInstaller:
+        arguments:
+            - '@doctrine.dbal.default_connection'
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 30 }

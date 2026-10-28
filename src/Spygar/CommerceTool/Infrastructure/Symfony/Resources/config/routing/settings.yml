@@ -1,0 +1,17 @@
+spygar_commercetool_settings_rest_get:
+    path: /{identifier}
+    controller: spygar_commercetool.controller.settings::getAction
+    methods: [GET]
+    requirements:
+        identifier: '[a-zA-Z0-9_]+'
+    defaults:
+        _feature: spygar_connectors
+
+spygar_commercetool_settings_rest_post:
+    path: /{identifier}
+    controller: spygar_commercetool.controller.settings::postAction
+    methods: [POST]
+    requirements:
+        identifier: '[a-zA-Z0-9_]+'
+    defaults:
+        _feature: spygar_connectors

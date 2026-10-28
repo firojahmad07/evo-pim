@@ -1,0 +1,17 @@
+services:
+    spygar_commercetool.provider.form.job_instance:
+        class: Akeneo\Platform\Bundle\ImportExportBundle\Provider\Form\JobInstanceFormProvider
+        arguments:
+            -
+                commercetool_attribute_export: pim-commercetool-export-job
+                commercetool_option_export: pim-commercetool-export-job
+                commercetool_category_export: pim-commercetool-export-job
+                commercetool_product_export: pim-commercetool-export-job
+                commercetool_product_model_export: pim-commercetool-export-job
+                commercetool_attribute_import: pim-commercetool-import-job
+                commercetool_option_import: pim-commercetool-import-job
+                commercetool_category_import: pim-commercetool-import-job
+                commercetool_product_import: pim-commercetool-import-job
+                commercetool_product_model_import: pim-commercetool-import-job
+        tags:
+            - { name: pim_enrich.provider.form, priority: 110 }

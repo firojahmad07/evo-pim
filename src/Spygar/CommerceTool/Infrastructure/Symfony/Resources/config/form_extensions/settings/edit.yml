@@ -1,0 +1,129 @@
+extensions:
+    pim-commercetool-settings-edit-form:
+        module: pim/form/common/edit-form
+
+    pim-commercetool-settings-edit-form-breadcrumbs:
+        module: pim/common/breadcrumbs
+        parent: pim-commercetool-settings-edit-form
+        targetZone: breadcrumbs
+        config:
+            tab: pim-menu-connect
+            item: spygar-connector-commercetool-spygar_commercetool_settings_index
+
+    pim-commercetool-settings-edit-form-user-navigation:
+        module: pim/menu/user-navigation
+        parent: pim-commercetool-settings-edit-form
+        targetZone: user-menu
+        config:
+            userAccount: pim_menu.user.user_account
+            logout: pim_menu.user.logout
+
+    pim-commercetool-settings-edit-form-title:
+        module: pim/common/grid-title
+        parent: pim-commercetool-settings-edit-form
+        targetZone: title
+        config:
+            title: spygar_commercetool.settings.title
+
+    pim-commercetool-settings-edit-form-save-buttons:
+        module: pim/form/common/save-buttons
+        parent: pim-commercetool-settings-edit-form
+        targetZone: buttons
+        position: 100
+
+    pim-commercetool-settings-edit-form-save:
+        module: pim/form/common/save-form
+        parent: pim-commercetool-settings-edit-form
+        targetZone: buttons
+        position: 0
+        aclResourceId: spygar_commercetool_settings_edit
+        config:
+            updateSuccessMessage: spygar_commercetool.settings.flash.update.success
+            updateFailureMessage: spygar_commercetool.settings.flash.update.fail
+            notReadyMessage: spygar_commercetool.settings.flash.update.not_ready
+            url: spygar_commercetool_settings_rest_post
+
+    pim-commercetool-settings-edit-form-state:
+        module: pim/form/common/state
+        parent: pim-commercetool-settings-edit-form
+        targetZone: state
+        position: 900
+        config:
+            entity: spygar_commercetool.settings.entity
+
+    pim-commercetool-settings-edit-form-tabs:
+        module: pim/form/common/form-tabs
+        parent: pim-commercetool-settings-edit-form
+        targetZone: content
+        position: 90
+
+    pim-commercetool-settings-edit-form-properties-tab:
+        module: pim/common/tab
+        parent: pim-commercetool-settings-edit-form-tabs
+        targetZone: container
+        position: 100
+        config:
+            label: pim_common.properties
+
+    pim-commercetool-settings-edit-form-properties:
+        module: pim/common/simple-view
+        parent: pim-commercetool-settings-edit-form-properties-tab
+        targetZone: self
+        config:
+            template: pim/template/form/tab/sections
+
+    pim-commercetool-settings-edit-form-properties-section:
+        module: pim/common/simple-view
+        parent: pim-commercetool-settings-edit-form-properties
+        targetZone: accordion
+        position: 100
+        config:
+            template: pim/template/form/tab/section
+            templateParams:
+                sectionTitle: spygar_commercetool.settings.section
+                dropZone: content
+
+    pim-commercetool-settings-edit-form-enabled:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-settings-edit-form-properties-section
+        targetZone: content
+        position: 10
+        config:
+            fieldName: enabled
+            label: spygar_commercetool.settings.field.enabled
+
+    pim-commercetool-settings-edit-form-export-products:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-settings-edit-form-properties-section
+        targetZone: content
+        position: 20
+        config:
+            fieldName: export_products
+            label: spygar_commercetool.settings.field.export_products
+
+    pim-commercetool-settings-edit-form-export-categories:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-settings-edit-form-properties-section
+        targetZone: content
+        position: 30
+        config:
+            fieldName: export_categories
+            label: spygar_commercetool.settings.field.export_categories
+
+    pim-commercetool-settings-edit-form-import-products:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-settings-edit-form-properties-section
+        targetZone: content
+        position: 40
+        config:
+            fieldName: import_products
+            label: spygar_commercetool.settings.field.import_products
+
+    pim-commercetool-settings-edit-form-debug:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-settings-edit-form-properties-section
+        targetZone: content
+        position: 50
+        config:
+            fieldName: debug
+            label: spygar_commercetool.settings.field.debug

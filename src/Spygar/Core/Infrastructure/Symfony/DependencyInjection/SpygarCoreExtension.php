@@ -15,5 +15,13 @@ class SpygarCoreExtension extends Extension
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+        $loader->load('job_parameters.yml');
+        $loader->load('job_defaults.yml');
+        $loader->load('readers.yml');
+        $loader->load('processors.yml');
+        $loader->load('writers.yml');
+        $loader->load('steps.yml');
+        $loader->load('jobs.yml');
+        $loader->load('providers.yml');
     }
 }

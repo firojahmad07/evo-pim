@@ -7,3 +7,5 @@ spygar.connectors.navigation: Connectors
 spygar.connectors.navigation_back: Connectors
 spygar.connectors.navigation_block: Connector
 spygar.connectors.menu.settings: Settings
+spygar.acl.connector.index: List connectors
+spygar.acl_group.connector: Connectors

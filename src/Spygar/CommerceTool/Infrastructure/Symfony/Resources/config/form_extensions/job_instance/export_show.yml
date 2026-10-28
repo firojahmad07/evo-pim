@@ -1,0 +1,66 @@
+extensions:
+    pim-commercetool-export-job-show:
+        module: pim/form/common/edit-form
+
+    pim-commercetool-export-job-show-main-image:
+        module: pim/form/common/main-image
+        parent: pim-commercetool-export-job-show
+        targetZone: main-image
+        config:
+            path: bundles/pimui/images/illustrations/ExportCSV.svg
+
+    pim-commercetool-export-job-show-user-navigation:
+        module: pim/menu/user-navigation
+        parent: pim-commercetool-export-job-show
+        targetZone: user-menu
+        config:
+            userAccount: pim_menu.user.user_account
+            logout: pim_menu.user.logout
+
+    pim-commercetool-export-job-show-sandbox-helper:
+        module: pim/sandbox-helper
+        parent: pim-commercetool-export-job-show
+        targetZone: helper
+
+    pim-commercetool-export-job-show-breadcrumbs:
+        module: pim/job/common/breadcrumb/breadcrumb
+        parent: pim-commercetool-export-job-show
+        targetZone: breadcrumbs
+
+    pim-commercetool-export-job-show-launch:
+        module: pim/job/common/edit/launch
+        parent: pim-commercetool-export-job-show
+        targetZone: meta
+        position: 110
+        config:
+            label: pim_import_export.form.job_instance.button.export.title
+            route: pim_enrich_job_instance_rest_export_launch
+            identifier:
+                path: code
+                name: code
+
+    pim-commercetool-export-job-show-label:
+        module: pim/job/common/edit/label
+        parent: pim-commercetool-export-job-show
+        targetZone: title
+        position: 100
+
+    pim-commercetool-export-job-show-edit:
+        module: pim/job/common/edit-button
+        parent: pim-commercetool-export-job-show
+        targetZone: buttons
+        position: 100
+        aclResourceId: pim_importexport_export_profile_edit
+        config:
+            label: pim_common.edit
+            route: pim_importexport_export_profile_edit
+            buttonClass: AknButton AknButton--action
+            identifier:
+                path: code
+                name: code
+
+    pim-commercetool-export-job-show-last-executions:
+        module: akeneojob/controller/job-instance
+        parent: pim-commercetool-export-job-show
+        position: 100
+        targetZone: content

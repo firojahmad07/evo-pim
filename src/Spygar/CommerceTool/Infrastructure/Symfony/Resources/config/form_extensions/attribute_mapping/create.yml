@@ -1,0 +1,21 @@
+extensions:
+    pim-commercetool-attribute-mapping-create-modal:
+        module: pim/form/common/creation/modal
+        config:
+            labels:
+                title: pim_common.create
+                subTitle: spygar_commercetool.attribute_mapping.entity
+            picture: illustrations/Attribute.svg
+            successMessage: spygar_commercetool.attribute_mapping.flash.create.success
+            editRoute: spygar_commercetool_attribute_mapping_edit
+            postUrl: spygar_commercetool_attribute_mapping_rest_create
+            routerKey: identifier
+            entityIdentifierParamName: code
+
+    pim-commercetool-attribute-mapping-create-code:
+        module: pim/form/common/creation/field
+        parent: pim-commercetool-attribute-mapping-create-modal
+        targetZone: fields
+        config:
+            identifier: code
+            label: pim_common.code

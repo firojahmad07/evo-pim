@@ -1,0 +1,171 @@
+extensions:
+    pim-commercetool-attribute-mapping-edit-form:
+        module: pim/form/common/edit-form
+
+    pim-commercetool-attribute-mapping-edit-form-breadcrumbs:
+        module: pim/common/breadcrumbs
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: breadcrumbs
+        config:
+            tab: pim-menu-connect
+            item: spygar-connector-commercetool-spygar_commercetool_attribute_mapping_index
+
+    pim-commercetool-attribute-mapping-edit-form-user-navigation:
+        module: pim/menu/user-navigation
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: user-menu
+        config:
+            userAccount: pim_menu.user.user_account
+            logout: pim_menu.user.logout
+
+    pim-commercetool-attribute-mapping-edit-form-cache-invalidator:
+        module: pim/cache-invalidator
+        parent: pim-commercetool-attribute-mapping-edit-form
+        position: 1000
+
+    pim-commercetool-attribute-mapping-edit-form-label:
+        module: pim/form/common/label
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: title
+        position: 110
+        config:
+            field: code
+
+    pim-commercetool-attribute-mapping-edit-form-secondary-actions:
+        module: pim/form/common/secondary-actions
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: buttons
+        position: 50
+
+    pim-commercetool-attribute-mapping-edit-form-delete:
+        module: spygar/commercetool/form/attribute-mapping-delete
+        parent: pim-commercetool-attribute-mapping-edit-form-secondary-actions
+        targetZone: secondary-actions
+        aclResourceId: spygar_commercetool_attribute_mapping_remove
+        position: 100
+        config:
+            trans:
+                title: spygar_commercetool.attribute_mapping.delete.confirm
+                subTitle: spygar_commercetool.attribute_mapping.entity
+                content: pim_common.confirm_deletion
+                success: spygar_commercetool.attribute_mapping.flash.delete.success
+                fail: spygar_commercetool.attribute_mapping.flash.delete.fail
+                buttonText: pim_common.delete
+            redirect: spygar_commercetool_attribute_mapping_index
+
+    pim-commercetool-attribute-mapping-edit-form-save-buttons:
+        module: pim/form/common/save-buttons
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: buttons
+        position: 100
+
+    pim-commercetool-attribute-mapping-edit-form-save:
+        module: pim/form/common/save-form
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: buttons
+        position: 0
+        config:
+            updateSuccessMessage: spygar_commercetool.attribute_mapping.flash.update.success
+            updateFailureMessage: spygar_commercetool.attribute_mapping.flash.update.fail
+            notReadyMessage: spygar_commercetool.attribute_mapping.flash.update.not_ready
+            url: spygar_commercetool_attribute_mapping_rest_post
+
+    pim-commercetool-attribute-mapping-edit-form-state:
+        module: pim/form/common/state
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: state
+        position: 900
+        config:
+            entity: spygar_commercetool.attribute_mapping.entity
+
+    pim-commercetool-attribute-mapping-edit-form-tabs:
+        module: pim/form/common/form-tabs
+        parent: pim-commercetool-attribute-mapping-edit-form
+        targetZone: content
+        position: 90
+
+    pim-commercetool-attribute-mapping-edit-form-properties-tab:
+        module: pim/common/tab
+        parent: pim-commercetool-attribute-mapping-edit-form-tabs
+        targetZone: container
+        position: 100
+        config:
+            label: pim_common.properties
+
+    pim-commercetool-attribute-mapping-edit-form-properties:
+        module: pim/common/simple-view
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-tab
+        targetZone: self
+        config:
+            template: pim/template/form/tab/sections
+
+    pim-commercetool-attribute-mapping-edit-form-properties-general:
+        module: pim/common/properties/general
+        parent: pim-commercetool-attribute-mapping-edit-form-properties
+        targetZone: accordion
+        position: 100
+        config:
+            sectionTitle: pim_common.general_properties
+            codeLabel: pim_common.code
+            formRequired: pim_common.required_label
+            inputField: spygar_commercetool_attribute_mapping_code
+
+    pim-commercetool-attribute-mapping-edit-form-properties-section:
+        module: pim/common/simple-view
+        parent: pim-commercetool-attribute-mapping-edit-form-properties
+        targetZone: accordion
+        position: 110
+        config:
+            template: pim/template/form/tab/section
+            templateParams:
+                sectionTitle: spygar_commercetool.attribute_mapping.section
+                dropZone: content
+
+    pim-commercetool-attribute-mapping-edit-form-akeneo-attribute:
+        module: pim/form/common/fields/simple-select-async
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-section
+        targetZone: content
+        position: 10
+        config:
+            fieldName: akeneo_attribute
+            label: spygar_commercetool.attribute_mapping.field.akeneo_attribute
+            choiceRoute: pim_enrich_attribute_rest_index
+            required: true
+            placeholder: spygar_commercetool.attribute_mapping.field.akeneo_attribute_placeholder
+
+    pim-commercetool-attribute-mapping-edit-form-ct-attribute:
+        module: pim/form/common/fields/text
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-section
+        targetZone: content
+        position: 20
+        config:
+            fieldName: commercetools_attribute
+            label: spygar_commercetool.attribute_mapping.field.commercetools_attribute
+            required: true
+
+    pim-commercetool-attribute-mapping-edit-form-locale:
+        module: pim/form/common/fields/text
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-section
+        targetZone: content
+        position: 30
+        config:
+            fieldName: locale
+            label: spygar_commercetool.attribute_mapping.field.locale
+
+    pim-commercetool-attribute-mapping-edit-form-channel:
+        module: pim/form/common/fields/text
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-section
+        targetZone: content
+        position: 40
+        config:
+            fieldName: channel
+            label: spygar_commercetool.attribute_mapping.field.channel
+
+    pim-commercetool-attribute-mapping-edit-form-active:
+        module: pim/form/common/fields/boolean
+        parent: pim-commercetool-attribute-mapping-edit-form-properties-section
+        targetZone: content
+        position: 50
+        config:
+            fieldName: active
+            label: spygar_commercetool.attribute_mapping.field.active

@@ -1,0 +1,39 @@
+spygar_commercetool:
+    credential:
+        column:
+            code: Code
+            label: Name
+            project_key: Project key
+            client_id: Client ID
+            region: Region
+            active: Enabled
+        action:
+            enable: Enable
+            disable: Disable
+    attribute_mapping:
+        column:
+            code: Code
+            akeneo_attribute: Akeneo attribute
+            commercetools_attribute: CommerceTool attribute
+            locale: Locale
+            channel: Channel
+            active: Enabled
+    acl:
+        credential:
+            index: List CommerceTool credentials
+            create: Create a CommerceTool credential
+            edit: Edit a CommerceTool credential
+            remove: Delete a CommerceTool credential
+        attribute_mapping:
+            index: List CommerceTool attribute mappings
+            create: Create a CommerceTool attribute mapping
+            edit: Edit a CommerceTool attribute mapping
+            remove: Delete a CommerceTool attribute mapping
+        settings:
+            index: View CommerceTool settings
+            edit: Edit CommerceTool settings
+    acl_group:
+        connector: CommerceTool Connector
+        credential: CommerceTool credentials
+        attribute_mapping: CommerceTool attribute mapping
+        settings: CommerceTool settings

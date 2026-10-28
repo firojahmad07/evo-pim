@@ -5,16 +5,17 @@ config:
                 spygar_connectors_index:
                     module: spygar/controller/connectors
                     feature: spygar_connectors
-                    aclResourceId: akeneo_connectivity_connection_manage_settings
+                    aclResourceId: spygar_connectors_index || akeneo_connectivity_connection_manage_settings
                 spygar_connectors_edit:
                     module: spygar/controller/connectors
                     feature: spygar_connectors
-                    aclResourceId: akeneo_connectivity_connection_manage_settings
+                    aclResourceId: spygar_connectors_index || akeneo_connectivity_connection_manage_settings
                 spygar_connectors_any:
                     module: spygar/controller/connectors
                     feature: spygar_connectors
-                    aclResourceId: akeneo_connectivity_connection_manage_settings
+                    aclResourceId: spygar_connectors_index || akeneo_connectivity_connection_manage_settings
 
     paths:
         spygar/controller/connectors: spygarcore/js/controller/connectors.tsx
         spygar/menu/connector-params-provider: spygarcore/js/menu/connector-params-provider.ts
+        spygar/menu/connector-navigation-items: spygarcore/js/menu/connector-navigation-items.js

@@ -51,22 +51,34 @@ class ConnectorParamsProvider extends BaseForm {
 
   private apply(): void {
     const route = this.currentRoute;
-    if (null === this.catalog || null === route || 'spygar_connectors_index' === route.name) {
+    if (null === this.catalog || null === route) {
+      return;
+    }
+
+    const column = this.findColumn();
+    if (undefined === column) {
       return;
     }
 
     const code = route.params.code;
-    if (undefined === code || '' === code) {
+    if ('spygar_connectors_index' === route.name || undefined === code || '' === code) {
+      column.navigationItems.splice(0, column.navigationItems.length);
+
       return;
     }
 
     const connector = this.catalog.find(item => item.code === code);
-    const column = this.findColumn();
-    if (undefined === connector || undefined === column) {
+    if (undefined === connector) {
+      column.navigationItems.splice(0, column.navigationItems.length);
+
       return;
     }
 
     const items = connector.menu.slice().sort((left, right) => left.position - right.position);
+    const current =
+      items.find(item => item.route === route.name) ||
+      items.find(item => this.sectionOf(item.route) === this.sectionOf(route.name)) ||
+      items[0];
     column.navigationItems.splice(
       0,
       column.navigationItems.length,
@@ -74,13 +86,12 @@ class ConnectorParamsProvider extends BaseForm {
         code: this.itemCode(connector.code, item.route),
         route: item.route,
         title: __(item.label),
+        label: __(item.label),
         position: item.position,
         routeParams: {code: connector.code},
         sectionCode: SECTION_CODE,
       }))
     );
-
-    const current = items.find(item => item.route === route.name) || items[0];
     if (undefined === current) {
       return;
     }
@@ -112,6 +123,10 @@ class ConnectorParamsProvider extends BaseForm {
 
   private itemCode(connectorCode: string, route: string): string {
     return `spygar-connector-${connectorCode}-${route}`.replace(/[^a-zA-Z0-9_-]/g, '_');
+  }
+
+  private sectionOf(routeName: string): string {
+    return routeName.replace(/_(index|edit|create|remove)$/, '');
   }
 }
 

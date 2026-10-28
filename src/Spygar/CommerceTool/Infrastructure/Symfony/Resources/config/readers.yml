@@ -1,0 +1,60 @@
+services:
+    spygar_commercetool.reader.database.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Reader\Database\AttributeReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.commercetool.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Reader\CommerceTool\AttributeReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.database.option:
+        class: Spygar\CommerceTool\Application\Connector\Reader\Database\OptionReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.commercetool.option:
+        class: Spygar\CommerceTool\Application\Connector\Reader\CommerceTool\OptionReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.database.category:
+        class: Spygar\CommerceTool\Application\Connector\Reader\Database\CategoryReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.commercetool.category:
+        class: Spygar\CommerceTool\Application\Connector\Reader\CommerceTool\CategoryReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.database.product:
+        class: Spygar\CommerceTool\Application\Connector\Reader\Database\ProductReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.commercetool.product:
+        class: Spygar\CommerceTool\Application\Connector\Reader\CommerceTool\ProductReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.database.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Reader\Database\ProductModelReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'
+
+    spygar_commercetool.reader.commercetool.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Reader\CommerceTool\ProductModelReader
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Connector\Exchange\ExchangeContextFactory'

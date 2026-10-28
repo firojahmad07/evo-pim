@@ -1,0 +1,70 @@
+extensions:
+    pim-commercetool-attribute-mapping-index:
+        module: pim/common/simple-view
+        config:
+            template: pim/template/common/default-template
+
+    pim-commercetool-attribute-mapping-index-grid-container:
+        module: pim/common/simple-view
+        parent: pim-commercetool-attribute-mapping-index
+        targetZone: content
+        config:
+            template: pim/template/form/index/index
+
+    pim-commercetool-attribute-mapping-index-user-navigation:
+        module: pim/menu/user-navigation
+        parent: pim-commercetool-attribute-mapping-index
+        targetZone: user-menu
+        config:
+            userAccount: pim_menu.user.user_account
+            logout: pim_menu.user.logout
+
+    pim-commercetool-attribute-mapping-index-grid-title:
+        module: pim/common/grid-title
+        parent: pim-commercetool-attribute-mapping-index
+        targetZone: title
+        config:
+            title: spygar_commercetool.attribute_mapping.index_title
+
+    pim-commercetool-attribute-mapping-index-breadcrumbs:
+        module: pim/common/breadcrumbs
+        parent: pim-commercetool-attribute-mapping-index
+        targetZone: breadcrumbs
+        config:
+            tab: pim-menu-connect
+            item: spygar-connector-commercetool-spygar_commercetool_attribute_mapping_index
+
+    pim-commercetool-attribute-mapping-index-filters-list:
+        module: oro/datafilter/filters-list
+        parent: pim-commercetool-attribute-mapping-index-grid-container
+        targetZone: filters
+
+    pim-commercetool-attribute-mapping-index-filters-manage:
+        module: oro/datafilter/filters-button
+        parent: pim-commercetool-attribute-mapping-index-grid-container
+        targetZone: filters
+
+    pim-commercetool-attribute-mapping-index-pagination:
+        module: oro/datagrid/pagination-input
+        parent: pim-commercetool-attribute-mapping-index-grid-container
+        targetZone: toolbar
+        config:
+            gridName: commercetool-attribute-mapping-grid
+
+    pim-commercetool-attribute-mapping-index-grid:
+        module: pim/form/common/index/grid
+        parent: pim-commercetool-attribute-mapping-index-grid-container
+        position: 1000
+        config:
+            alias: commercetool-attribute-mapping-grid
+
+    pim-commercetool-attribute-mapping-index-create-button:
+        module: pim/form/common/index/create-button
+        parent: pim-commercetool-attribute-mapping-index
+        targetZone: buttons
+        position: 100
+        aclResourceId: spygar_commercetool_attribute_mapping_create
+        config:
+            iconName: plus
+            title: spygar_commercetool.attribute_mapping.create
+            modalForm: pim-commercetool-attribute-mapping-create-modal

@@ -5,6 +5,7 @@ import {Breadcrumb, pimTheme} from 'akeneo-design-system';
 
 const __ = require('oro/translator');
 const Routing = require('routing');
+const router = require('pim/router');
 
 type Connector = {
     code: string;
@@ -101,13 +102,26 @@ const ConnectorDetails = () => {
     const {code} = useParams<{code: string}>();
     const connector = null === connectors ? null : connectors.find(item => item.code === code) || null;
 
+    const destination =
+        null === connector
+            ? null
+            : connector.menu.slice().sort((left, right) => left.position - right.position)[0] || null;
+
     useEffect(() => {
         if (null !== connectors && null === connector) {
             history.replace('/connect/connectors');
         }
     }, [connectors, connector, history]);
 
-    if (null === connector) {
+    useEffect(() => {
+        if (null === connector || null === destination) {
+            return;
+        }
+
+        router.redirectToRoute(destination.route, {code: connector.code}, {trigger: true});
+    }, [connector, destination]);
+
+    if (null === connector || null !== destination) {
         return null;
     }
 

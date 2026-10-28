@@ -1,0 +1,126 @@
+Spygar\CommerceTool\Domain\Model\Credential:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [code]
+            message: spygar_commercetool.credential.unique
+            groups: [Default, creation]
+        - Akeneo\Tool\Component\StorageUtils\Validator\Constraints\Immutable:
+            properties: [code]
+            groups: [Default]
+    properties:
+        code:
+            - NotBlank:
+                groups: [Default, creation]
+            - Regex:
+                pattern: '/^[a-zA-Z0-9_]+$/'
+                message: spygar_commercetool.credential.code.regex
+                groups: [Default, creation]
+            - Length:
+                max: 100
+                groups: [Default, creation]
+        label:
+            - NotBlank:
+                groups: [Default, creation]
+            - Length:
+                max: 255
+                groups: [Default, creation]
+        projectKey:
+            - NotBlank:
+                groups: [Default, creation]
+            - Regex:
+                pattern: '/^[A-Za-z0-9_-]+$/'
+                message: 'The project key can contain only letters, numbers, hyphens, and underscores.'
+                groups: [Default, creation]
+            - Length:
+                max: 255
+                groups: [Default, creation]
+        clientId:
+            - NotBlank:
+                groups: [Default, creation]
+            - Length:
+                max: 255
+                groups: [Default, creation]
+        clientSecret:
+            - NotBlank:
+                groups: [Default, creation]
+            - Length:
+                max: 2000
+                groups: [Default, creation]
+        region:
+            - NotBlank:
+                groups: [creation]
+            - Length:
+                max: 100
+                groups: [Default, creation]
+            - Regex:
+                pattern: '/^[a-z0-9][a-z0-9.-]*[a-z0-9]$/'
+                message: 'The region should look like europe-west1.gcp.'
+                groups: [Default, creation]
+        authUrl:
+            - Url:
+                groups: [Default]
+            - Length:
+                max: 255
+                groups: [Default]
+        apiUrl:
+            - Url:
+                groups: [Default]
+            - Length:
+                max: 255
+                groups: [Default]
+        scope:
+            - Length:
+                max: 2000
+                groups: [Default]
+
+Spygar\CommerceTool\Domain\Model\AttributeMapping:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [code]
+            message: spygar_commercetool.attribute_mapping.unique
+            groups: [Default, creation]
+        - Akeneo\Tool\Component\StorageUtils\Validator\Constraints\Immutable:
+            properties: [code]
+            groups: [Default]
+    properties:
+        code:
+            - NotBlank:
+                groups: [Default, creation]
+            - Regex:
+                pattern: '/^[a-zA-Z0-9_]+$/'
+                message: spygar_commercetool.attribute_mapping.code.regex
+                groups: [Default, creation]
+            - Length:
+                max: 100
+                groups: [Default, creation]
+        akeneoAttribute:
+            - NotBlank:
+                groups: [Default]
+            - Length:
+                max: 255
+                groups: [Default]
+        commercetoolsAttribute:
+            - NotBlank:
+                groups: [Default]
+            - Length:
+                max: 255
+                groups: [Default]
+        locale:
+            - Length:
+                max: 20
+                groups: [Default]
+        channel:
+            - Length:
+                max: 100
+                groups: [Default]
+
+Spygar\CommerceTool\Domain\Model\Settings:
+    constraints:
+        - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+            fields: [code]
+            message: spygar_commercetool.settings.unique
+    properties:
+        code:
+            - NotBlank: ~
+            - Length:
+                max: 100

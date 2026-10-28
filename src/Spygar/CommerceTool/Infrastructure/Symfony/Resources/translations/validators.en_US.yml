@@ -1,0 +1,11 @@
+spygar_commercetool:
+    credential:
+        unique: This code is already used.
+        code:
+            regex: Code may contain only letters, numbers and underscores.
+    attribute_mapping:
+        unique: This code is already used.
+        code:
+            regex: Code may contain only letters, numbers and underscores.
+    settings:
+        unique: Settings already exist.

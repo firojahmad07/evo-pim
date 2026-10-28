@@ -1,0 +1,57 @@
+Spygar\CommerceTool\Domain\Model\AttributeMapping:
+    type: entity
+    table: spygar_commercetool_attribute_mapping
+    repositoryClass: Spygar\CommerceTool\Infrastructure\Persistence\AttributeMappingRepository
+    changeTrackingPolicy: DEFERRED_EXPLICIT
+    indexes:
+        akeneo_attribute_idx:
+            columns: [akeneo_attribute]
+    fields:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+        code:
+            type: string
+            length: 100
+            unique: true
+        akeneoAttribute:
+            type: string
+            length: 255
+            column: akeneo_attribute
+        commercetoolsAttribute:
+            type: string
+            length: 255
+            column: commercetools_attribute
+        variantAkeneoAttribute:
+            type: string
+            length: 255
+            nullable: true
+            column: variant_akeneo_attribute
+        mappingType:
+            type: string
+            length: 20
+            column: mapping_type
+            options:
+                default: field
+        position:
+            type: integer
+            options:
+                default: 0
+        locale:
+            type: string
+            length: 20
+            nullable: true
+        channel:
+            type: string
+            length: 100
+            nullable: true
+        active:
+            type: boolean
+        createdAt:
+            type: datetime_immutable
+            column: created_at
+        updatedAt:
+            type: datetime_immutable
+            column: updated_at

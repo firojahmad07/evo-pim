@@ -59,4 +59,5 @@ return [
     Akeneo\Category\Infrastructure\Symfony\AkeneoCategoryBundle::class => ['all' => true],
     Akeneo\Pim\Automation\IdentifierGenerator\Infrastructure\Symfony\AkeneoIdentifierGeneratorBundle::class => ['all' => true],
     Spygar\Core\Infrastructure\Symfony\SpygarCoreBundle::class => ['all' => true],
+    Spygar\CommerceTool\Infrastructure\Symfony\SpygarCommerceToolBundle::class => ['all' => true],
 ];

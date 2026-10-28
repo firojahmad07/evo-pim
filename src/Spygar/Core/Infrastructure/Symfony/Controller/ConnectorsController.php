@@ -23,7 +23,10 @@ final class ConnectorsController
 
     public function __invoke(): JsonResponse
     {
-        if (!$this->securityFacade->isGranted('akeneo_connectivity_connection_manage_settings')) {
+        if (
+            !$this->securityFacade->isGranted('spygar_connectors_index')
+            && !$this->securityFacade->isGranted('akeneo_connectivity_connection_manage_settings')
+        ) {
             throw new AccessDeniedException();
         }
 
@@ -45,12 +48,15 @@ final class ConnectorsController
      */
     private function menu(CustomBundle $bundle): array
     {
-        $items = [[
-            'code' => 'settings',
-            'label' => 'spygar.connectors.menu.settings',
-            'route' => 'spygar_connectors_edit',
-            'position' => 10,
-        ]];
+        $items = [];
+        if (!$this->hasSettings($bundle)) {
+            $items[] = [
+                'code' => 'settings',
+                'label' => 'spygar.connectors.menu.settings',
+                'route' => 'spygar_connectors_edit',
+                'position' => 10,
+            ];
+        }
 
         foreach ($bundle->getMenu() as $item) {
             if (!$item instanceof ConnectorMenuItem || !$this->routeExists($item->getRoute())) {
@@ -104,6 +110,21 @@ final class ConnectorsController
             'route' => $item->getRoute(),
             'position' => $item->getPosition(),
         ];
+    }
+
+    private function hasSettings(CustomBundle $bundle): bool
+    {
+        foreach ($bundle->getMenu() as $item) {
+            if (
+                $item instanceof ConnectorMenuItem
+                && 'settings' === $item->getCode()
+                && $this->routeExists($item->getRoute())
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function routeExists(string $route): bool

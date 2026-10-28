@@ -1,0 +1,21 @@
+internal_api_credential:
+    resource: '@SpygarCommerceToolBundle/Resources/config/routing/credential.yml'
+    prefix: /rest/commercetool/credentials
+
+internal_api_attribute_mapping:
+    resource: '@SpygarCommerceToolBundle/Resources/config/routing/attribute_mapping.yml'
+    prefix: /rest/commercetool/attribute-mappings
+
+spygar_commercetool_attribute_mapping_rest_form:
+    path: /rest/commercetool/attribute-mapping
+    controller: spygar_commercetool.controller.attribute_mapping::formAction
+    methods: [GET, POST]
+    defaults:
+        _feature: spygar_connectors
+
+internal_api_settings:
+    resource: '@SpygarCommerceToolBundle/Resources/config/routing/settings.yml'
+    prefix: /rest/commercetool/settings
+
+front:
+    resource: '@SpygarCommerceToolBundle/Resources/config/routing/front.yml'

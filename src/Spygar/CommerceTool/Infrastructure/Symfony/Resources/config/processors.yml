@@ -1,0 +1,40 @@
+services:
+    spygar_commercetool.processor.normalization.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Normalization\AttributeProcessor
+        shared: false
+
+    spygar_commercetool.processor.denormalization.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Denormalization\AttributeProcessor
+        shared: false
+
+    spygar_commercetool.processor.normalization.option:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Normalization\OptionProcessor
+        shared: false
+
+    spygar_commercetool.processor.denormalization.option:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Denormalization\OptionProcessor
+        shared: false
+
+    spygar_commercetool.processor.normalization.category:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Normalization\CategoryProcessor
+        shared: false
+
+    spygar_commercetool.processor.denormalization.category:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Denormalization\CategoryProcessor
+        shared: false
+
+    spygar_commercetool.processor.normalization.product:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Normalization\ProductProcessor
+        shared: false
+
+    spygar_commercetool.processor.denormalization.product:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Denormalization\ProductProcessor
+        shared: false
+
+    spygar_commercetool.processor.normalization.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Normalization\ProductModelProcessor
+        shared: false
+
+    spygar_commercetool.processor.denormalization.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Processor\Denormalization\ProductModelProcessor
+        shared: false

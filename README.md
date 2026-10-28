@@ -44,6 +44,8 @@ Focused on maintaining a stable and secure PIM experience for real-world workloa
 
 ### Quick start (Docker)
 
+One command installs the stack, or repairs an install that is already on disk:
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/firojahmad07/evo-pim
@@ -52,29 +54,42 @@ cd evo-pim
 # 2. Configure your local environment
 echo "SEARCH_ENGINE=opensearch" > .env.local
 
-# 3. Install (single command — pulls images, installs deps, builds frontend, seeds DB)
+# 3. Install or repair
 make dev
 ```
 
 **App will be available at:** `http://localhost:8080`
 Default credentials: `admin` / `admin`
 
-**Total install time:** ~10–15 minutes (webpack build is the longest step).
+**Total install time:** ~10–15 minutes the first time (the webpack build is the longest step). Running `make dev` again reuses dependencies that are already installed.
+
+`make dev` fixes the two failures that leave port 8080 up but the UI broken:
+
+* **HTTP 500, `Unable to create the "cache" directory`.** `var/` or `public/` is owned by the host `www-data` user (uid 33), or Docker Desktop is mapping your user to root inside the container while PHP-FPM runs as uid 1000. The command copies those directories back to your user and makes them writable by PHP-FPM.
+* **HTTP 403 on `/bundles/...` images, icons, and fonts.** `public/bundles` symlinks point at a host path such as `/var/www/html/evo-pim`, which is not mounted in the container. The command reinstalls them as relative links under `/srv/pim`.
+
+The Icecat demo catalog is loaded only when `akeneo_pim` has no tables, so a repair does not wipe a database that already has data. To load it again:
+
+```bash
+APP_ENV=dev make database O="--catalog src/Akeneo/Platform/Installer/back/src/Infrastructure/Symfony/Resources/fixtures/icecat_demo_dev"
+```
 
 ### What `make dev` does
 
 ```
-make dependencies       → composer install + yarn install
+make prepare-runtime  → reclaim var/ and public/ if another user owns them,
+                        make those trees writable, detect Docker Desktop uid remap
+make dependencies     → composer install + yarn install
 make pim-dev
   ├── make up           → docker compose up -d (all containers)
   ├── wait_docker_up.sh → waits for MySQL + OpenSearch to be ready
   ├── make cache        → clear + warmup Symfony cache
-  ├── make assets       → install Symfony bundle assets
+  ├── make assets       → bundle symlinks plus public/js/extensions.json (the file the UI loads after login)
   ├── make front-packages → build TypeScript front-end packages
   ├── make javascript-dev → webpack bundle (dev mode)
   ├── make css          → compile LESS → public/css/pim.css
   ├── make javascript-extensions → update form extensions manifest
-  └── make database     → create DB schema + load icecat demo fixtures
+  └── database          → load the Icecat demo catalog when the database is empty
 ```
 
 ### Building the Docker image from source
@@ -113,9 +128,13 @@ If `SEARCH_ENGINE` is unset or empty, Elasticsearch is used by default.
 
 ### Docker host user (HOST_UID / HOST_GID)
 
-The Makefile **automatically detects** your host user and group IDs via `id -u` / `id -g` and exports them to Docker. No manual configuration is needed for most setups.
+`make dev` detects your user with `id -u` / `id -g` and writes `docker/.runtime-user.mk`.
 
-If you need to override (e.g. CI, shared environments):
+On Docker Engine, PHP runs as that uid, so files created in the container belong to you.
+
+On Docker Desktop the same files appear as uid 0 inside the container, while the dev image runs PHP-FPM as uid 1000. `make dev` then runs console and Yarn as uid 1000 and opens `var/` and `public/` so both the web process and Apache can use them. Apache serves `/css` and `/dist` directly, and follows the relative symlinks in `/bundles`.
+
+Override the uid only for CI or a shared agent:
 
 ```bash
 # .env.local
@@ -123,7 +142,7 @@ HOST_UID=1005
 HOST_GID=500
 ```
 
-These values are used by the `php` service in `docker-compose.yml` so that files created inside the container are owned by your host user, preventing permission errors on bind-mounted volumes.
+`sudo` is not required. If a directory is owned by another account and is not readable, the command stops and prints the `chown` to run.
 
 ---
 

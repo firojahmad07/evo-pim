@@ -1,0 +1,159 @@
+spygar_commercetool:
+    menu:
+        credentials: Credentials
+        attribute_mapping: Attribute mapping
+        settings: Settings
+    credential:
+        entity: Credential
+        index_title: Credentials
+        create: Create credential
+        section: CommerceTool credentials
+        unique: This credential already exists.
+        tab:
+            mapping: Map with Akeneo
+        action:
+            enable: Enable
+            disable: Disable
+        delete:
+            confirm: Confirm deletion
+        flash:
+            create:
+                success: Credential successfully created
+            update:
+                success: Credential successfully updated
+                fail: The credential could not be updated
+                not_ready: The credential cannot be saved yet
+            delete:
+                success: Credential successfully deleted
+                fail: The credential could not be deleted
+        field:
+            label: Name
+            project_key: Project key
+            client_id: Client ID
+            client_secret: Client secret (leave empty to keep the saved value)
+            region: Region (for example europe-west1.gcp)
+            auth_url: Auth URL
+            api_url: API URL
+            scope: OAuth scopes
+            active: Enabled
+        column:
+            code: Code
+            label: Name
+            project_key: Project key
+            client_id: Client ID
+            region: Region
+            active: Enabled
+        code:
+            regex: The code may contain only letters, numbers, and underscores.
+    attribute_mapping:
+        entity: Attribute mapping
+        index_title: Attribute mapping
+        create: Create mapping
+        section: Akeneo to CommerceTool
+        unique: This attribute mapping already exists.
+        delete:
+            confirm: Confirm deletion
+        flash:
+            create:
+                success: Attribute mapping successfully created
+            update:
+                success: Attribute mapping successfully updated
+                fail: The attribute mapping could not be updated
+                not_ready: The attribute mapping cannot be saved yet
+            delete:
+                success: Attribute mapping successfully deleted
+                fail: The attribute mapping could not be deleted
+        field:
+            akeneo_attribute: Akeneo attribute
+            akeneo_attribute_placeholder: Select an attribute
+            commercetools_attribute: CommerceTool attribute
+            locale: Locale (optional)
+            channel: Channel (optional)
+            active: Enabled
+        column:
+            code: Code
+            akeneo_attribute: Akeneo attribute
+            commercetools_attribute: CommerceTool attribute
+            locale: Locale
+            channel: Channel
+            active: Enabled
+        code:
+            regex: The code may contain only letters, numbers, and underscores.
+    settings:
+        entity: Settings
+        title: Settings
+        section: Configuration
+        unique: These settings already exist.
+        flash:
+            update:
+                success: Settings successfully updated
+                fail: The settings could not be updated
+                not_ready: The settings cannot be saved yet
+        field:
+            enabled: Enable connector
+            export_products: Export products
+            export_categories: Export categories
+            import_products: Import products
+            debug: Debug mode
+    job:
+        credential: Credential
+        credential_empty: Select a credential
+        credential_help: Credential used when this profile runs.
+    acl:
+        credential:
+            index: List CommerceTool credentials
+            create: Create a CommerceTool credential
+            edit: Edit a CommerceTool credential
+            remove: Delete a CommerceTool credential
+        attribute_mapping:
+            index: List CommerceTool attribute mappings
+            create: Create a CommerceTool attribute mapping
+            edit: Edit a CommerceTool attribute mapping
+            remove: Delete a CommerceTool attribute mapping
+        settings:
+            index: View CommerceTool settings
+            edit: Edit CommerceTool settings
+    acl_group:
+        connector: CommerceTool Connector
+        credential: CommerceTool credentials
+        attribute_mapping: CommerceTool attribute mapping
+        settings: CommerceTool settings
+
+pim_title:
+    spygar_commercetool_credential_index: Credentials
+    spygar_commercetool_credential_edit: 'Credential {{ credential.label }} | Edit'
+    spygar_commercetool_attribute_mapping_index: Attribute mapping
+    spygar_commercetool_attribute_mapping_edit: 'Attribute mapping {{ mapping.code }} | Edit'
+    spygar_commercetool_settings_index: Settings
+
+batch_jobs:
+    commercetool_attribute_export:
+        label: Attribute export in CommerceTool
+        export.label: Attribute export
+    commercetool_attribute_import:
+        label: Attribute import in CommerceTool
+        import.label: Attribute import
+    commercetool_option_export:
+        label: Option export in CommerceTool
+        export.label: Option export
+    commercetool_option_import:
+        label: Option import in CommerceTool
+        import.label: Option import
+    commercetool_category_export:
+        label: Category export in CommerceTool
+        export.label: Category export
+    commercetool_category_import:
+        label: Category import in CommerceTool
+        import.label: Category import
+    commercetool_product_export:
+        label: Product export in CommerceTool
+        export.label: Product export
+    commercetool_product_import:
+        label: Product import in CommerceTool
+        import.label: Product import
+    commercetool_product_model_export:
+        label: Product model export in CommerceTool
+        export.label: Product model export
+    commercetool_product_model_import:
+        label: Product model import in CommerceTool
+        import.label: Product model import

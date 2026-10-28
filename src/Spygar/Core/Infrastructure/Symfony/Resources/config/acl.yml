@@ -1,0 +1,4 @@
+spygar_connectors_index:
+    type: action
+    label: spygar.acl.connector.index
+    group_name: spygar.acl_group.connector

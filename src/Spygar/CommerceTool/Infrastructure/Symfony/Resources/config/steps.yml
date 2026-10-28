@@ -1,0 +1,130 @@
+services:
+    spygar_commercetool.step.attribute_export:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.database.attribute'
+            - '@spygar_commercetool.processor.normalization.attribute'
+            - '@spygar_commercetool.writer.commercetool.attribute'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.attribute_import:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.commercetool.attribute'
+            - '@spygar_commercetool.processor.denormalization.attribute'
+            - '@spygar_commercetool.writer.database.attribute'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.option_export:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.database.option'
+            - '@spygar_commercetool.processor.normalization.option'
+            - '@spygar_commercetool.writer.commercetool.option'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.option_import:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.commercetool.option'
+            - '@spygar_commercetool.processor.denormalization.option'
+            - '@spygar_commercetool.writer.database.option'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.category_export:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.database.category'
+            - '@spygar_commercetool.processor.normalization.category'
+            - '@spygar_commercetool.writer.commercetool.category'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.category_import:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.commercetool.category'
+            - '@spygar_commercetool.processor.denormalization.category'
+            - '@spygar_commercetool.writer.database.category'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.product_export:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.database.product'
+            - '@spygar_commercetool.processor.normalization.product'
+            - '@spygar_commercetool.writer.commercetool.product'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.product_import:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.commercetool.product'
+            - '@spygar_commercetool.processor.denormalization.product'
+            - '@spygar_commercetool.writer.database.product'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.product_model_export:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.database.product_model'
+            - '@spygar_commercetool.processor.normalization.product_model'
+            - '@spygar_commercetool.writer.commercetool.product_model'
+            - 100
+            - '@akeneo_batch.job.job_stopper'
+
+    spygar_commercetool.step.product_model_import:
+        class: '%pim_connector.step.item_step.class%'
+        shared: false
+        arguments:
+            - 'import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - '@spygar_commercetool.reader.commercetool.product_model'
+            - '@spygar_commercetool.processor.denormalization.product_model'
+            - '@spygar_commercetool.writer.database.product_model'
+            - 100
+            - '@akeneo_batch.job.job_stopper'

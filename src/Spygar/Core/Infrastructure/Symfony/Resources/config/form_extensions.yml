@@ -4,7 +4,7 @@ extensions:
         parent: pim-menu-connect-navigation-block
         position: 50
         feature: spygar_connectors
-        aclResourceId: akeneo_connectivity_connection_manage_settings
+        aclResourceId: spygar_connectors_index || akeneo_connectivity_connection_manage_settings
         config:
             title: pim_menu.item.spygar_connectors
             to: spygar_connectors_index
@@ -35,3 +35,10 @@ extensions:
         feature: spygar_connectors
         config:
             title: spygar.connectors.navigation_block
+
+    pim-menu-connector-navigation-items:
+        module: spygar/menu/connector-navigation-items
+        parent: pim-menu-connector-navigation-block
+        targetZone: self
+        position: 110
+        feature: spygar_connectors

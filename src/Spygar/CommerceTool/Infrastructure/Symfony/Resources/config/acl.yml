@@ -1,0 +1,49 @@
+spygar_commercetool_credential_index:
+    type: action
+    label: spygar_commercetool.acl.credential.index
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_credential_create:
+    type: action
+    label: spygar_commercetool.acl.credential.create
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_credential_edit:
+    type: action
+    label: spygar_commercetool.acl.credential.edit
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_credential_remove:
+    type: action
+    label: spygar_commercetool.acl.credential.remove
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_attribute_mapping_index:
+    type: action
+    label: spygar_commercetool.acl.attribute_mapping.index
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_attribute_mapping_create:
+    type: action
+    label: spygar_commercetool.acl.attribute_mapping.create
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_attribute_mapping_edit:
+    type: action
+    label: spygar_commercetool.acl.attribute_mapping.edit
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_attribute_mapping_remove:
+    type: action
+    label: spygar_commercetool.acl.attribute_mapping.remove
+    group_name: spygar_commercetool.acl_group.connector
+
+spygar_commercetool_settings_index:
+    type: action
+    label: spygar_commercetool.acl.settings.index
+    group_name: spygar_commercetool.acl_group.connector
+    
+spygar_commercetool_settings_edit:
+    type: action
+    label: spygar_commercetool.acl.settings.edit
+    group_name: spygar_commercetool.acl_group.connector

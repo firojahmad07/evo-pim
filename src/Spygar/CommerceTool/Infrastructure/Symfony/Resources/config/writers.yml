@@ -1,0 +1,60 @@
+services:
+    spygar_commercetool.writer.commercetool.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Writer\CommerceTool\AttributeWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\AttributeTransfer'
+
+    spygar_commercetool.writer.database.attribute:
+        class: Spygar\CommerceTool\Application\Connector\Writer\Database\AttributeWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\AttributeTransfer'
+
+    spygar_commercetool.writer.commercetool.option:
+        class: Spygar\CommerceTool\Application\Connector\Writer\CommerceTool\OptionWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\OptionTransfer'
+
+    spygar_commercetool.writer.database.option:
+        class: Spygar\CommerceTool\Application\Connector\Writer\Database\OptionWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\OptionTransfer'
+
+    spygar_commercetool.writer.commercetool.category:
+        class: Spygar\CommerceTool\Application\Connector\Writer\CommerceTool\CategoryWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\CategoryTransfer'
+
+    spygar_commercetool.writer.database.category:
+        class: Spygar\CommerceTool\Application\Connector\Writer\Database\CategoryWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\CategoryTransfer'
+
+    spygar_commercetool.writer.commercetool.product:
+        class: Spygar\CommerceTool\Application\Connector\Writer\CommerceTool\ProductWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\ProductTransfer'
+
+    spygar_commercetool.writer.database.product:
+        class: Spygar\CommerceTool\Application\Connector\Writer\Database\ProductWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\ProductTransfer'
+
+    spygar_commercetool.writer.commercetool.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Writer\CommerceTool\ProductModelWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\ProductModelTransfer'
+
+    spygar_commercetool.writer.database.product_model:
+        class: Spygar\CommerceTool\Application\Connector\Writer\Database\ProductModelWriter
+        shared: false
+        arguments:
+            - '@Spygar\CommerceTool\Application\Job\Transfer\ProductModelTransfer'

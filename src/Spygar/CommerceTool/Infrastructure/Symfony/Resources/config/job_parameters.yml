@@ -1,0 +1,22 @@
+parameters:
+    spygar_commercetool.connector_name: 'CommerceTool Connector'
+    spygar_commercetool.job_names:
+        - commercetool_attribute_export
+        - commercetool_attribute_import
+        - commercetool_option_export
+        - commercetool_option_import
+        - commercetool_category_export
+        - commercetool_category_import
+        - commercetool_product_export
+        - commercetool_product_import
+        - commercetool_product_model_export
+        - commercetool_product_model_import
+
+services:
+    spygar_commercetool.job.constraint_collection_provider:
+        class: Spygar\CommerceTool\Application\Connector\Job\JobParameters\ConstraintCollectionProvider\CommerceTool
+        arguments:
+            - '%spygar_commercetool.job_names%'
+            - '@doctrine.dbal.default_connection'
+        tags:
+            - { name: akeneo_batch.job.job_parameters.constraint_collection_provider }

@@ -20,7 +20,7 @@ services:
       - '${HOST_COMPOSER_HOME:-~/.composer}:/var/www/.composer'
     working_dir: '/srv/pim'
     command: 'php'
-    user: '${HOST_UID}:${HOST_GID}'
+    user: '${PHP_RUNTIME_UID:-1000}:${PHP_RUNTIME_GID:-1000}'
     init: true
     networks:
       - 'pim'
@@ -43,6 +43,7 @@ services:
       - './docker/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro'
       - './docker/akeneo.conf:/usr/local/apache2/conf/vhost.conf:ro'
     working_dir: '/srv/pim'
+    command: ['/bin/sh', '/srv/pim/docker/httpd-entrypoint.sh']
     ports:
       - '${DOCKER_PORT_HTTP:-8080}:80'
     networks:

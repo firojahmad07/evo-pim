@@ -1,0 +1,97 @@
+datagrid:
+    commercetool-attribute-mapping-grid:
+        extended_entity_name: Spygar\CommerceTool\Domain\Model\AttributeMapping
+        options:
+            entityHint: attribute mapping
+            manageFilters: false
+        source:
+            acl_resource: spygar_commercetool_attribute_mapping_index
+            type: orm
+            query:
+                select:
+                    - m.id
+                    - m.code
+                    - m.akeneoAttribute
+                    - m.commercetoolsAttribute
+                    - m.locale
+                    - m.channel
+                    - m.active
+                from:
+                    - { table: Spygar\CommerceTool\Domain\Model\AttributeMapping, alias: m }
+        columns:
+            code:
+                label: spygar_commercetool.attribute_mapping.column.code
+                frontend_type: label
+            akeneoAttribute:
+                label: spygar_commercetool.attribute_mapping.column.akeneo_attribute
+            commercetoolsAttribute:
+                label: spygar_commercetool.attribute_mapping.column.commercetools_attribute
+            locale:
+                label: spygar_commercetool.attribute_mapping.column.locale
+            channel:
+                label: spygar_commercetool.attribute_mapping.column.channel
+            active:
+                label: spygar_commercetool.attribute_mapping.column.active
+                frontend_type: boolean-status
+        properties:
+            id: ~
+            edit_link:
+                type: url
+                route: spygar_commercetool_attribute_mapping_edit
+                params:
+                    identifier: code
+            delete_link:
+                type: url
+                route: spygar_commercetool_attribute_mapping_rest_remove
+                params:
+                    identifier: code
+        actions:
+            edit:
+                launcherOptions:
+                    className: AknIconButton AknIconButton--small AknIconButton--edit
+                type: navigate
+                label: pim_common.edit
+                link: edit_link
+                rowAction: true
+                acl_resource: spygar_commercetool_attribute_mapping_edit
+            delete:
+                launcherOptions:
+                    className: AknIconButton AknIconButton--small AknIconButton--trash
+                type: delete
+                label: pim_common.delete
+                link: delete_link
+                acl_resource: spygar_commercetool_attribute_mapping_remove
+        sorters:
+            columns:
+                code:
+                    data_name: m.code
+                akeneoAttribute:
+                    data_name: m.akeneoAttribute
+                commercetoolsAttribute:
+                    data_name: m.commercetoolsAttribute
+                locale:
+                    data_name: m.locale
+                channel:
+                    data_name: m.channel
+                active:
+                    data_name: m.active
+            default:
+                code: '%oro_datagrid.extension.orm_sorter.class%::DIRECTION_ASC'
+        filters:
+            columns:
+                code:
+                    type: search
+                    label: spygar_commercetool.attribute_mapping.column.code
+                    data_name: m.code
+                akeneoAttribute:
+                    type: string
+                    label: spygar_commercetool.attribute_mapping.column.akeneo_attribute
+                    data_name: m.akeneoAttribute
+                commercetoolsAttribute:
+                    type: string
+                    label: spygar_commercetool.attribute_mapping.column.commercetools_attribute
+                    data_name: m.commercetoolsAttribute
+                active:
+                    type: boolean
+                    label: spygar_commercetool.attribute_mapping.column.active
+                    data_name: m.active

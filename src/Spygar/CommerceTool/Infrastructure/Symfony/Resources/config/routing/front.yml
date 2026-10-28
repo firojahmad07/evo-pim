@@ -1,0 +1,36 @@
+spygar_commercetool_credential_index:
+    path: /connect/connectors/{code}/credentials
+    defaults:
+        code: commercetool
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+
+spygar_commercetool_credential_edit:
+    path: /connect/connectors/{code}/credentials/{identifier}/edit
+    defaults:
+        code: commercetool
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+        identifier: '[a-zA-Z0-9_]+'
+
+spygar_commercetool_attribute_mapping_index:
+    path: /connect/connectors/{code}/attribute-mappings
+    defaults:
+        code: commercetool
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+
+spygar_commercetool_attribute_mapping_edit:
+    path: /connect/connectors/{code}/attribute-mappings/{identifier}/edit
+    defaults:
+        code: commercetool
+    requirements:
+        code: '[a-zA-Z0-9_]+'
+        identifier: '[a-zA-Z0-9_]+'
+
+spygar_commercetool_settings_index:
+    path: /connect/connectors/{code}/settings
+    defaults:
+        code: commercetool
+    requirements:
+        code: '[a-zA-Z0-9_]+'

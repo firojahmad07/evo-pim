@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 142 142" role="img" aria-label="CommerceTool">
+  <rect width="142" height="142" rx="16" fill="#f5f0ff"/>
+  <rect x="28" y="36" width="86" height="70" rx="8" fill="#4b2aad"/>
+  <path d="M46 58h22c8 0 13 4 13 11s-5 11-13 11H58v12H46V58zm12 8v6h8c3 0 5-1 5-3s-2-3-5-3h-8z" fill="#ffffff"/>
+  <path d="M86 58h12v8h8v10h-8v12H86V58z" fill="#ffb703"/>
+</svg>

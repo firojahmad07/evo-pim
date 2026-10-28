@@ -1,0 +1,62 @@
+config:
+    config:
+        pim/controller-registry:
+            controllers:
+                spygar_commercetool_credential_index:
+                    module: pim/controller/common/index
+                    feature: spygar_connectors
+                    aclResourceId: spygar_commercetool_credential_index
+                    config:
+                        entity: commercetool-credential
+                spygar_commercetool_credential_edit:
+                    module: spygar/commercetool/controller/credential-edit
+                    feature: spygar_connectors
+                    aclResourceId: spygar_commercetool_credential_edit
+                spygar_commercetool_attribute_mapping_index:
+                    module: spygar/commercetool/controller/attribute-mapping
+                    feature: spygar_connectors
+                    aclResourceId: spygar_commercetool_attribute_mapping_index
+                spygar_commercetool_attribute_mapping_edit:
+                    module: spygar/commercetool/controller/attribute-mapping-edit
+                    feature: spygar_connectors
+                    aclResourceId: spygar_commercetool_attribute_mapping_edit
+                spygar_commercetool_settings_index:
+                    module: spygar/commercetool/controller/settings
+                    feature: spygar_connectors
+                    aclResourceId: spygar_commercetool_settings_index
+        pim/fetcher-registry:
+            fetchers:
+                commercetool-credential:
+                    module: pim/base-fetcher
+                    options:
+                        urls:
+                            get: spygar_commercetool_credential_rest_get
+                commercetool-attribute-mapping:
+                    module: pim/base-fetcher
+                    options:
+                        urls:
+                            get: spygar_commercetool_attribute_mapping_rest_get
+                commercetool-settings:
+                    module: pim/base-fetcher
+                    options:
+                        urls:
+                            get: spygar_commercetool_settings_rest_get
+        spygar/commercetool/remover/credential:
+            url: spygar_commercetool_credential_rest_remove
+        spygar/commercetool/remover/attribute-mapping:
+            url: spygar_commercetool_attribute_mapping_rest_remove
+
+    paths:
+        spygar/commercetool/controller/credential-edit: spygarcommercetool/js/controller/credential-edit.js
+        spygar/commercetool/controller/attribute-mapping-edit: spygarcommercetool/js/controller/attribute-mapping-edit.js
+        spygar/commercetool/controller/attribute-mapping: spygarcommercetool/js/controller/attribute-mapping.tsx
+        spygar/react/react-controller: spygarcore/js/react/react-controller.ts
+        spygar/commercetool/controller/settings: spygarcommercetool/js/controller/settings.js
+        spygar/commercetool/remover/credential: spygarcommercetool/js/remover/credential.js
+        spygar/commercetool/remover/attribute-mapping: spygarcommercetool/js/remover/attribute-mapping.js
+        spygar/commercetool/form/credential-delete: spygarcommercetool/js/form/credential-delete.js
+        spygar/commercetool/form/attribute-mapping-delete: spygarcommercetool/js/form/attribute-mapping-delete.js
+        spygar/commercetool/form/credential-field: spygarcommercetool/js/form/credential-field.js
+        spygar/commercetool/form/credential-reference: spygarcommercetool/js/form/credential-reference.js
+        oro/datagrid/enable-credential-action: spygarcommercetool/js/datagrid/enable-credential-action.js
+        spygar/commercetool/job/credential: spygarcommercetool/js/job/credential.js

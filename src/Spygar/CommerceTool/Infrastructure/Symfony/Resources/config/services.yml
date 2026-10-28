@@ -1,0 +1,162 @@
+services:
+    spygar_commercetool.repository.credential:
+        class: Spygar\CommerceTool\Infrastructure\Persistence\CredentialRepository
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\Credential
+
+    spygar_commercetool.repository.attribute_mapping:
+        class: Spygar\CommerceTool\Infrastructure\Persistence\AttributeMappingRepository
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\AttributeMapping
+
+    spygar_commercetool.repository.settings:
+        class: Spygar\CommerceTool\Infrastructure\Persistence\SettingsRepository
+        factory: ['@doctrine.orm.entity_manager', 'getRepository']
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\Settings
+
+    spygar_commercetool.factory.credential:
+        class: Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactory
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\Credential
+
+    spygar_commercetool.factory.attribute_mapping:
+        class: Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactory
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\AttributeMapping
+
+    spygar_commercetool.factory.settings:
+        class: Akeneo\Tool\Component\StorageUtils\Factory\SimpleFactory
+        arguments:
+            - Spygar\CommerceTool\Domain\Model\Settings
+
+    spygar_commercetool.client.commercetool:
+        class: Spygar\CommerceTool\Application\CommerceToolClient
+
+    spygar_commercetool.credential_catalog:
+        class: Spygar\CommerceTool\Application\CredentialCatalogStore
+        arguments:
+            - '@doctrine.dbal.default_connection'
+
+    spygar_commercetool.datagrid.action.enable_credential:
+        public: true
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Datagrid\EnableCredentialAction
+        shared: false
+        tags:
+            - { name: oro_datagrid.extension.action.type, type: enable-credential }
+
+    spygar_commercetool.updater.credential:
+        class: Spygar\CommerceTool\Application\Updater\CredentialUpdater
+
+    spygar_commercetool.updater.attribute_mapping:
+        class: Spygar\CommerceTool\Application\Updater\AttributeMappingUpdater
+
+    spygar_commercetool.attribute_mapping_form:
+        class: Spygar\CommerceTool\Application\AttributeMappingForm
+        arguments:
+            - '@doctrine.dbal.default_connection'
+
+    spygar_commercetool.updater.settings:
+        class: Spygar\CommerceTool\Application\Updater\SettingsUpdater
+
+    spygar_commercetool.saver.credential:
+        class: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\Common\Saver\BaseSaver
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - Spygar\CommerceTool\Domain\Model\Credential
+
+    spygar_commercetool.saver.attribute_mapping:
+        class: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\Common\Saver\BaseSaver
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - Spygar\CommerceTool\Domain\Model\AttributeMapping
+
+    spygar_commercetool.saver.settings:
+        class: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\Common\Saver\BaseSaver
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - Spygar\CommerceTool\Domain\Model\Settings
+
+    spygar_commercetool.remover.credential:
+        class: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\Common\Remover\BaseRemover
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - Spygar\CommerceTool\Domain\Model\Credential
+
+    spygar_commercetool.remover.attribute_mapping:
+        class: Akeneo\Tool\Bundle\StorageUtilsBundle\Doctrine\Common\Remover\BaseRemover
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@event_dispatcher'
+            - Spygar\CommerceTool\Domain\Model\AttributeMapping
+
+    spygar_commercetool.normalizer.violation:
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Normalizer\ViolationNormalizer
+
+    spygar_commercetool.normalizer.credential:
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Normalizer\CredentialNormalizer
+
+    spygar_commercetool.normalizer.attribute_mapping:
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Normalizer\AttributeMappingNormalizer
+
+    spygar_commercetool.normalizer.settings:
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Normalizer\SettingsNormalizer
+
+    spygar_commercetool.controller.credential:
+        public: true
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Controller\CredentialController
+        arguments:
+            - '@oro_security.security_facade'
+            - '@spygar_commercetool.repository.credential'
+            - '@spygar_commercetool.factory.credential'
+            - '@spygar_commercetool.updater.credential'
+            - '@spygar_commercetool.saver.credential'
+            - '@spygar_commercetool.remover.credential'
+            - '@validator'
+            - '@spygar_commercetool.normalizer.credential'
+            - '@spygar_commercetool.normalizer.violation'
+            - '@spygar_commercetool.client.commercetool'
+            - '@spygar_commercetool.credential_catalog'
+
+    spygar_commercetool.controller.attribute_mapping:
+        public: true
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Controller\AttributeMappingController
+        arguments:
+            - '@oro_security.security_facade'
+            - '@spygar_commercetool.repository.attribute_mapping'
+            - '@spygar_commercetool.factory.attribute_mapping'
+            - '@spygar_commercetool.updater.attribute_mapping'
+            - '@spygar_commercetool.saver.attribute_mapping'
+            - '@spygar_commercetool.remover.attribute_mapping'
+            - '@validator'
+            - '@spygar_commercetool.normalizer.attribute_mapping'
+            - '@spygar_commercetool.normalizer.violation'
+            - '@spygar_commercetool.attribute_mapping_form'
+
+    spygar_commercetool.installer.schema:
+        class: Spygar\CommerceTool\Infrastructure\Installer\SchemaInstaller
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '@oro_translation.controller'
+            - '%kernel.project_dir%'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    spygar_commercetool.controller.settings:
+        public: true
+        class: Spygar\CommerceTool\Infrastructure\Symfony\Controller\SettingsController
+        arguments:
+            - '@oro_security.security_facade'
+            - '@spygar_commercetool.repository.settings'
+            - '@spygar_commercetool.factory.settings'
+            - '@spygar_commercetool.updater.settings'
+            - '@spygar_commercetool.saver.settings'
+            - '@validator'
+            - '@spygar_commercetool.normalizer.settings'
+            - '@spygar_commercetool.normalizer.violation'

@@ -1,0 +1,120 @@
+services:
+    spygar_commercetool.job.attribute_export:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_attribute_export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.attribute_export']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: export, feature: spygar_connectors }
+
+    spygar_commercetool.job.attribute_import:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_attribute_import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.attribute_import']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: import, feature: spygar_connectors }
+
+    spygar_commercetool.job.option_export:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_option_export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.option_export']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: export, feature: spygar_connectors }
+
+    spygar_commercetool.job.option_import:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_option_import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.option_import']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: import, feature: spygar_connectors }
+
+    spygar_commercetool.job.category_export:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_category_export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.category_export']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: export, feature: spygar_connectors }
+
+    spygar_commercetool.job.category_import:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_category_import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.category_import']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: import, feature: spygar_connectors }
+
+    spygar_commercetool.job.product_export:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_product_export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.product_export']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: export, feature: spygar_connectors }
+
+    spygar_commercetool.job.product_import:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_product_import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.product_import']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: import, feature: spygar_connectors }
+
+    spygar_commercetool.job.product_model_export:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_product_model_export'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.product_model_export']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: export, feature: spygar_connectors }
+
+    spygar_commercetool.job.product_model_import:
+        class: '%pim_connector.job.simple_job.class%'
+        arguments:
+            - 'commercetool_product_model_import'
+            - '@event_dispatcher'
+            - '@akeneo_batch.job_repository'
+            - ['@spygar_commercetool.step.product_model_import']
+            - false
+            - true
+        tags:
+            - { name: akeneo_batch.job, connector: '%spygar_commercetool.connector_name%', type: import, feature: spygar_connectors }
